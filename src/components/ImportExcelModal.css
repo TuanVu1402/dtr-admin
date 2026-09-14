@@ -1,0 +1,126 @@
+.excel-columns-box {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  padding: 14px 16px;
+  border-radius: 10px;
+  background: rgba(216, 180, 99, 0.06);
+  border: 1px solid rgba(216, 180, 99, 0.2);
+}
+
+.excel-columns-title {
+  font-size: 11.5px;
+  font-weight: 700;
+  letter-spacing: 0.4px;
+  color: var(--text-secondary);
+}
+
+.excel-columns-tags {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+}
+
+.excel-col-tag {
+  font-size: 12px;
+  font-weight: 600;
+  color: var(--gold-bright);
+  padding: 4px 10px;
+  border-radius: 999px;
+  border: 1px solid rgba(216, 180, 99, 0.35);
+  background: rgba(216, 180, 99, 0.08);
+}
+
+.excel-template-link {
+  align-self: flex-start;
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  border: none;
+  background: none;
+  padding: 0;
+  color: var(--gold-bright);
+  font-size: 12.5px;
+  font-weight: 700;
+  cursor: pointer;
+}
+
+.excel-template-link:hover {
+  text-decoration: underline;
+}
+
+.excel-dropzone {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 6px;
+  padding: 26px 18px;
+  border-radius: 10px;
+  border: 1px dashed rgba(216, 180, 99, 0.4);
+  color: var(--text-tertiary);
+  text-align: center;
+  cursor: pointer;
+}
+
+.excel-dropzone:hover,
+.excel-dropzone.drag-over {
+  border-color: var(--gold);
+  background: rgba(216, 180, 99, 0.06);
+}
+
+.excel-dropzone.has-file {
+  padding: 14px 16px;
+}
+
+.excel-dropzone-text {
+  font-size: 13.5px;
+  color: var(--text-secondary);
+  font-weight: 600;
+}
+
+.excel-dropzone-hint {
+  font-size: 11.5px;
+  color: var(--text-muted);
+}
+
+.excel-file-chip {
+  width: 100%;
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  cursor: default;
+}
+
+.excel-file-info {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  text-align: left;
+}
+
+.excel-file-name {
+  font-size: 13.5px;
+  font-weight: 700;
+  color: var(--text-primary);
+  word-break: break-all;
+}
+
+.excel-file-size {
+  font-size: 11.5px;
+  color: var(--text-tertiary);
+}
+
+.excel-file-remove {
+  width: 26px;
+  height: 26px;
+  border-radius: 999px;
+  border: 1px solid rgba(216, 180, 99, 0.3);
+  background: transparent;
+  color: var(--gold-bright);
+  font-size: 15px;
+  line-height: 1;
+  cursor: pointer;
+  flex-shrink: 0;
+}

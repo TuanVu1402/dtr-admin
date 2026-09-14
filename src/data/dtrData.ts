@@ -1,0 +1,86 @@
+import type { Category, PointBreakdown } from '../types/dtr'
+
+export const categories: Category[] = [
+  {
+    id: 'booking-giaodich',
+    number: '01',
+    title: 'Phát sinh Booking hoặc Giao dịch',
+    description: 'Ghi nhận khi bạn phát sinh một booking hoặc một giao dịch thành công.',
+    icon: 'booking',
+    pointOptions: [
+      { label: 'Booking', points: 4 },
+      { label: 'Giao dịch', points: 5 },
+    ],
+  },
+  {
+    id: 'training-kickoff',
+    number: '02',
+    title: 'Tham dự 1 buổi Training, Kick off',
+    description: 'Tham dự đầy đủ đến cuối buổi Training hoặc Kick off do công ty tổ chức.',
+    icon: 'training',
+    pointOptions: [{ label: 'Điểm', points: 1 }],
+  },
+  {
+    id: 'clip-dtlo',
+    number: '03',
+    title: 'Sản xuất 1 clip chất lượng cho DTLO',
+    description: 'Sản xuất một video/clip chất lượng phục vụ truyền thông cho DTLO.',
+    icon: 'clip',
+    pointOptions: [{ label: 'Điểm', points: 1 }],
+    evidenceType: 'link',
+  },
+  {
+    id: 'checkin-event',
+    number: '04',
+    title: 'Check-in nhóm KH tại sự kiện bán hàng',
+    description: 'Check-in được 1 nhóm khách hàng tham dự sự kiện bán hàng của bất kỳ CĐT nào.',
+    icon: 'checkin',
+    pointOptions: [{ label: 'Điểm', points: 1 }],
+  },
+  {
+    id: 'checkin-vpbh-vinhomes',
+    number: '05',
+    title: 'Check-in với KH tại VPBH Vin Cần Giờ, Vin Hóc Môn, Vin Green City',
+    description: 'Chụp hình Timemark có hình sale + khách gửi về cho admin.',
+    icon: 'office',
+    pointOptions: [{ label: 'Điểm', points: 1 }],
+  },
+  {
+    id: 'checkin-vpbh-dtldn',
+    number: '06',
+    title: 'Check-in với KH tại VPBH Hải Vân Bay, Sun Group DN',
+    description: 'Chụp hình Timemark có hình sale + khách gửi về cho admin.',
+    icon: 'office',
+    pointOptions: [{ label: 'Điểm', points: 0.5 }],
+    audienceTag: 'Dành cho Sales DTLDN',
+  },
+  {
+    id: 'checkin-vpbh-dtlnt',
+    number: '07',
+    title: 'Check-in với KH tại VPBH Charmora, Vin Pearl Bay, Alora, Caraworld',
+    description: 'Chụp hình Timemark có hình sale + khách gửi về cho admin.',
+    icon: 'office',
+    pointOptions: [{ label: 'Điểm', points: 0.5 }],
+    audienceTag: 'Dành cho Sales DTLNT',
+  },
+  {
+    id: 'checkin-vpbh-dtlvt',
+    number: '08',
+    title: 'Check-in với KH tại VPBH Blanca, Maia',
+    description: 'Chụp hình Timemark có hình sale + khách gửi về cho admin.',
+    icon: 'office',
+    pointOptions: [{ label: 'Điểm', points: 0.5 }],
+    audienceTag: 'Dành cho Sales DTLVT',
+  },
+]
+
+export const pointBreakdown: PointBreakdown[] = [
+  { label: 'Booking / Giao dịch', count: 3 },
+  { label: 'Buổi Training', count: 2 },
+  { label: 'Clip cho DTLO', count: 1 },
+  { label: 'Check-in sự kiện', count: 4 },
+  { label: 'VPBH Vinhomes', count: 2 },
+  { label: 'VPBH DTLDN', count: 1 },
+  { label: 'VPBH DTLNT', count: 0 },
+  { label: 'VPBH DTLVT', count: 1 },
+]

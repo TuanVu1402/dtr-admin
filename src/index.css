@@ -1,0 +1,86 @@
+* {
+  box-sizing: border-box;
+}
+
+/* Theme tokens — mặc định (tối), ghi đè bằng [data-theme='light'] khi bật giao diện sáng.
+   Các màu vàng viền/nhấn trang trí (rgba(216, 180, 99, *)) dùng chung cho cả 2 theme nên
+   không cần biến riêng — sắc vàng đọc tốt trên cả nền tối lẫn nền sáng kem. */
+:root {
+  --bg-1: #081428;
+  --bg-2: #0d1f3d;
+  --bg-3: #0a1830;
+
+  --surface-1: #14294f;
+  --surface-2: #0a1830;
+
+  --text-primary: #f4ecd8;
+  --text-secondary: #b7c3da;
+  --text-tertiary: #9fb0c9;
+  --text-muted: #6f7f9c;
+
+  --gold: #d4af6a;
+  --gold-bright: #f3d98b;
+  --gold-deep: #a97f2f;
+  --on-gold: #0d1f3d;
+
+  --surface-tint: rgba(255, 255, 255, 0.04);
+  --hairline: rgba(255, 255, 255, 0.06);
+  --shadow: rgba(0, 0, 0, 0.35);
+  --shadow-strong: rgba(0, 0, 0, 0.45);
+  --scrim: rgba(4, 10, 22, 0.72);
+  --bg-glow: rgba(216, 180, 99, 0.1);
+  --positive: #7fd8ac;
+  --negative: #ef9a8c;
+
+  color-scheme: dark;
+}
+
+/* Giao diện sáng — nền trắng/xám nhạt kiểu SaaS hiện đại, giữ vàng làm màu nhấn thay vì
+   phủ tông kem/vàng lên cả nền như bản nháp đầu (nhìn xỉn, không "sáng"). */
+:root[data-theme='light'] {
+  --bg-1: #fcfcfd;
+  --bg-2: #f7f4ec;
+  --bg-3: #fcfcfd;
+
+  --surface-1: #ffffff;
+  --surface-2: #ffffff;
+
+  --text-primary: #182338;
+  --text-secondary: #4a5268;
+  --text-tertiary: #6a7288;
+  --text-muted: #8b93a5;
+
+  --gold: #c79a4b;
+  --gold-bright: #7a560c;
+  --gold-deep: #a9822f;
+
+  --surface-tint: rgba(15, 23, 42, 0.028);
+  --hairline: rgba(15, 23, 42, 0.07);
+  --shadow: rgba(15, 23, 42, 0.07);
+  --shadow-strong: rgba(15, 23, 42, 0.12);
+  --scrim: rgba(15, 20, 30, 0.4);
+  --bg-glow: rgba(201, 154, 74, 0.04);
+  --positive: #1f7a4d;
+  --negative: #b83a2c;
+
+  color-scheme: light;
+}
+
+html,
+body {
+  margin: 0;
+  padding: 0;
+}
+
+body {
+  font-family: 'Manrope', 'Segoe UI', sans-serif;
+  background: var(--bg-3);
+}
+
+#root {
+  min-height: 100svh;
+}
+
+a {
+  color: inherit;
+}

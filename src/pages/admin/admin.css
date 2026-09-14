@@ -1,0 +1,459 @@
+.role-section {
+  padding: 36px 44px 0;
+  display: flex;
+  flex-direction: column;
+  gap: 14px;
+}
+
+.role-label {
+  font-size: 12px;
+  letter-spacing: 1.4px;
+  text-transform: uppercase;
+  color: var(--text-tertiary);
+  font-weight: 700;
+}
+
+.role-tabs {
+  display: flex;
+  gap: 10px;
+  flex-wrap: wrap;
+}
+
+.role-tab {
+  padding: 10px 20px;
+  border-radius: 999px;
+  border: 1px solid rgba(216, 180, 99, 0.25);
+  background: transparent;
+  color: var(--text-secondary);
+  font-size: 13.5px;
+  font-weight: 700;
+  font-family: 'Manrope', sans-serif;
+  text-decoration: none;
+  cursor: pointer;
+}
+
+.role-tab.active {
+  background: var(--gold);
+  color: var(--on-gold);
+  border-color: var(--gold);
+}
+
+.role-note {
+  font-size: 13px;
+  color: var(--text-tertiary);
+  line-height: 1.6;
+  max-width: 780px;
+  margin: 4px 0 0;
+}
+
+.role-note b {
+  color: var(--gold-bright);
+}
+
+.content-section {
+  padding: 32px 44px 0;
+  display: flex;
+  flex-direction: column;
+  gap: 18px;
+}
+
+.panel-head {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 16px;
+  flex-wrap: wrap;
+}
+
+.panel-head-actions {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  flex-wrap: wrap;
+}
+
+.select-filter-row {
+  display: flex;
+  gap: 16px;
+  flex-wrap: wrap;
+}
+
+.select-filter-row .field {
+  min-width: 200px;
+}
+
+.search-field {
+  flex: 1;
+  min-width: 240px;
+}
+
+/* Users table (role: admin) */
+.u-row {
+  display: grid;
+  grid-template-columns: 1.3fr 1.8fr 1fr 0.8fr;
+  align-items: center;
+  padding: 16px 24px;
+  min-width: 620px;
+  gap: 12px;
+}
+
+.u-head {
+  background: rgba(216, 180, 99, 0.08);
+  font-size: 12px;
+  font-weight: 800;
+  letter-spacing: 0.8px;
+  color: var(--gold-bright);
+  text-transform: uppercase;
+}
+
+.u-body {
+  border-top: 1px solid var(--hairline);
+}
+
+.u-name {
+  font-size: 14px;
+  font-weight: 700;
+  color: var(--text-primary);
+}
+
+.u-email {
+  font-size: 13.5px;
+  color: var(--text-tertiary);
+}
+
+.u-points {
+  font-size: 14px;
+  font-weight: 800;
+  color: var(--gold-bright);
+  font-family: 'Montserrat', sans-serif;
+}
+
+.role-chip {
+  display: inline-flex;
+  font-size: 12px;
+  font-weight: 700;
+  padding: 7px 13px;
+  border-radius: 999px;
+  width: fit-content;
+}
+
+.role-chip-user {
+  background: rgba(159, 176, 201, 0.14);
+  color: var(--text-secondary);
+  border: 1px solid rgba(159, 176, 201, 0.35);
+}
+
+.role-chip-admin {
+  background: rgba(216, 180, 99, 0.12);
+  color: var(--gold-bright);
+  border: 1px solid rgba(216, 180, 99, 0.4);
+}
+
+.role-chip-manager {
+  background: rgba(76, 175, 130, 0.14);
+  color: var(--positive);
+  border: 1px solid rgba(76, 175, 130, 0.4);
+}
+
+.role-chip-support_admin {
+  background: rgba(217, 122, 108, 0.14);
+  color: var(--negative);
+  border: 1px solid rgba(217, 122, 108, 0.4);
+}
+
+.sup-admin-banner {
+  border-radius: 14px;
+  padding: 16px 20px;
+  background: rgba(217, 122, 108, 0.08);
+  border: 1px solid rgba(217, 122, 108, 0.3);
+  font-size: 13.5px;
+  color: var(--text-secondary);
+  line-height: 1.6;
+}
+
+.sup-admin-banner b {
+  color: var(--negative);
+}
+
+/* QR check-in (role: admin) */
+.qr-block {
+  margin-top: 12px;
+  padding-top: 28px;
+  border-top: 1px solid rgba(216, 180, 99, 0.16);
+  display: flex;
+  flex-direction: column;
+  gap: 18px;
+}
+
+.qr-form {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 10px;
+}
+
+.qr-input {
+  flex: 1;
+  min-width: 180px;
+  border-radius: 10px;
+  border: 1px solid rgba(216, 180, 99, 0.25);
+  background: var(--surface-tint);
+  color: var(--text-primary);
+  font-family: 'Manrope', sans-serif;
+  font-size: 14px;
+  padding: 11px 14px;
+}
+
+.qr-input:focus {
+  outline: none;
+  border-color: var(--gold);
+}
+
+.qr-submit {
+  padding: 11px 22px;
+  border-radius: 10px;
+  border: none;
+  background: linear-gradient(90deg, var(--gold-deep), var(--gold));
+  color: var(--on-gold);
+  font-family: 'Manrope', sans-serif;
+  font-size: 13.5px;
+  font-weight: 700;
+  cursor: pointer;
+}
+
+.qr-session-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(220px, 1fr));
+  gap: 16px;
+}
+
+.qr-session-card {
+  border-radius: 14px;
+  padding: 18px;
+  background: var(--surface-tint);
+  border: 1px solid rgba(216, 180, 99, 0.2);
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 12px;
+  text-align: center;
+}
+
+.qr-session-title {
+  font-family: 'Montserrat', sans-serif;
+  font-weight: 700;
+  font-size: 14px;
+  color: var(--text-primary);
+}
+
+.qr-session-date {
+  font-size: 12.5px;
+  color: var(--text-tertiary);
+  margin-top: 2px;
+}
+
+.qr-session-code {
+  font-size: 11.5px;
+  color: var(--gold-bright);
+  letter-spacing: 1px;
+  margin-top: 4px;
+}
+
+/* Stats (role: scoring_admin) */
+.stats-row {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 16px;
+}
+
+.stat-card {
+  border-radius: 14px;
+  padding: 20px 22px;
+  background: var(--surface-tint);
+  border: 1px solid rgba(216, 180, 99, 0.2);
+}
+
+.stat-num {
+  font-family: 'Montserrat', sans-serif;
+  font-weight: 800;
+  font-size: 30px;
+}
+
+.stat-approved {
+  color: var(--positive);
+}
+
+.stat-rejected {
+  color: var(--negative);
+}
+
+.stat-label {
+  font-size: 13px;
+  color: var(--text-tertiary);
+  font-weight: 600;
+  margin-top: 4px;
+}
+
+/* Submissions table (role: scoring_admin) */
+.s-row {
+  display: grid;
+  grid-template-columns: 1.1fr 1fr 1.8fr 0.9fr 0.6fr 0.9fr 1.3fr;
+  align-items: center;
+  padding: 16px 24px;
+  min-width: 980px;
+  gap: 12px;
+}
+
+.s-head {
+  background: rgba(216, 180, 99, 0.08);
+  font-size: 12px;
+  font-weight: 800;
+  letter-spacing: 0.8px;
+  color: var(--gold-bright);
+  text-transform: uppercase;
+}
+
+.s-body {
+  border-top: 1px solid var(--hairline);
+}
+
+.s-user {
+  font-size: 14px;
+  font-weight: 700;
+  color: var(--text-primary);
+}
+
+.s-cat {
+  font-size: 13.5px;
+  color: var(--gold-bright);
+  font-weight: 600;
+}
+
+.s-desc {
+  font-size: 13.5px;
+  color: var(--text-tertiary);
+}
+
+.s-desc-btn {
+  font-family: inherit;
+  font-size: 13.5px;
+  color: var(--text-tertiary);
+  background: none;
+  border: none;
+  padding: 0;
+  text-align: left;
+  cursor: pointer;
+  text-decoration: underline dotted;
+  text-underline-offset: 3px;
+}
+
+.s-desc-btn:hover {
+  color: var(--gold-bright);
+}
+
+.s-link {
+  font-size: 12.5px;
+  font-weight: 700;
+  color: var(--gold-bright);
+  white-space: nowrap;
+}
+
+.s-date {
+  font-size: 13.5px;
+  color: var(--text-secondary);
+}
+
+.s-points {
+  font-size: 14px;
+  font-weight: 800;
+  color: var(--gold-bright);
+  font-family: 'Montserrat', sans-serif;
+}
+
+.s-actions {
+  display: flex;
+  gap: 8px;
+}
+
+.action-btn {
+  padding: 8px 12px;
+  border-radius: 8px;
+  font-size: 12.5px;
+  font-weight: 700;
+  cursor: pointer;
+  font-family: 'Manrope', sans-serif;
+  border: 1px solid transparent;
+}
+
+.action-btn.approve {
+  background: rgba(76, 175, 130, 0.14);
+  color: var(--positive);
+  border-color: rgba(76, 175, 130, 0.4);
+}
+
+.action-btn.reject {
+  background: rgba(217, 122, 108, 0.14);
+  color: var(--negative);
+  border-color: rgba(217, 122, 108, 0.4);
+}
+
+.action-btn:disabled {
+  opacity: 0.4;
+  cursor: default;
+}
+
+/* Feedback table */
+.f-row {
+  display: grid;
+  grid-template-columns: 1fr 2.4fr 1.3fr 1.1fr 1fr 1.3fr;
+  align-items: center;
+  padding: 16px 24px;
+  min-width: 900px;
+  gap: 12px;
+}
+
+.f-head {
+  background: rgba(216, 180, 99, 0.08);
+  font-size: 12px;
+  font-weight: 800;
+  letter-spacing: 0.8px;
+  color: var(--gold-bright);
+  text-transform: uppercase;
+}
+
+.f-body {
+  border-top: 1px solid var(--hairline);
+}
+
+.f-type {
+  font-size: 13.5px;
+  font-weight: 700;
+  color: var(--gold-bright);
+}
+
+.f-content {
+  font-size: 13.5px;
+  color: var(--text-primary);
+  line-height: 1.5;
+}
+
+.f-email {
+  font-size: 13.5px;
+  color: var(--text-tertiary);
+}
+
+.f-date {
+  font-size: 13px;
+  color: var(--text-secondary);
+}
+
+@media (max-width: 640px) {
+  .navbar,
+  .role-section,
+  .content-section {
+    padding-left: 20px;
+    padding-right: 20px;
+  }
+  .stats-row {
+    grid-template-columns: 1fr;
+  }
+}

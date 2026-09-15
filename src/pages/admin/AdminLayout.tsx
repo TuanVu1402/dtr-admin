@@ -2,6 +2,7 @@ import { NavLink, Outlet, useNavigate } from 'react-router-dom'
 import { MoonIcon, SunIcon } from '../../components/icons'
 import BrandLogo from '../../components/BrandLogo'
 import NotificationsMenu from '../../components/NotificationsMenu'
+import UserMenu from '../../components/UserMenu'
 import { useAuth } from '../../context/AuthContext'
 import { useTheme } from '../../context/ThemeContext'
 import '../../styles/shared.css'
@@ -48,15 +49,7 @@ export default function AdminLayout() {
             {theme === 'dark' ? <SunIcon /> : <MoonIcon />}
           </button>
           <NotificationsMenu />
-          <div className="user-chip">
-            <div className="avatar">HA</div>
-            <div className="user-chip-info">
-              <div className="user-name">Đỗ Thanh Hằng</div>
-              <button type="button" className="logout-link" onClick={handleLogout}>
-                Đăng xuất
-              </button>
-            </div>
-          </div>
+          <UserMenu name="Đỗ Thanh Hằng" initials="HA" onLogout={handleLogout} />
         </div>
       </header>
 

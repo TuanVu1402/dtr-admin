@@ -8,16 +8,16 @@
   gap: 10px;
   padding: 6px 16px 6px 6px;
   border-radius: 999px;
-  background: rgba(216, 180, 99, 0.08);
-  border: 1px solid rgba(216, 180, 99, 0.22);
+  background: var(--surface-1);
+  border: 1px solid rgba(37, 99, 235, 0.32);
   cursor: pointer;
   font-family: inherit;
 }
 
-/* Giao diện sáng: chip nền trắng thay vì tông vàng nhạt, đọc rõ hơn trên nền kem sáng. */
-:root[data-theme='light'] .user-chip {
-  background: var(--surface-1);
-  border-color: rgba(216, 180, 99, 0.32);
+/* Giao diện tối: chip nền vàng nhạt trên nền tối thay vì trắng phẳng. */
+:root[data-theme='dark'] .user-chip {
+  background: rgba(37, 99, 235, 0.08);
+  border-color: rgba(37, 99, 235, 0.22);
 }
 
 .user-chip.active {
@@ -32,7 +32,7 @@
   display: flex;
   align-items: center;
   justify-content: center;
-  font-family: 'Montserrat', sans-serif;
+  font-family: 'Open Sans', sans-serif;
   font-weight: 700;
   font-size: 13px;
   color: var(--on-gold);
@@ -51,7 +51,7 @@
   right: 0;
   min-width: 190px;
   border-radius: 12px;
-  border: 1px solid rgba(216, 180, 99, 0.28);
+  border: 1px solid rgba(37, 99, 235, 0.28);
   background: linear-gradient(160deg, var(--surface-1), var(--surface-2));
   box-shadow: 0 20px 40px var(--shadow-strong);
   padding: 6px;
@@ -78,7 +78,7 @@
 }
 
 .user-menu-item:hover {
-  background: rgba(216, 180, 99, 0.1);
+  background: rgba(37, 99, 235, 0.1);
   color: var(--gold-bright);
 }
 

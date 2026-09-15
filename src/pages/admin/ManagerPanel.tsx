@@ -233,6 +233,22 @@ export default function ManagerPanel() {
 
       {showImportModal && (
         <ImportExcelModal
+          eyebrow="Chấm điểm hàng loạt"
+          title="Nhập minh chứng từ file Excel"
+          description="Tải lên file danh sách minh chứng để chấm điểm hàng loạt thay vì nhập tay từng dòng."
+          columns={['Người nộp', 'Hạng mục', 'Điểm', 'Ngày thực hiện', 'Mô tả', 'Trạng thái']}
+          sampleRows={[
+            ['Nguyễn An', 'Booking', 4, '12/09/2026', 'Dự án Lumi Hà Nội — booking #BK-3391', 'Đã duyệt'],
+            [
+              'Trần Bảo Khánh',
+              'Check-in sự kiện',
+              1,
+              '10/09/2026',
+              'Nhóm 4 KH — Sự kiện Sun Grand City',
+              'Chờ duyệt',
+            ],
+          ]}
+          templateFilename="mau-nhap-minh-chung-dtr.csv"
           onCancel={() => setShowImportModal(false)}
           onImport={() => {
             // TODO: đọc và parse file Excel thành danh sách minh chứng khi có thư viện xử lý file ở backend/BE.

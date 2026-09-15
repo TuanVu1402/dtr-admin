@@ -2,7 +2,10 @@ import { useMemo, useState, type FormEvent } from 'react'
 import { useSubmissions } from '../../context/SubmissionsContext'
 import { roleLabels } from '../../types/dtr'
 import { formatPoints } from '../../utils/format'
+import { exportCsv } from '../../utils/exportCsv'
 import QrCodeImage from '../../components/QrCodeImage'
+import ImportExcelModal from '../../components/ImportExcelModal'
+import { DownloadIcon } from '../../components/icons'
 import { useTrainingSessions } from '../../context/TrainingSessionsContext'
 import '../../styles/shared.css'
 import './admin.css'
@@ -16,6 +19,7 @@ export default function AdminUsersPanel() {
   const { sessions, addSession } = useTrainingSessions()
   const [sessionTitle, setSessionTitle] = useState('')
   const [sessionDate, setSessionDate] = useState('')
+  const [showImportModal, setShowImportModal] = useState(false)
 
   const userTotals = useMemo(() => {
     const totals = new Map<string, number>()
@@ -34,10 +38,30 @@ export default function AdminUsersPanel() {
     setSessionDate('')
   }
 
+  function handleExportUsers() {
+    exportCsv(
+      `danh-sach-nguoi-dung-dtr-${new Date().toISOString().slice(0, 10)}.csv`,
+      ['Họ tên', 'Email', 'Vai trò', 'Tổng điểm'],
+      users.map((u) => [u.name, u.email, roleLabels[u.role], formatPoints(userTotals.get(u.name) ?? 0)]),
+    )
+  }
+
   return (
     <section className="content-section">
-      <div className="section-title">Quản lý người dùng</div>
-      <p className="section-caption">Danh sách người dùng và vai trò tương ứng trong hệ thống.</p>
+      <div className="panel-head">
+        <div>
+          <div className="section-title">Quản lý người dùng</div>
+          <p className="section-caption">Danh sách người dùng và vai trò tương ứng trong hệ thống.</p>
+        </div>
+        <div className="panel-head-actions">
+          <button type="button" className="btn-secondary" onClick={() => setShowImportModal(true)}>
+            Nhập từ Excel
+          </button>
+          <button type="button" className="btn-primary report-export-btn" onClick={handleExportUsers}>
+            <DownloadIcon size={15} /> Xuất Excel
+          </button>
+        </div>
+      </div>
 
       <div className="table-card">
         <div className="u-row u-head">
@@ -106,6 +130,25 @@ export default function AdminUsersPanel() {
           </div>
         )}
       </div>
+
+      {showImportModal && (
+        <ImportExcelModal
+          eyebrow="Quản lý người dùng"
+          title="Nhập danh sách người dùng từ Excel"
+          description="Tải lên file danh sách người dùng để tạo tài khoản hàng loạt thay vì nhập tay từng người."
+          columns={['Họ tên', 'Email', 'Vai trò']}
+          sampleRows={[
+            ['Nguyễn Văn Bình', 'binh.nguyen@dtr.vn', 'Người dùng'],
+            ['Lê Thị Cẩm', 'cam.le@dtr.vn', 'Người dùng'],
+          ]}
+          templateFilename="mau-nhap-nguoi-dung-dtr.csv"
+          onCancel={() => setShowImportModal(false)}
+          onImport={() => {
+            // TODO: đọc và parse file Excel thành danh sách người dùng khi có thư viện xử lý file ở backend/BE.
+            setShowImportModal(false)
+          }}
+        />
+      )}
     </section>
   )
 }

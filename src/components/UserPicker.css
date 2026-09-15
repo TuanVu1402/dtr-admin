@@ -10,7 +10,7 @@
   max-height: 220px;
   overflow-y: auto;
   border-radius: 10px;
-  border: 1px solid rgba(216, 180, 99, 0.35);
+  border: 1px solid rgba(37, 99, 235, 0.35);
   background: var(--surface-1);
   box-shadow: 0 20px 40px var(--shadow-strong);
   z-index: 5;
@@ -34,14 +34,14 @@
 
 .user-picker-item:hover,
 .user-picker-item.active {
-  background: rgba(216, 180, 99, 0.16);
+  background: rgba(37, 99, 235, 0.16);
   color: var(--gold-bright);
 }
 
 .user-picker-item.new {
   color: var(--gold-bright);
   font-weight: 700;
-  border-bottom: 1px solid rgba(216, 180, 99, 0.2);
+  border-bottom: 1px solid rgba(37, 99, 235, 0.2);
   border-radius: 8px 8px 0 0;
   margin-bottom: 2px;
 }

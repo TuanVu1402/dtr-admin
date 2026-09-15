@@ -23,7 +23,7 @@
   justify-content: space-between;
   gap: 24px;
   padding: 22px 44px;
-  border-bottom: 1px solid rgba(216, 180, 99, 0.16);
+  border-bottom: 1px solid rgba(37, 99, 235, 0.16);
 }
 
 .brand {
@@ -33,7 +33,7 @@
 }
 
 .brand-word {
-  font-family: 'Montserrat', 'Segoe UI', sans-serif;
+  font-family: 'Open Sans', sans-serif;
   font-weight: 800;
   font-size: 26px;
   letter-spacing: 2px;
@@ -44,7 +44,7 @@
 .brand-divider {
   width: 1px;
   height: 34px;
-  background: rgba(216, 180, 99, 0.35);
+  background: rgba(37, 99, 235, 0.35);
 }
 
 .brand-sub {
@@ -93,8 +93,8 @@
   width: 40px;
   height: 40px;
   border-radius: 999px;
-  background: rgba(216, 180, 99, 0.08);
-  border: 1px solid rgba(216, 180, 99, 0.22);
+  background: rgba(37, 99, 235, 0.08);
+  border: 1px solid rgba(37, 99, 235, 0.22);
   color: var(--gold);
   display: flex;
   align-items: center;
@@ -109,7 +109,7 @@
   padding: 8px 20px;
   border-radius: 999px;
   background: linear-gradient(90deg, var(--gold-deep), var(--gold));
-  font-family: 'Montserrat', sans-serif;
+  font-family: 'Open Sans', sans-serif;
   font-size: 12px;
   font-weight: 800;
   letter-spacing: 1.6px;
@@ -117,7 +117,7 @@
 }
 
 .section-title {
-  font-family: 'Montserrat', sans-serif;
+  font-family: 'Open Sans', sans-serif;
   font-weight: 800;
   font-size: 30px;
   letter-spacing: 0.5px;
@@ -135,7 +135,7 @@
 /* Table shell reused by history / admin tables */
 .table-card {
   border-radius: 16px;
-  border: 1px solid rgba(216, 180, 99, 0.18);
+  border: 1px solid rgba(37, 99, 235, 0.18);
   overflow: hidden;
   overflow-x: auto;
 }
@@ -159,9 +159,9 @@
 }
 
 .badge-pending {
-  background: rgba(216, 180, 99, 0.12);
+  background: rgba(37, 99, 235, 0.12);
   color: var(--gold-bright);
-  border: 1px solid rgba(216, 180, 99, 0.4);
+  border: 1px solid rgba(37, 99, 235, 0.4);
 }
 
 .badge-rejected {
@@ -218,10 +218,10 @@
 .field-input {
   width: 100%;
   border-radius: 10px;
-  border: 1px solid rgba(216, 180, 99, 0.25);
+  border: 1px solid rgba(37, 99, 235, 0.25);
   background: var(--surface-tint);
   color: var(--text-primary);
-  font-family: 'Manrope', sans-serif;
+  font-family: 'Open Sans', sans-serif;
   font-size: 14px;
   padding: 11px 14px;
 }
@@ -253,7 +253,7 @@
   font-weight: 700;
   padding: 9px 18px;
   border-radius: 999px;
-  border: 1px solid rgba(216, 180, 99, 0.25);
+  border: 1px solid rgba(37, 99, 235, 0.25);
   background: transparent;
   color: var(--text-secondary);
   cursor: pointer;
@@ -288,7 +288,7 @@
 }
 
 .history-title {
-  font-family: 'Montserrat', sans-serif;
+  font-family: 'Open Sans', sans-serif;
   font-weight: 800;
   font-size: 22px;
   color: var(--text-primary);
@@ -306,7 +306,7 @@
 }
 
 .t-head {
-  background: rgba(216, 180, 99, 0.08);
+  background: rgba(37, 99, 235, 0.08);
   font-size: 12px;
   font-weight: 800;
   letter-spacing: 0.8px;
@@ -356,7 +356,7 @@
   font-size: 14px;
   font-weight: 800;
   color: var(--gold-bright);
-  font-family: 'Montserrat', sans-serif;
+  font-family: 'Open Sans', sans-serif;
 }
 
 /* Modal/overlay shell — dùng chung cho SubmissionForm và EvidenceModal */
@@ -388,7 +388,7 @@
 }
 
 .form-title {
-  font-family: 'Montserrat', sans-serif;
+  font-family: 'Open Sans', sans-serif;
   font-weight: 700;
   font-size: 18px;
   color: var(--text-primary);
@@ -400,7 +400,7 @@
   width: 32px;
   height: 32px;
   border-radius: 999px;
-  border: 1px solid rgba(216, 180, 99, 0.3);
+  border: 1px solid rgba(37, 99, 235, 0.3);
   background: transparent;
   color: var(--gold-bright);
   font-size: 20px;
@@ -417,7 +417,7 @@
   border-radius: 18px;
   padding: 28px;
   background: linear-gradient(160deg, var(--surface-1), var(--surface-2));
-  border: 1px solid rgba(216, 180, 99, 0.32);
+  border: 1px solid rgba(37, 99, 235, 0.32);
   display: flex;
   flex-direction: column;
   gap: 20px;
@@ -437,14 +437,14 @@
   border-radius: 10px;
   font-size: 13.5px;
   font-weight: 700;
-  font-family: 'Manrope', sans-serif;
+  font-family: 'Open Sans', sans-serif;
   cursor: pointer;
   min-height: 44px;
 }
 
 .btn-secondary {
   background: transparent;
-  border: 1px solid rgba(216, 180, 99, 0.3);
+  border: 1px solid rgba(37, 99, 235, 0.3);
   color: var(--text-secondary);
 }
 
@@ -502,7 +502,7 @@ select.field-input option {
   font-weight: 700;
   padding: 9px 14px;
   border-radius: 999px;
-  border: 1px solid rgba(216, 180, 99, 0.3);
+  border: 1px solid rgba(37, 99, 235, 0.3);
   color: var(--text-secondary);
   cursor: pointer;
 }
@@ -512,7 +512,7 @@ select.field-input option {
 }
 
 .option-pill.active {
-  background: rgba(216, 180, 99, 0.14);
+  background: rgba(37, 99, 235, 0.14);
   color: var(--gold-bright);
   border-color: var(--gold);
 }

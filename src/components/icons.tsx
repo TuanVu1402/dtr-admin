@@ -97,7 +97,7 @@ export function ArrowRightIcon({ size = 14, color = 'currentColor' }: IconProps)
   )
 }
 
-export function BookingIcon({ size = 22, color = '#e8c987' }: IconProps) {
+export function BookingIcon({ size = 22, color = '#3b7dd8' }: IconProps) {
   return (
     <svg width={size} height={size} viewBox="0 0 24 24" {...base} stroke={color}>
       <path d="M8.5 14.5 4 10l3-3 3.5 3.5" />
@@ -108,7 +108,7 @@ export function BookingIcon({ size = 22, color = '#e8c987' }: IconProps) {
   )
 }
 
-export function TrainingIcon({ size = 22, color = '#e8c987' }: IconProps) {
+export function TrainingIcon({ size = 22, color = '#3b7dd8' }: IconProps) {
   return (
     <svg width={size} height={size} viewBox="0 0 24 24" {...base} stroke={color}>
       <rect x="3" y="5" width="18" height="12" rx="1.5" />
@@ -120,7 +120,7 @@ export function TrainingIcon({ size = 22, color = '#e8c987' }: IconProps) {
   )
 }
 
-export function ClipIcon({ size = 22, color = '#e8c987' }: IconProps) {
+export function ClipIcon({ size = 22, color = '#3b7dd8' }: IconProps) {
   return (
     <svg width={size} height={size} viewBox="0 0 24 24" {...base} stroke={color}>
       <rect x="3" y="6" width="12" height="12" rx="2" />
@@ -129,7 +129,7 @@ export function ClipIcon({ size = 22, color = '#e8c987' }: IconProps) {
   )
 }
 
-export function CheckinIcon({ size = 22, color = '#e8c987' }: IconProps) {
+export function CheckinIcon({ size = 22, color = '#3b7dd8' }: IconProps) {
   return (
     <svg width={size} height={size} viewBox="0 0 24 24" {...base} stroke={color}>
       <circle cx="9" cy="8" r="3" />
@@ -139,7 +139,7 @@ export function CheckinIcon({ size = 22, color = '#e8c987' }: IconProps) {
   )
 }
 
-export function PersonIcon({ size = 18, color = '#e8c987' }: IconProps) {
+export function PersonIcon({ size = 18, color = '#3b7dd8' }: IconProps) {
   return (
     <svg width={size} height={size} viewBox="0 0 24 24" {...base} stroke={color}>
       <circle cx="12" cy="8" r="3.5" />
@@ -148,7 +148,7 @@ export function PersonIcon({ size = 18, color = '#e8c987' }: IconProps) {
   )
 }
 
-export function ShieldIcon({ size = 18, color = '#e8c987' }: IconProps) {
+export function ShieldIcon({ size = 18, color = '#3b7dd8' }: IconProps) {
   return (
     <svg width={size} height={size} viewBox="0 0 24 24" {...base} stroke={color}>
       <path d="M12 3.5 5 6v6c0 4.5 3 7.5 7 8.5 4-1 7-4 7-8.5V6Z" />
@@ -156,7 +156,7 @@ export function ShieldIcon({ size = 18, color = '#e8c987' }: IconProps) {
   )
 }
 
-export function BriefcaseIcon({ size = 18, color = '#e8c987' }: IconProps) {
+export function BriefcaseIcon({ size = 18, color = '#3b7dd8' }: IconProps) {
   return (
     <svg width={size} height={size} viewBox="0 0 24 24" {...base} stroke={color}>
       <rect x="3" y="8" width="18" height="11" rx="1.5" />
@@ -198,7 +198,7 @@ export function DownloadIcon({ size = 16, color = 'currentColor' }: IconProps) {
   )
 }
 
-export function OfficeIcon({ size = 22, color = '#e8c987' }: IconProps) {
+export function OfficeIcon({ size = 22, color = '#3b7dd8' }: IconProps) {
   return (
     <svg width={size} height={size} viewBox="0 0 24 24" {...base} stroke={color}>
       <path d="M4 21V6l7-3 7 3v15" />

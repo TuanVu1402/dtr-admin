@@ -1,12 +1,21 @@
-import { useMemo } from 'react'
+import { useMemo, useState } from 'react'
 import { useSubmissions } from '../../context/SubmissionsContext'
 import { useFeedback } from '../../context/FeedbackContext'
-import { DownloadIcon, PrinterIcon, TrendUpIcon } from '../../components/icons'
+import { DownloadIcon, TrendUpIcon } from '../../components/icons'
 import { formatPoints, parseVNDate } from '../../utils/format'
 import { exportCsv } from '../../utils/exportCsv'
+import type { SubmissionStatus } from '../../types/dtr'
 import '../../styles/shared.css'
 import './admin.css'
 import './ReportsPanel.css'
+
+type RangePreset = 'all' | 'month' | 'quarter' | 'custom'
+
+const statusLabels: Record<SubmissionStatus, string> = {
+  approved: 'Đã duyệt',
+  pending: 'Chờ duyệt',
+  rejected: 'Từ chối',
+}
 
 // Số liệu xu hướng theo tháng — minh hoạ, chưa có dữ liệu lịch sử thật để tổng hợp.
 const monthlyTrend = [
@@ -21,6 +30,46 @@ const monthlyTrend = [
 export default function ReportsPanel() {
   const { submissions, users } = useSubmissions()
   const { feedbackList } = useFeedback()
+
+  const [exportUser, setExportUser] = useState('all')
+  const [exportStatus, setExportStatus] = useState<SubmissionStatus | 'all'>('all')
+  const [exportRange, setExportRange] = useState<RangePreset>('all')
+  const [customFrom, setCustomFrom] = useState('')
+  const [customTo, setCustomTo] = useState('')
+
+  const submitterOptions = useMemo(
+    () => Array.from(new Set(submissions.map((s) => s.userName))).sort(),
+    [submissions],
+  )
+
+  const filteredForExport = useMemo(() => {
+    const now = new Date()
+    let rangeStart: Date | null = null
+    let rangeEnd: Date | null = null
+
+    if (exportRange === 'month') {
+      rangeStart = new Date(now.getFullYear(), now.getMonth(), 1)
+      rangeEnd = new Date(now.getFullYear(), now.getMonth() + 1, 0, 23, 59, 59)
+    } else if (exportRange === 'quarter') {
+      const quarterStartMonth = Math.floor(now.getMonth() / 3) * 3
+      rangeStart = new Date(now.getFullYear(), quarterStartMonth, 1)
+      rangeEnd = new Date(now.getFullYear(), quarterStartMonth + 3, 0, 23, 59, 59)
+    } else if (exportRange === 'custom') {
+      rangeStart = customFrom ? new Date(customFrom) : null
+      rangeEnd = customTo ? new Date(`${customTo}T23:59:59`) : null
+    }
+
+    return submissions.filter((s) => {
+      if (exportUser !== 'all' && s.userName !== exportUser) return false
+      if (exportStatus !== 'all' && s.status !== exportStatus) return false
+      if (rangeStart || rangeEnd) {
+        const d = parseVNDate(s.date)
+        if (rangeStart && d < rangeStart) return false
+        if (rangeEnd && d > rangeEnd) return false
+      }
+      return true
+    })
+  }, [submissions, exportUser, exportStatus, exportRange, customFrom, customTo])
 
   const stats = useMemo(() => {
     const approved = submissions.filter((s) => s.status === 'approved')
@@ -69,22 +118,19 @@ export default function ReportsPanel() {
   const maxMonthly = Math.max(...monthlyTrend.map((m) => m.count))
 
   function handleExportCsv() {
+    const nameSlug = exportUser === 'all' ? 'tat-ca' : exportUser.toLowerCase().replace(/\s+/g, '-')
     exportCsv(
-      `bao-cao-dtr-${new Date().toISOString().slice(0, 10)}.csv`,
+      `bao-cao-dtr-${nameSlug}-${new Date().toISOString().slice(0, 10)}.csv`,
       ['Người nộp', 'Hạng mục', 'Mô tả', 'Ngày nộp', 'Điểm', 'Trạng thái'],
-      submissions.map((s) => [
+      filteredForExport.map((s) => [
         s.userName,
         s.categoryLabel,
         s.description,
         s.date,
         formatPoints(s.points),
-        s.status === 'approved' ? 'Đã duyệt' : s.status === 'pending' ? 'Chờ duyệt' : 'Từ chối',
+        statusLabels[s.status],
       ]),
     )
-  }
-
-  function handleExportPdf() {
-    window.print()
   }
 
   return (
@@ -94,11 +140,102 @@ export default function ReportsPanel() {
           <div className="section-title">Thống kê &amp; báo cáo</div>
           <p className="section-caption">Tổng quan hoạt động chấm điểm DTR — số liệu cập nhật theo dữ liệu hiện có.</p>
         </div>
-        <div className="panel-head-actions no-print">
-          <button type="button" className="btn-secondary report-export-btn" onClick={handleExportPdf}>
-            <PrinterIcon size={15} /> Xuất PDF
-          </button>
-          <button type="button" className="btn-primary report-export-btn" onClick={handleExportCsv}>
+      </div>
+
+      <div className="report-card">
+        <div className="report-card-title">Bộ lọc xuất báo cáo Excel</div>
+        <div className="select-filter-row">
+          <div className="field">
+            <label className="field-label" htmlFor="export-user">
+              Người nộp
+            </label>
+            <select
+              id="export-user"
+              className="field-input"
+              value={exportUser}
+              onChange={(e) => setExportUser(e.target.value)}
+            >
+              <option value="all">Tất cả người nộp</option>
+              {submitterOptions.map((name) => (
+                <option key={name} value={name}>
+                  {name}
+                </option>
+              ))}
+            </select>
+          </div>
+
+          <div className="field">
+            <label className="field-label" htmlFor="export-status">
+              Trạng thái
+            </label>
+            <select
+              id="export-status"
+              className="field-input"
+              value={exportStatus}
+              onChange={(e) => setExportStatus(e.target.value as SubmissionStatus | 'all')}
+            >
+              <option value="all">Tất cả trạng thái</option>
+              <option value="pending">Chờ duyệt</option>
+              <option value="approved">Đã duyệt</option>
+              <option value="rejected">Từ chối</option>
+            </select>
+          </div>
+
+          <div className="field">
+            <label className="field-label" htmlFor="export-range">
+              Khoảng thời gian
+            </label>
+            <select
+              id="export-range"
+              className="field-input"
+              value={exportRange}
+              onChange={(e) => setExportRange(e.target.value as RangePreset)}
+            >
+              <option value="all">Tất cả thời gian</option>
+              <option value="month">Tháng này</option>
+              <option value="quarter">Quý này</option>
+              <option value="custom">Tùy chỉnh...</option>
+            </select>
+          </div>
+
+          {exportRange === 'custom' && (
+            <>
+              <div className="field">
+                <label className="field-label" htmlFor="export-from">
+                  Từ ngày
+                </label>
+                <input
+                  id="export-from"
+                  type="date"
+                  className="field-input"
+                  value={customFrom}
+                  onChange={(e) => setCustomFrom(e.target.value)}
+                />
+              </div>
+              <div className="field">
+                <label className="field-label" htmlFor="export-to">
+                  Đến ngày
+                </label>
+                <input
+                  id="export-to"
+                  type="date"
+                  className="field-input"
+                  value={customTo}
+                  onChange={(e) => setCustomTo(e.target.value)}
+                />
+              </div>
+            </>
+          )}
+        </div>
+
+        <div className="reports-export-footer">
+          <p className="section-caption">Khớp {filteredForExport.length} minh chứng theo bộ lọc hiện tại.</p>
+          <button
+            type="button"
+            className="btn-primary report-export-btn"
+            disabled={filteredForExport.length === 0}
+            onClick={handleExportCsv}
+          >
             <DownloadIcon size={15} /> Xuất Excel
           </button>
         </div>

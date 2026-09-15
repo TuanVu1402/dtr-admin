@@ -2,7 +2,9 @@ import { createContext, useContext, useEffect, useState, type ReactNode } from '
 
 export type Theme = 'dark' | 'light'
 
-const STORAGE_KEY = 'dtr-admin-theme'
+// Đổi tên key (v2) để mọi người đều bắt đầu ở giao diện sáng mặc định — kể cả ai đã
+// từng bật thử giao diện tối trước đây và bị lưu lại 'dark' trong localStorage ở key cũ.
+const STORAGE_KEY = 'dtr-admin-theme-v2'
 
 type ThemeContextValue = {
   theme: Theme
@@ -12,9 +14,9 @@ type ThemeContextValue = {
 const ThemeContext = createContext<ThemeContextValue | null>(null)
 
 function getInitialTheme(): Theme {
-  if (typeof window === 'undefined') return 'dark'
+  if (typeof window === 'undefined') return 'light'
   const saved = window.localStorage.getItem(STORAGE_KEY)
-  return saved === 'light' ? 'light' : 'dark'
+  return saved === 'dark' ? 'dark' : 'light'
 }
 
 export function ThemeProvider({ children }: { children: ReactNode }) {

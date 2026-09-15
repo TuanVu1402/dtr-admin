@@ -1,11 +1,16 @@
 import { useState, type ChangeEvent, type DragEvent } from 'react'
 import { DownloadIcon, SheetIcon, UploadIcon } from './icons'
+import { exportCsv } from '../utils/exportCsv'
 import '../styles/shared.css'
 import './ImportExcelModal.css'
 
-const requiredColumns = ['Người nộp', 'Hạng mục', 'Điểm', 'Ngày thực hiện', 'Mô tả', 'Trạng thái']
-
 type ImportExcelModalProps = {
+  eyebrow: string
+  title: string
+  description: string
+  columns: string[]
+  sampleRows: (string | number)[][]
+  templateFilename: string
   onCancel: () => void
   onImport: (file: File) => void
 }
@@ -16,7 +21,16 @@ function formatFileSize(bytes: number): string {
   return `${(bytes / (1024 * 1024)).toFixed(1)} MB`
 }
 
-export default function ImportExcelModal({ onCancel, onImport }: ImportExcelModalProps) {
+export default function ImportExcelModal({
+  eyebrow,
+  title,
+  description,
+  columns,
+  sampleRows,
+  templateFilename,
+  onCancel,
+  onImport,
+}: ImportExcelModalProps) {
   const [file, setFile] = useState<File | null>(null)
   const [isDragOver, setIsDragOver] = useState(false)
 
@@ -39,33 +53,35 @@ export default function ImportExcelModal({ onCancel, onImport }: ImportExcelModa
     onImport(file)
   }
 
+  function handleDownloadTemplate() {
+    exportCsv(templateFilename, columns, sampleRows)
+  }
+
   return (
     <div className="form-overlay" onClick={onCancel}>
       <div className="form-card" onClick={(e) => e.stopPropagation()}>
         <div className="form-header">
           <div>
-            <div className="form-eyebrow">Chấm điểm hàng loạt</div>
-            <div className="form-title">Nhập minh chứng từ file Excel</div>
+            <div className="form-eyebrow">{eyebrow}</div>
+            <div className="form-title">{title}</div>
           </div>
           <button type="button" className="form-close" onClick={onCancel} aria-label="Đóng">
             ×
           </button>
         </div>
 
-        <p className="section-caption">
-          Tải lên file danh sách minh chứng để chấm điểm hàng loạt thay vì nhập tay từng dòng.
-        </p>
+        <p className="section-caption">{description}</p>
 
         <div className="excel-columns-box">
           <div className="excel-columns-title">Các cột cần có trong file</div>
           <div className="excel-columns-tags">
-            {requiredColumns.map((col) => (
+            {columns.map((col) => (
               <span className="excel-col-tag" key={col}>
                 {col}
               </span>
             ))}
           </div>
-          <button type="button" className="excel-template-link">
+          <button type="button" className="excel-template-link" onClick={handleDownloadTemplate}>
             <DownloadIcon size={14} />
             Tải file mẫu
           </button>

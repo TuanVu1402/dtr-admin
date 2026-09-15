@@ -6,7 +6,7 @@
   border-radius: 18px;
   padding: 28px;
   background: linear-gradient(160deg, var(--surface-1), var(--surface-2));
-  border: 1px solid rgba(216, 180, 99, 0.32);
+  border: 1px solid rgba(37, 99, 235, 0.32);
   display: flex;
   flex-direction: column;
   gap: 20px;
@@ -59,15 +59,15 @@
 }
 
 .evidence-link-box {
-  border: 1px solid rgba(216, 180, 99, 0.4);
-  background: rgba(216, 180, 99, 0.1);
+  border: 1px solid rgba(37, 99, 235, 0.4);
+  background: rgba(37, 99, 235, 0.1);
   color: var(--gold-bright);
   font-weight: 700;
   font-size: 14px;
 }
 
 .evidence-photo-placeholder {
-  border: 1px dashed rgba(216, 180, 99, 0.3);
+  border: 1px dashed rgba(37, 99, 235, 0.3);
   color: var(--text-tertiary);
   font-size: 14px;
 }

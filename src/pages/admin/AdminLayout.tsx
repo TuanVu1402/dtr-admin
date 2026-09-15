@@ -1,6 +1,5 @@
 import { NavLink, Outlet, useNavigate } from 'react-router-dom'
 import { MoonIcon, SunIcon } from '../../components/icons'
-import BrandLogo from '../../components/BrandLogo'
 import NotificationsMenu from '../../components/NotificationsMenu'
 import UserMenu from '../../components/UserMenu'
 import { useAuth } from '../../context/AuthContext'
@@ -30,8 +29,6 @@ export default function AdminLayout() {
     <div className="admin-root page-bg">
       <header className="navbar">
         <div className="brand">
-          <BrandLogo />
-          <div className="brand-divider" />
           <div className="brand-sub">
             <span className="brand-sub-line">ADMIN</span>
             <span className="brand-sub-line">CONSOLE</span>

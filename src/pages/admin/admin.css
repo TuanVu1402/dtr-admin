@@ -302,10 +302,10 @@
 /* Submissions table (role: scoring_admin) */
 .s-row {
   display: grid;
-  grid-template-columns: 1.1fr 1fr 1.8fr 0.9fr 0.6fr 0.9fr 1.3fr;
+  grid-template-columns: 1.1fr 1fr 1.8fr 0.9fr 0.6fr 1.4fr;
   align-items: center;
   padding: 16px 24px;
-  min-width: 980px;
+  min-width: 920px;
   gap: 12px;
 }
 
@@ -326,6 +326,10 @@
   font-size: 14px;
   font-weight: 700;
   color: var(--text-primary);
+  width: fit-content;
+  text-decoration: underline dotted;
+  text-underline-offset: 3px;
+  text-decoration-color: rgba(37, 99, 235, 0.4);
 }
 
 .s-cat {
@@ -354,6 +358,41 @@
 
 .s-desc-btn:hover {
   color: var(--gold-bright);
+}
+
+/* Hover vào mô tả có ảnh minh chứng thật (do người dùng tải lên) → hiện luôn ảnh thay vì
+   phải bấm mở modal. Dùng biến CSS --evidence-img gán qua inline style ở ManagerPanel. */
+.s-desc-btn-image {
+  position: relative;
+}
+
+.s-desc-btn-image::after {
+  content: '';
+  position: absolute;
+  top: calc(100% + 8px);
+  left: 0;
+  width: 240px;
+  height: 240px;
+  border-radius: 10px;
+  background-image: var(--evidence-img);
+  background-size: cover;
+  background-position: center;
+  background-color: var(--surface-2);
+  border: 1px solid rgba(37, 99, 235, 0.3);
+  box-shadow: 0 16px 32px var(--shadow-strong);
+  opacity: 0;
+  visibility: hidden;
+  transform: translateY(-4px);
+  transition: opacity 0.15s ease, transform 0.15s ease;
+  pointer-events: none;
+  z-index: 40;
+}
+
+.s-desc-btn-image:hover::after,
+.s-desc-btn-image:focus-visible::after {
+  opacity: 1;
+  visibility: visible;
+  transform: translateY(0);
 }
 
 .s-link {
@@ -388,6 +427,7 @@
   cursor: pointer;
   font-family: 'Open Sans', sans-serif;
   border: 1px solid transparent;
+  transition: transform 0.15s ease, background 0.15s ease, box-shadow 0.15s ease, opacity 0.15s ease;
 }
 
 .action-btn.approve {
@@ -402,9 +442,30 @@
   border-color: rgba(217, 122, 108, 0.4);
 }
 
-.action-btn:disabled {
+/* Trạng thái hiện tại của minh chứng được thể hiện luôn qua nút — không cần cột "Trạng thái"
+   riêng nữa. Nút khớp trạng thái hiện tại to đậm hẳn lên; nút còn lại mờ đi. Khi đang chờ
+   duyệt (chưa quyết định) thì cả 2 nút giữ nguyên dáng vẻ bình thường, không cái nào nổi hơn. */
+.action-btn.active {
+  font-weight: 800;
+  transform: scale(1.08);
+}
+
+.action-btn.approve.active {
+  background: var(--positive);
+  color: #ffffff;
+  border-color: var(--positive);
+  box-shadow: 0 6px 14px rgba(76, 175, 130, 0.35);
+}
+
+.action-btn.reject.active {
+  background: var(--negative);
+  color: #ffffff;
+  border-color: var(--negative);
+  box-shadow: 0 6px 14px rgba(217, 122, 108, 0.35);
+}
+
+.action-btn.muted {
   opacity: 0.4;
-  cursor: default;
 }
 
 /* Feedback table */

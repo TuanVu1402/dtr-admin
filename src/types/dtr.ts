@@ -16,6 +16,9 @@ export type Category = {
   evidenceType?: 'file' | 'link'
   /** Nhãn nhỏ ghi rõ hạng mục chỉ áp dụng cho nhóm sales nào, ví dụ "Dành cho Sales DTLDN". */
   audienceTag?: string
+  /** Danh sách tên dự án/VPBH cụ thể, mỗi cái hiện thành 1 nhãn nhỏ riêng bên dưới tiêu đề —
+   * bấm vào bất kỳ nhãn nào cũng mở form nộp minh chứng cho hạng mục này. */
+  locationLabels?: string[]
 }
 
 export type HistoryEntry = {
@@ -27,6 +30,8 @@ export type HistoryEntry = {
   status: SubmissionStatus
   /** Link minh chứng (dùng cho hạng mục nộp bằng link, ví dụ link clip). */
   link?: string
+  /** Ảnh minh chứng người dùng tải lên, lưu dạng data URL (bản demo, chưa có backend lưu file thật). */
+  imageDataUrl?: string
 }
 
 export type PointBreakdown = {
@@ -49,6 +54,10 @@ export type AdminUser = {
   name: string
   email: string
   role: Role
+  /** Phòng / bộ phận của người dùng, ví dụ "Phòng Kinh doanh 1". */
+  room?: string
+  /** Ảnh đại diện — URL công khai hoặc data URL. Không có thì bảng xếp hạng hiện chữ cái đầu tên. */
+  avatarUrl?: string
 }
 
 /** Một minh chứng người dùng nộp, nhìn từ phía admin (có thêm tên người nộp). */

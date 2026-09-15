@@ -516,3 +516,42 @@ select.field-input option {
   color: var(--gold-bright);
   border-color: var(--gold);
 }
+
+/* Tooltip khi hover — dùng data-tooltip="nội dung" trên bất kỳ phần tử nào (ví dụ tên
+   người nộp để lộ phòng ban, hoặc ô mô tả để xem nhanh thông tin mà không cần bấm mở). */
+[data-tooltip] {
+  position: relative;
+  cursor: help;
+}
+
+[data-tooltip]::after {
+  content: attr(data-tooltip);
+  position: absolute;
+  top: calc(100% + 8px);
+  left: 0;
+  width: max-content;
+  max-width: 260px;
+  padding: 8px 12px;
+  border-radius: 8px;
+  background: var(--surface-2);
+  border: 1px solid rgba(37, 99, 235, 0.3);
+  color: var(--text-primary);
+  font-size: 12.5px;
+  font-weight: 600;
+  line-height: 1.4;
+  white-space: pre-line;
+  box-shadow: 0 12px 28px var(--shadow-strong);
+  opacity: 0;
+  visibility: hidden;
+  transform: translateY(-4px);
+  transition: opacity 0.15s ease, transform 0.15s ease;
+  pointer-events: none;
+  z-index: 40;
+}
+
+[data-tooltip]:hover::after,
+[data-tooltip]:focus-visible::after {
+  opacity: 1;
+  visibility: visible;
+  transform: translateY(0);
+}

@@ -1,8 +1,7 @@
-import { useMemo, useState } from 'react'
+import { useMemo, useState, type CSSProperties } from 'react'
 import { useSubmissions } from '../../context/SubmissionsContext'
 import type { AdminSubmission, SubmissionStatus } from '../../types/dtr'
 import { formatPoints } from '../../utils/format'
-import StatusBadge from '../../components/StatusBadge'
 import EvidenceModal from '../../components/EvidenceModal'
 import ManualEntryForm from '../../components/ManualEntryForm'
 import ImportExcelModal from '../../components/ImportExcelModal'
@@ -18,7 +17,7 @@ const statusFilters: { label: string; value: SubmissionStatus | 'all' }[] = [
 ]
 
 export default function ManagerPanel() {
-  const { submissions, setStatus, addSubmission } = useSubmissions()
+  const { submissions, users, setStatus, addSubmission } = useSubmissions()
   const [statusFilter, setStatusFilter] = useState<SubmissionStatus | 'all'>('all')
   const [categoryFilter, setCategoryFilter] = useState('all')
   const [userFilter, setUserFilter] = useState('all')
@@ -34,6 +33,8 @@ export default function ManagerPanel() {
       rejected: submissions.filter((s) => s.status === 'rejected').length,
     }
   }, [submissions])
+
+  const userByName = useMemo(() => new Map(users.map((u) => [u.name, u])), [users])
 
   const categoryOptions = useMemo(
     () => Array.from(new Set(submissions.map((s) => s.categoryLabel))).sort(),
@@ -165,7 +166,6 @@ export default function ManagerPanel() {
           <div>Mô tả / minh chứng</div>
           <div>Ngày nộp</div>
           <div>Điểm</div>
-          <div>Trạng thái</div>
           <div>Duyệt</div>
         </div>
         {filteredSubmissions.length === 0 && (
@@ -173,14 +173,39 @@ export default function ManagerPanel() {
             Không có minh chứng nào khớp bộ lọc.
           </p>
         )}
-        {filteredSubmissions.map((s) => (
+        {filteredSubmissions.map((s) => {
+          const submitter = userByName.get(s.userName)
+          const userTooltip = submitter
+            ? `${submitter.room ?? 'Chưa gán phòng'}\n${submitter.email}`
+            : 'Chưa rõ thông tin người dùng'
+          const descTooltip = `${s.description}\n\nNgày nộp: ${s.date} • Điểm: ${formatPoints(s.points)}`
+          return (
           <div className="s-row s-body" key={s.id}>
-            <div className="s-user">{s.userName}</div>
+            <div className="s-user" data-tooltip={userTooltip} tabIndex={0}>
+              {s.userName}
+            </div>
             <div className="s-cat">{s.categoryLabel}</div>
             <div className="s-desc">
-              <button type="button" className="s-desc-btn" onClick={() => setSelectedSubmission(s)}>
-                {s.description}
-              </button>
+              {s.imageDataUrl ? (
+                <button
+                  type="button"
+                  className="s-desc-btn s-desc-btn-image"
+                  style={{ '--evidence-img': `url(${s.imageDataUrl})` } as CSSProperties}
+                  aria-label="Hover để xem ảnh minh chứng"
+                  onClick={() => setSelectedSubmission(s)}
+                >
+                  {s.description}
+                </button>
+              ) : (
+                <button
+                  type="button"
+                  className="s-desc-btn"
+                  data-tooltip={descTooltip}
+                  onClick={() => setSelectedSubmission(s)}
+                >
+                  {s.description}
+                </button>
+              )}
               {s.link && (
                 <>
                   {' '}
@@ -192,29 +217,29 @@ export default function ManagerPanel() {
             </div>
             <div className="s-date">{s.date}</div>
             <div className="s-points">+{formatPoints(s.points)}</div>
-            <div>
-              <StatusBadge status={s.status} />
-            </div>
             <div className="s-actions">
               <button
                 type="button"
-                className="action-btn approve"
-                disabled={s.status === 'approved'}
+                className={`action-btn approve${
+                  s.status === 'approved' ? ' active' : s.status === 'rejected' ? ' muted' : ''
+                }`}
                 onClick={() => setStatus(s.id, 'approved')}
               >
                 Duyệt
               </button>
               <button
                 type="button"
-                className="action-btn reject"
-                disabled={s.status === 'rejected'}
+                className={`action-btn reject${
+                  s.status === 'rejected' ? ' active' : s.status === 'approved' ? ' muted' : ''
+                }`}
                 onClick={() => setStatus(s.id, 'rejected')}
               >
                 Từ chối
               </button>
             </div>
           </div>
-        ))}
+          )
+        })}
       </div>
 
       {selectedSubmission && (

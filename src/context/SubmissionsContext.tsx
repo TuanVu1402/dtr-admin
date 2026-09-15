@@ -10,6 +10,7 @@ export type NewSubmissionInput = {
   points: number
   status: SubmissionStatus
   link?: string
+  imageDataUrl?: string
 }
 
 type SubmissionsContextValue = {
@@ -31,8 +32,15 @@ const SubmissionsContext = createContext<SubmissionsContextValue | null>(null)
 const SUBMISSIONS_KEY = 'dtr-submissions'
 const USERS_KEY = 'dtr-users'
 
+// Tăng số này mỗi khi sửa dữ liệu mẫu (adminData.ts) — dữ liệu cũ trong localStorage của
+// trình duyệt sẽ tự bị bỏ qua và nạp lại dữ liệu mẫu mới nhất, khỏi cần người dùng tự xóa
+// localStorage thủ công mỗi lần demo có cập nhật.
+const DATA_VERSION = '9'
+const VERSION_KEY = 'dtr-data-version'
+
 function loadFromStorage<T>(key: string, fallback: T): T {
   try {
+    if (localStorage.getItem(VERSION_KEY) !== DATA_VERSION) return fallback
     const raw = localStorage.getItem(key)
     return raw ? (JSON.parse(raw) as T) : fallback
   } catch {
@@ -43,6 +51,7 @@ function loadFromStorage<T>(key: string, fallback: T): T {
 function saveToStorage<T>(key: string, value: T) {
   try {
     localStorage.setItem(key, JSON.stringify(value))
+    localStorage.setItem(VERSION_KEY, DATA_VERSION)
   } catch {
     // localStorage không khả dụng (chế độ ẩn danh...) — chỉ giữ trong bộ nhớ tạm.
   }

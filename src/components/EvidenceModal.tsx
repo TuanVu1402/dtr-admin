@@ -53,6 +53,8 @@ export default function EvidenceModal({ submission, onClose }: EvidenceModalProp
             <a className="evidence-link-box" href={submission.link} target="_blank" rel="noreferrer">
               Mở link minh chứng ↗
             </a>
+          ) : submission.imageDataUrl ? (
+            <img className="evidence-photo" src={submission.imageDataUrl} alt="Ảnh minh chứng" />
           ) : (
             <div className="evidence-photo-placeholder">
               <span>🖼️ Ảnh minh chứng</span>

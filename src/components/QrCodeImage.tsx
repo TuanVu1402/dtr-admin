@@ -4,16 +4,20 @@ import QRCode from 'qrcode'
 type QrCodeImageProps = {
   value: string
   size?: number
+  /** Gọi lại khi QR đã tạo xong, kèm data URL — dùng để tải ảnh QR về máy. */
+  onReady?: (dataUrl: string) => void
 }
 
-export default function QrCodeImage({ value, size = 168 }: QrCodeImageProps) {
+export default function QrCodeImage({ value, size = 168, onReady }: QrCodeImageProps) {
   const [dataUrl, setDataUrl] = useState<string | null>(null)
 
   useEffect(() => {
     let cancelled = false
-    QRCode.toDataURL(value, { width: size, margin: 1, color: { dark: '#0d1f3d', light: '#f4ecd8' } })
+    QRCode.toDataURL(value, { width: size, margin: 1, color: { dark: '#0d1f3d', light: '#ffffff' } })
       .then((url) => {
-        if (!cancelled) setDataUrl(url)
+        if (cancelled) return
+        setDataUrl(url)
+        onReady?.(url)
       })
       .catch(() => {
         if (!cancelled) setDataUrl(null)
@@ -21,6 +25,7 @@ export default function QrCodeImage({ value, size = 168 }: QrCodeImageProps) {
     return () => {
       cancelled = true
     }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [value, size])
 
   if (!dataUrl) {

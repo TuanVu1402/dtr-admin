@@ -208,3 +208,22 @@ export function OfficeIcon({ size = 22, color = '#3b7dd8' }: IconProps) {
     </svg>
   )
 }
+
+export function QrIcon({ size = 20, color = 'currentColor' }: IconProps) {
+  return (
+    <svg width={size} height={size} viewBox="0 0 24 24" {...base} stroke={color}>
+      <rect x="3.5" y="3.5" width="6" height="6" rx="1.2" />
+      <rect x="14.5" y="3.5" width="6" height="6" rx="1.2" />
+      <rect x="3.5" y="14.5" width="6" height="6" rx="1.2" />
+      <path d="M14.5 14.5h3.2v3.2M20.5 14.5v2M14.5 20.5h2.2M18.5 20.5h2v-2.6" />
+    </svg>
+  )
+}
+
+export function ExpandIcon({ size = 16, color = 'currentColor' }: IconProps) {
+  return (
+    <svg width={size} height={size} viewBox="0 0 24 24" {...base} stroke={color}>
+      <path d="M9 4H4v5M15 4h5v5M4 15v5h5M20 15v5h-5" />
+    </svg>
+  )
+}

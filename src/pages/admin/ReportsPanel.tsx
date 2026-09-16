@@ -41,6 +41,8 @@ export default function ReportsPanel() {
   const { feedbackList } = useFeedback()
 
   const [exportUser, setExportUser] = useState('all')
+  const [exportRoom, setExportRoom] = useState('all')
+  const [exportCategory, setExportCategory] = useState('all')
   const [exportStatus, setExportStatus] = useState<SubmissionStatus | 'all'>('all')
   const [exportRange, setExportRange] = useState<RangePreset>('all')
   const [customFrom, setCustomFrom] = useState('')
@@ -48,6 +50,14 @@ export default function ReportsPanel() {
 
   const submitterOptions = useMemo(
     () => Array.from(new Set(submissions.map((s) => s.userName))).sort(),
+    [submissions],
+  )
+  const roomOptions = useMemo(
+    () => Array.from(new Set(users.map((u) => u.room).filter((room): room is string => Boolean(room)))).sort(),
+    [users],
+  )
+  const categoryOptions = useMemo(
+    () => Array.from(new Set(submissions.map((s) => s.categoryLabel))).sort(),
     [submissions],
   )
 
@@ -72,6 +82,8 @@ export default function ReportsPanel() {
 
     return submissions.filter((s) => {
       if (exportUser !== 'all' && s.userName !== exportUser) return false
+      if (exportRoom !== 'all' && userByName.get(s.userName)?.room !== exportRoom) return false
+      if (exportCategory !== 'all' && s.categoryLabel !== exportCategory) return false
       if (exportStatus !== 'all' && s.status !== exportStatus) return false
       if (rangeStart || rangeEnd) {
         const d = parseVNDate(s.date)
@@ -80,7 +92,20 @@ export default function ReportsPanel() {
       }
       return true
     })
-  }, [submissions, exportUser, exportStatus, exportRange, customFrom, customTo])
+  }, [submissions, exportUser, exportRoom, exportCategory, exportStatus, exportRange, customFrom, customTo, userByName])
+
+  const hasActiveFilters =
+    exportUser !== 'all' || exportRoom !== 'all' || exportCategory !== 'all' || exportStatus !== 'all' || exportRange !== 'all'
+
+  function resetExportFilters() {
+    setExportUser('all')
+    setExportRoom('all')
+    setExportCategory('all')
+    setExportStatus('all')
+    setExportRange('all')
+    setCustomFrom('')
+    setCustomTo('')
+  }
 
   const stats = useMemo(() => {
     const approved = submissions.filter((s) => s.status === 'approved')
@@ -159,7 +184,18 @@ export default function ReportsPanel() {
       </div>
 
       <div className={reportCardClass}>
-        <div className={reportCardTitleClass}>Bộ lọc xuất báo cáo Excel</div>
+        <div className="flex flex-wrap items-center justify-between gap-3">
+          <div className={reportCardTitleClass}>Bộ lọc xuất báo cáo Excel</div>
+          {hasActiveFilters && (
+            <button
+              type="button"
+              className="cursor-pointer border-none bg-none p-0 text-[12.5px] font-bold text-(--gold-bright) hover:underline"
+              onClick={resetExportFilters}
+            >
+              Đặt lại bộ lọc
+            </button>
+          )}
+        </div>
         <div className="flex flex-wrap gap-4">
           <div className="flex min-w-[200px] flex-col gap-2">
             <label className={fieldLabelClass} htmlFor="export-user">
@@ -177,6 +213,48 @@ export default function ReportsPanel() {
               {submitterOptions.map((name) => (
                 <option key={name} value={name} className="bg-[#fdf8ec] text-[#0d1f3d]">
                   {name}
+                </option>
+              ))}
+            </select>
+          </div>
+
+          <div className="flex min-w-[200px] flex-col gap-2">
+            <label className={fieldLabelClass} htmlFor="export-room">
+              Phòng
+            </label>
+            <select
+              id="export-room"
+              className={`cursor-pointer ${fieldInputClass}`}
+              value={exportRoom}
+              onChange={(e) => setExportRoom(e.target.value)}
+            >
+              <option value="all" className="bg-[#fdf8ec] text-[#0d1f3d]">
+                Tất cả phòng
+              </option>
+              {roomOptions.map((room) => (
+                <option key={room} value={room} className="bg-[#fdf8ec] text-[#0d1f3d]">
+                  {room}
+                </option>
+              ))}
+            </select>
+          </div>
+
+          <div className="flex min-w-[200px] flex-col gap-2">
+            <label className={fieldLabelClass} htmlFor="export-category">
+              Hạng mục
+            </label>
+            <select
+              id="export-category"
+              className={`cursor-pointer ${fieldInputClass}`}
+              value={exportCategory}
+              onChange={(e) => setExportCategory(e.target.value)}
+            >
+              <option value="all" className="bg-[#fdf8ec] text-[#0d1f3d]">
+                Tất cả hạng mục
+              </option>
+              {categoryOptions.map((label) => (
+                <option key={label} value={label} className="bg-[#fdf8ec] text-[#0d1f3d]">
+                  {label}
                 </option>
               ))}
             </select>

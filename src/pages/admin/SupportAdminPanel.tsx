@@ -11,7 +11,7 @@ export default function SupportAdminPanel() {
         </div>
       </section>
 
-      <AdminUsersPanel />
+      <AdminUsersPanel showRoleFilter={false} />
       <ManagerPanel />
     </>
   )

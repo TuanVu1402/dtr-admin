@@ -1,26 +1,46 @@
 import type { AdminSubmission, AdminUser } from '../types/dtr'
+import laiNgocTuyenAvatar from '../assets/avatars/Lai-Ngoc-Tuyen.png'
+import nguyenCongThienAvatar from '../assets/avatars/Nguyễn Công Thiện.png'
+import nguyenHoangLongAvatar from '../assets/avatars/Nguyễn Hoàng Long.png'
+import nguyenHuuThaiAvatar from '../assets/avatars/Nguyễn Hữu Thái.png'
+import nguyenMinhTanAvatar from '../assets/avatars/Nguyễn Minh Tân.png'
+import nguyenNgocThienTamAvatar from '../assets/avatars/Nguyễn Ngọc Thiện Tâm.png'
+import nguyenQuocTinAvatar from '../assets/avatars/Nguyễn Quốc Tín.png'
+import nguyenThienAnAvatar from '../assets/avatars/Nguyễn Thiên Ân.png'
+import nguyenThiKhanhHuongAvatar from '../assets/avatars/Nguyễn Thị Khánh Hường.png'
+import nguyenThiThuongAvatar from '../assets/avatars/Nguyễn Thị Thương.png'
+import nguyenThiYenNhiAvatar from '../assets/avatars/Nguyễn Thị Yến Nhi.png'
+import nguyenDatLoiAvatar from '../assets/avatars/Nguyễn Đạt Lợi.png'
+import nguyenDoLinhDungAvatar from '../assets/avatars/Nguyễn Đỗ Linh Dung.png'
+import nguyenDucThinhAvatar from '../assets/avatars/Nguyễn Đức Thịnh.png'
+import ngoQuocDaiAvatar from '../assets/avatars/Ngô Quốc Đại.png'
+import ngoThaiBaoAvatar from '../assets/avatars/Ngô Thái Bảo.png'
+import ngoTanHungAvatar from '../assets/avatars/Ngô Tấn Hưng.png'
+import tangGiaHuyAvatar from '../assets/avatars/Tăng Gia Huy.png'
+import tangLeHaAvatar from '../assets/avatars/Tăng Lệ Hà.png'
+import taKhoiNguyenAvatar from '../assets/avatars/Tạ Khôi Nguyên.png'
 
 export const adminUsers: AdminUser[] = [
-  { id: 'u1', name: 'Lai Ngọc Tuyền', email: 'an.nguyen@dtr.vn', role: 'user', room: 'Phòng Kinh doanh 1' },
-  { id: 'u2', name: 'Nguyễn Công Thiện', email: 'khanh.tran@dtr.vn', role: 'user', room: 'Phòng Kinh doanh 2' },
-  { id: 'u3', name: 'Nguyễn Hoàng Long', email: 'thu.le@dtr.vn', role: 'user', room: 'Phòng Kinh doanh 1' },
-  { id: 'u7', name: 'Nguyễn Hữu Thái', email: 'bao.hoang@dtr.vn', role: 'user', room: 'Phòng Kinh doanh 3' },
-  { id: 'u8', name: 'Nguyễn Minh Tân', email: 'duong.ngo@dtr.vn', role: 'user', room: 'Phòng Kinh doanh 2' },
-  { id: 'u9', name: 'Nguyễn Ngọc Thiện Tâm', email: 'anh.bui@dtr.vn', role: 'user', room: 'Phòng Kinh doanh DTLDN' },
-  { id: 'u10', name: 'Nguyễn Quốc Tín', email: 'linh.dang@dtr.vn', role: 'user', room: 'Phòng Kinh doanh DTLNT' },
-  { id: 'u11', name: 'Nguyễn Thiên Ân', email: 'my.vuong@dtr.vn', role: 'user', room: 'Phòng Kinh doanh DTLVT' },
-  { id: 'u12', name: 'Nguyễn Thị Khánh Hường', email: 'minh.phan@dtr.vn', role: 'user', room: 'Phòng Kinh doanh 3' },
-  { id: 'u13', name: 'Nguyễn Thị Thương', email: 'yen.dinh@dtr.vn', role: 'user', room: 'Phòng Kinh doanh 1' },
-  { id: 'u14', name: 'Nguyễn Thị Yến Nhi', email: 'tuan.trinh@dtr.vn', role: 'user', room: 'Phòng Kinh doanh 2' },
-  { id: 'u15', name: 'Nguyễn Đạt Lợi', email: 'ngoc.lam@dtr.vn', role: 'user', room: 'Phòng Kinh doanh 3' },
-  { id: 'u16', name: 'Nguyễn Đỗ Linh Dung', email: 'phat.doan@dtr.vn', role: 'user', room: 'Phòng Kinh doanh DTLDN' },
-  { id: 'u17', name: 'Nguyễn Đức Thịnh', email: 'chi.nguyen@dtr.vn', role: 'user', room: 'Phòng Kinh doanh 1' },
-  { id: 'u18', name: 'Ngô Quốc Đại', email: 'nam.vo@dtr.vn', role: 'user', room: 'Phòng Kinh doanh DTLNT' },
-  { id: 'u19', name: 'Ngô Thái Bảo', email: 'han.truong@dtr.vn', role: 'user', room: 'Phòng Kinh doanh 2' },
-  { id: 'u20', name: 'Ngô Tấn Hưng', email: 'duc.ly@dtr.vn', role: 'user', room: 'Phòng Kinh doanh DTLVT' },
-  { id: 'u21', name: 'Tăng Gia Huy', email: 'vy.phung@dtr.vn', role: 'user', room: 'Phòng Kinh doanh 3' },
-  { id: 'u22', name: 'Tăng Lệ Hà', email: 'khoa.ho@dtr.vn', role: 'user', room: 'Phòng Kinh doanh 1' },
-  { id: 'u23', name: 'Tạ Khôi Nguyên', email: 'anh.duong@dtr.vn', role: 'user', room: 'Phòng Kinh doanh 2' },
+  { id: 'u1', name: 'Lai Ngọc Tuyền', email: 'an.nguyen@dtr.vn', role: 'user', room: 'Phòng Kinh doanh 1', avatarUrl: laiNgocTuyenAvatar },
+  { id: 'u2', name: 'Nguyễn Công Thiện', email: 'khanh.tran@dtr.vn', role: 'user', room: 'Phòng Kinh doanh 2', avatarUrl: nguyenCongThienAvatar },
+  { id: 'u3', name: 'Nguyễn Hoàng Long', email: 'thu.le@dtr.vn', role: 'user', room: 'Phòng Kinh doanh 1', avatarUrl: nguyenHoangLongAvatar },
+  { id: 'u7', name: 'Nguyễn Hữu Thái', email: 'bao.hoang@dtr.vn', role: 'user', room: 'Phòng Kinh doanh 3', avatarUrl: nguyenHuuThaiAvatar },
+  { id: 'u8', name: 'Nguyễn Minh Tân', email: 'duong.ngo@dtr.vn', role: 'user', room: 'Phòng Kinh doanh 2', avatarUrl: nguyenMinhTanAvatar },
+  { id: 'u9', name: 'Nguyễn Ngọc Thiện Tâm', email: 'anh.bui@dtr.vn', role: 'user', room: 'Phòng Kinh doanh DTLDN', avatarUrl: nguyenNgocThienTamAvatar },
+  { id: 'u10', name: 'Nguyễn Quốc Tín', email: 'linh.dang@dtr.vn', role: 'user', room: 'Phòng Kinh doanh DTLNT', avatarUrl: nguyenQuocTinAvatar },
+  { id: 'u11', name: 'Nguyễn Thiên Ân', email: 'my.vuong@dtr.vn', role: 'user', room: 'Phòng Kinh doanh DTLVT', avatarUrl: nguyenThienAnAvatar },
+  { id: 'u12', name: 'Nguyễn Thị Khánh Hường', email: 'minh.phan@dtr.vn', role: 'user', room: 'Phòng Kinh doanh 3', avatarUrl: nguyenThiKhanhHuongAvatar },
+  { id: 'u13', name: 'Nguyễn Thị Thương', email: 'yen.dinh@dtr.vn', role: 'user', room: 'Phòng Kinh doanh 1', avatarUrl: nguyenThiThuongAvatar },
+  { id: 'u14', name: 'Nguyễn Thị Yến Nhi', email: 'tuan.trinh@dtr.vn', role: 'user', room: 'Phòng Kinh doanh 2', avatarUrl: nguyenThiYenNhiAvatar },
+  { id: 'u15', name: 'Nguyễn Đạt Lợi', email: 'ngoc.lam@dtr.vn', role: 'user', room: 'Phòng Kinh doanh 3', avatarUrl: nguyenDatLoiAvatar },
+  { id: 'u16', name: 'Nguyễn Đỗ Linh Dung', email: 'phat.doan@dtr.vn', role: 'user', room: 'Phòng Kinh doanh DTLDN', avatarUrl: nguyenDoLinhDungAvatar },
+  { id: 'u17', name: 'Nguyễn Đức Thịnh', email: 'chi.nguyen@dtr.vn', role: 'user', room: 'Phòng Kinh doanh 1', avatarUrl: nguyenDucThinhAvatar },
+  { id: 'u18', name: 'Ngô Quốc Đại', email: 'nam.vo@dtr.vn', role: 'user', room: 'Phòng Kinh doanh DTLNT', avatarUrl: ngoQuocDaiAvatar },
+  { id: 'u19', name: 'Ngô Thái Bảo', email: 'han.truong@dtr.vn', role: 'user', room: 'Phòng Kinh doanh 2', avatarUrl: ngoThaiBaoAvatar },
+  { id: 'u20', name: 'Ngô Tấn Hưng', email: 'duc.ly@dtr.vn', role: 'user', room: 'Phòng Kinh doanh DTLVT', avatarUrl: ngoTanHungAvatar },
+  { id: 'u21', name: 'Tăng Gia Huy', email: 'vy.phung@dtr.vn', role: 'user', room: 'Phòng Kinh doanh 3', avatarUrl: tangGiaHuyAvatar },
+  { id: 'u22', name: 'Tăng Lệ Hà', email: 'khoa.ho@dtr.vn', role: 'user', room: 'Phòng Kinh doanh 1', avatarUrl: tangLeHaAvatar },
+  { id: 'u23', name: 'Tạ Khôi Nguyên', email: 'anh.duong@dtr.vn', role: 'user', room: 'Phòng Kinh doanh 2', avatarUrl: taKhoiNguyenAvatar },
   { id: 'u4', name: 'Phạm Quốc Huy', email: 'huy.pham@dtr.vn', role: 'manager', room: 'Phòng Quản lý' },
   { id: 'u5', name: 'Đỗ Thanh Hằng', email: 'hang.do@dtr.vn', role: 'admin', room: 'Phòng Vận hành' },
   { id: 'u6', name: 'Vũ Lan Anh', email: 'lananh.vu@dtr.vn', role: 'support_admin', room: 'Phòng Hỗ trợ' },

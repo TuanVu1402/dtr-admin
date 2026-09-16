@@ -1,13 +1,15 @@
 import { useEffect, useMemo, useState } from 'react'
 import { useSubmissions } from '../../context/SubmissionsContext'
 import type { AdminSubmission, SubmissionStatus } from '../../types/dtr'
-import { formatPoints, parseVNDate } from '../../utils/format'
+import { formatPoints, getInitials, parseVNDate } from '../../utils/format'
 import EvidenceModal from '../../components/EvidenceModal'
 import HoverPreview from '../../components/HoverPreview'
 import RejectReasonModal from '../../components/RejectReasonModal'
 import ManualEntryForm from '../../components/ManualEntryForm'
 import ImportExcelModal from '../../components/ImportExcelModal'
 import { SearchIcon } from '../../components/icons'
+import Pagination from '../../components/Pagination'
+import SearchableSelect from '../../components/SearchableSelect'
 import SortableHeaderCell, { compareValues, nextSortState, type SortDir } from '../../components/SortableHeaderCell'
 
 type SubmissionSortKey = 'user' | 'category' | 'date' | 'points'
@@ -28,8 +30,7 @@ const btnPrimaryClass =
   "min-h-11 cursor-pointer rounded-[10px] border-none bg-[linear-gradient(90deg,var(--gold-deep),var(--gold))] px-5 py-[11px] font-['Open_Sans',sans-serif] text-[13.5px] font-bold text-(--on-gold) disabled:cursor-not-allowed disabled:opacity-50"
 const sRowGridClass = 'grid min-w-[920px] grid-cols-[1.1fr_1fr_1.8fr_0.9fr_0.6fr_1.4fr] items-center gap-3 px-6 py-4'
 
-const SUBMISSIONS_PAGE_SIZE = 20
-const SUBMISSIONS_PAGE_STEP = 10
+const SUBMISSIONS_PAGE_SIZE = 10
 
 function actionBtnClass(kind: 'approve' | 'reject', state: 'active' | 'muted' | '') {
   const base = "cursor-pointer rounded-lg border px-3 py-2 font-['Open_Sans',sans-serif] text-[12.5px] font-bold transition-[transform,background,box-shadow,opacity] duration-150"
@@ -64,7 +65,7 @@ export default function ManagerPanel() {
   const [rejectingSubmission, setRejectingSubmission] = useState<AdminSubmission | null>(null)
   const [showManualForm, setShowManualForm] = useState(false)
   const [showImportModal, setShowImportModal] = useState(false)
-  const [visibleCount, setVisibleCount] = useState(SUBMISSIONS_PAGE_SIZE)
+  const [page, setPage] = useState(1)
   const [sortKey, setSortKey] = useState<SubmissionSortKey | null>(null)
   const [sortDir, setSortDir] = useState<SortDir>('asc')
 
@@ -123,7 +124,8 @@ export default function ManagerPanel() {
     return [...filteredSubmissions].sort((a, b) => compareValues(getValue(a), getValue(b), sortDir))
   }, [filteredSubmissions, sortKey, sortDir])
 
-  const visibleSubmissions = sortedSubmissions.slice(0, visibleCount)
+  const totalPages = Math.max(1, Math.ceil(sortedSubmissions.length / SUBMISSIONS_PAGE_SIZE))
+  const visibleSubmissions = sortedSubmissions.slice((page - 1) * SUBMISSIONS_PAGE_SIZE, page * SUBMISSIONS_PAGE_SIZE)
 
   function handleSort(key: SubmissionSortKey) {
     const next = nextSortState(sortKey, sortDir, key)
@@ -132,8 +134,12 @@ export default function ManagerPanel() {
   }
 
   useEffect(() => {
-    setVisibleCount(SUBMISSIONS_PAGE_SIZE)
+    setPage(1)
   }, [statusFilter, categoryFilter, userFilter, roomFilter, searchTerm])
+
+  useEffect(() => {
+    setPage((p) => Math.min(p, totalPages))
+  }, [totalPages])
 
   return (
     <section className="flex flex-col gap-4.5 px-11 pt-8 max-[640px]:px-5">
@@ -211,61 +217,46 @@ export default function ManagerPanel() {
           <label className={fieldLabelClass} htmlFor="filter-category">
             Hạng mục
           </label>
-          <select
+          <SearchableSelect
             id="filter-category"
-            className={`cursor-pointer ${fieldInputClass}`}
             value={categoryFilter}
-            onChange={(e) => setCategoryFilter(e.target.value)}
-          >
-            <option value="all" className="bg-[#fdf8ec] text-[#0d1f3d]">
-              Tất cả hạng mục
-            </option>
-            {categoryOptions.map((label) => (
-              <option key={label} value={label} className="bg-[#fdf8ec] text-[#0d1f3d]">
-                {label}
-              </option>
-            ))}
-          </select>
+            onChange={setCategoryFilter}
+            placeholder="Nhập tên hạng mục..."
+            options={[
+              { value: 'all', label: 'Tất cả hạng mục' },
+              ...categoryOptions.map((label) => ({ value: label, label })),
+            ]}
+          />
         </div>
         <div className="flex min-w-[200px] flex-col gap-2">
           <label className={fieldLabelClass} htmlFor="filter-user">
             Người nộp
           </label>
-          <select
+          <SearchableSelect
             id="filter-user"
-            className={`cursor-pointer ${fieldInputClass}`}
             value={userFilter}
-            onChange={(e) => setUserFilter(e.target.value)}
-          >
-            <option value="all" className="bg-[#fdf8ec] text-[#0d1f3d]">
-              Tất cả người nộp
-            </option>
-            {userOptions.map((name) => (
-              <option key={name} value={name} className="bg-[#fdf8ec] text-[#0d1f3d]">
-                {name}
-              </option>
-            ))}
-          </select>
+            onChange={setUserFilter}
+            placeholder="Nhập tên người nộp..."
+            options={[
+              { value: 'all', label: 'Tất cả người nộp' },
+              ...userOptions.map((name) => ({ value: name, label: name })),
+            ]}
+          />
         </div>
         <div className="flex min-w-[200px] flex-col gap-2">
           <label className={fieldLabelClass} htmlFor="filter-room">
             Phòng
           </label>
-          <select
+          <SearchableSelect
             id="filter-room"
-            className={`cursor-pointer ${fieldInputClass}`}
             value={roomFilter}
-            onChange={(e) => setRoomFilter(e.target.value)}
-          >
-            <option value="all" className="bg-[#fdf8ec] text-[#0d1f3d]">
-              Tất cả phòng
-            </option>
-            {roomOptions.map((room) => (
-              <option key={room} value={room} className="bg-[#fdf8ec] text-[#0d1f3d]">
-                {room}
-              </option>
-            ))}
-          </select>
+            onChange={setRoomFilter}
+            placeholder="Nhập tên phòng..."
+            options={[
+              { value: 'all', label: 'Tất cả phòng' },
+              ...roomOptions.map((room) => ({ value: room, label: room })),
+            ]}
+          />
         </div>
       </div>
 
@@ -291,12 +282,21 @@ export default function ManagerPanel() {
           const descTooltip = `${s.description}\n\nNgày nộp: ${s.date} • Điểm: ${formatPoints(s.points)}`
           return (
             <div className={`${sRowGridClass} border-t border-(--hairline)`} key={s.id}>
-              <HoverPreview
-                text={userTooltip}
-                className="inline-block w-fit cursor-help text-sm font-bold text-(--text-primary) underline decoration-[rgba(37,99,235,0.4)] decoration-dotted underline-offset-[3px]"
-              >
-                {s.userName}
-              </HoverPreview>
+              <div className="flex items-center gap-2.5">
+                <span className="flex h-8 w-8 shrink-0 items-center justify-center overflow-hidden rounded-full bg-[linear-gradient(135deg,var(--gold),var(--gold-deep))] text-[11px] font-bold text-(--on-gold)">
+                  {submitter?.avatarUrl ? (
+                    <img className="h-full w-full object-cover" src={submitter.avatarUrl} alt={s.userName} />
+                  ) : (
+                    getInitials(s.userName)
+                  )}
+                </span>
+                <HoverPreview
+                  text={userTooltip}
+                  className="inline-block w-fit cursor-help text-sm font-bold text-(--text-primary) underline decoration-[rgba(37,99,235,0.4)] decoration-dotted underline-offset-[3px]"
+                >
+                  {s.userName}
+                </HoverPreview>
+              </div>
               <div className="text-[13.5px] font-semibold text-(--gold-bright)">{s.categoryLabel}</div>
               <div className="text-[13.5px] text-(--text-tertiary)">
                 {s.imageDataUrl ? (
@@ -367,28 +367,11 @@ export default function ManagerPanel() {
       </div>
 
       {filteredSubmissions.length > 0 && (
-        <div className="flex items-center justify-center gap-2.5">
+        <div className="flex flex-col items-center gap-2.5">
           <span className="text-[12.5px] text-(--text-tertiary)">
-            Hiện {visibleSubmissions.length}/{filteredSubmissions.length} minh chứng
+            Hiện {visibleSubmissions.length}/{filteredSubmissions.length} minh chứng — trang {page}/{totalPages}
           </span>
-          {visibleCount < filteredSubmissions.length && (
-            <button
-              type="button"
-              className="cursor-pointer rounded-full border border-[rgba(37,99,235,0.28)] bg-transparent px-4 py-[7px] font-inherit text-[12.5px] font-bold text-(--gold-bright) transition-[background,border-color] duration-150 hover:border-[rgba(37,99,235,0.45)] hover:bg-[rgba(37,99,235,0.08)]"
-              onClick={() => setVisibleCount((v) => Math.min(v + SUBMISSIONS_PAGE_STEP, filteredSubmissions.length))}
-            >
-              Xem thêm
-            </button>
-          )}
-          {visibleCount > SUBMISSIONS_PAGE_SIZE && (
-            <button
-              type="button"
-              className="cursor-pointer rounded-full border border-(--hairline) bg-transparent px-4 py-[7px] font-inherit text-[12.5px] font-bold text-(--text-tertiary) transition-[background,border-color] duration-150 hover:border-(--text-tertiary) hover:bg-(--surface-tint)"
-              onClick={() => setVisibleCount(SUBMISSIONS_PAGE_SIZE)}
-            >
-              Thu gọn
-            </button>
-          )}
+          <Pagination page={page} totalPages={totalPages} onChange={setPage} />
         </div>
       )}
 

@@ -9,6 +9,14 @@ export function parseVNDate(text: string): Date {
   return new Date(y || 1970, (m || 1) - 1, d || 1)
 }
 
+/** Lấy chữ cái đầu (họ + tên) làm avatar viết tắt, ví dụ "Đỗ Thanh Hằng" -> "ĐH". */
+export function getInitials(name: string): string {
+  const parts = name.trim().split(/\s+/).filter(Boolean)
+  if (parts.length === 0) return '?'
+  if (parts.length === 1) return parts[0].slice(0, 2).toUpperCase()
+  return `${parts[0][0]}${parts[parts.length - 1][0]}`.toUpperCase()
+}
+
 /** Chuyển tên có dấu thành chuỗi không dấu, dùng để gợi ý email mặc định. */
 export function slugify(text: string): string {
   return text

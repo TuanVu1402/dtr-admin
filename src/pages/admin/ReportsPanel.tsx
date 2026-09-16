@@ -2,6 +2,7 @@ import { useMemo, useState } from 'react'
 import { useSubmissions } from '../../context/SubmissionsContext'
 import { useFeedback } from '../../context/FeedbackContext'
 import { DownloadIcon, TrendUpIcon } from '../../components/icons'
+import SearchableSelect from '../../components/SearchableSelect'
 import { formatPoints, parseVNDate } from '../../utils/format'
 import { exportCsv } from '../../utils/exportCsv'
 import type { SubmissionStatus } from '../../types/dtr'
@@ -23,6 +24,22 @@ const monthlyTrend = [
   { month: 'T8', count: 24, points: 71 },
   { month: 'T9', count: 12, points: 39 },
 ]
+
+// Các bước chia trục thường gặp, chọn bước đầu tiên cho ra tối đa 4 vạch lưới.
+const AXIS_STEPS = [1, 2, 5, 10, 20, 25, 50, 100, 200, 500]
+
+/**
+ * Dựng trục dọc cho biểu đồ cột: chừa sẵn ~20% khoảng trống phía trên để nhãn số
+ * nằm trên đầu cột không bị tràn ra khỏi vùng vẽ.
+ */
+function buildAxis(max: number) {
+  const headroom = Math.max(max * 1.2, 1)
+  const step = AXIS_STEPS.find((s) => headroom / s <= 4) ?? 1000
+  const axisMax = Math.ceil(headroom / step) * step
+  const ticks: number[] = []
+  for (let value = axisMax; value >= 0; value -= step) ticks.push(value)
+  return { axisMax, ticks }
+}
 
 const fieldInputClass =
   "w-full rounded-[10px] border border-[rgba(37,99,235,0.25)] bg-(--surface-tint) px-3.5 py-[11px] font-['Open_Sans',sans-serif] text-sm text-(--text-primary) focus:border-(--gold) focus:outline-none"
@@ -151,7 +168,24 @@ export default function ReportsPanel() {
       .slice(0, 6)
   }, [submissions])
 
-  const maxMonthly = Math.max(...monthlyTrend.map((m) => m.count))
+  const trend = useMemo(() => {
+    const counts = monthlyTrend.map((m) => m.count)
+    const peakCount = Math.max(...counts)
+    const totalCount = counts.reduce((sum, c) => sum + c, 0)
+    const latest = monthlyTrend[monthlyTrend.length - 1]
+    const previous = monthlyTrend[monthlyTrend.length - 2]
+    const deltaPercent =
+      previous && previous.count > 0 ? Math.round(((latest.count - previous.count) / previous.count) * 100) : 0
+    return {
+      ...buildAxis(peakCount),
+      peakCount,
+      totalCount,
+      avgCount: Math.round(totalCount / counts.length),
+      totalPoints: monthlyTrend.reduce((sum, m) => sum + m.points, 0),
+      deltaPercent,
+      latest,
+    }
+  }, [])
 
   function handleExportCsv() {
     const nameSlug = exportUser === 'all' ? 'tat-ca' : exportUser.toLowerCase().replace(/\s+/g, '-')
@@ -201,63 +235,48 @@ export default function ReportsPanel() {
             <label className={fieldLabelClass} htmlFor="export-user">
               Người nộp
             </label>
-            <select
+            <SearchableSelect
               id="export-user"
-              className={`cursor-pointer ${fieldInputClass}`}
               value={exportUser}
-              onChange={(e) => setExportUser(e.target.value)}
-            >
-              <option value="all" className="bg-[#fdf8ec] text-[#0d1f3d]">
-                Tất cả người nộp
-              </option>
-              {submitterOptions.map((name) => (
-                <option key={name} value={name} className="bg-[#fdf8ec] text-[#0d1f3d]">
-                  {name}
-                </option>
-              ))}
-            </select>
+              onChange={setExportUser}
+              placeholder="Nhập tên người nộp..."
+              options={[
+                { value: 'all', label: 'Tất cả người nộp' },
+                ...submitterOptions.map((name) => ({ value: name, label: name })),
+              ]}
+            />
           </div>
 
           <div className="flex min-w-[200px] flex-col gap-2">
             <label className={fieldLabelClass} htmlFor="export-room">
               Phòng
             </label>
-            <select
+            <SearchableSelect
               id="export-room"
-              className={`cursor-pointer ${fieldInputClass}`}
               value={exportRoom}
-              onChange={(e) => setExportRoom(e.target.value)}
-            >
-              <option value="all" className="bg-[#fdf8ec] text-[#0d1f3d]">
-                Tất cả phòng
-              </option>
-              {roomOptions.map((room) => (
-                <option key={room} value={room} className="bg-[#fdf8ec] text-[#0d1f3d]">
-                  {room}
-                </option>
-              ))}
-            </select>
+              onChange={setExportRoom}
+              placeholder="Nhập tên phòng..."
+              options={[
+                { value: 'all', label: 'Tất cả phòng' },
+                ...roomOptions.map((room) => ({ value: room, label: room })),
+              ]}
+            />
           </div>
 
           <div className="flex min-w-[200px] flex-col gap-2">
             <label className={fieldLabelClass} htmlFor="export-category">
               Hạng mục
             </label>
-            <select
+            <SearchableSelect
               id="export-category"
-              className={`cursor-pointer ${fieldInputClass}`}
               value={exportCategory}
-              onChange={(e) => setExportCategory(e.target.value)}
-            >
-              <option value="all" className="bg-[#fdf8ec] text-[#0d1f3d]">
-                Tất cả hạng mục
-              </option>
-              {categoryOptions.map((label) => (
-                <option key={label} value={label} className="bg-[#fdf8ec] text-[#0d1f3d]">
-                  {label}
-                </option>
-              ))}
-            </select>
+              onChange={setExportCategory}
+              placeholder="Nhập tên hạng mục..."
+              options={[
+                { value: 'all', label: 'Tất cả hạng mục' },
+                ...categoryOptions.map((label) => ({ value: label, label })),
+              ]}
+            />
           </div>
 
           <div className="flex min-w-[200px] flex-col gap-2">
@@ -430,22 +449,97 @@ export default function ReportsPanel() {
       </div>
 
       <div className={reportCardClass}>
-        <div className={reportCardTitleClass}>
-          <TrendUpIcon size={16} /> Xu hướng minh chứng theo tháng
+        <div className="flex flex-wrap items-center justify-between gap-3">
+          <div className={reportCardTitleClass}>
+            <TrendUpIcon size={16} /> Xu hướng minh chứng theo tháng
+          </div>
+          <div
+            className={`inline-flex items-center gap-1 rounded-full px-2.5 py-1 text-[11.5px] font-extrabold ${
+              trend.deltaPercent >= 0
+                ? 'bg-[rgba(20,108,62,0.12)] text-(--positive)'
+                : 'bg-[rgba(185,28,28,0.12)] text-(--negative)'
+            }`}
+          >
+            {trend.deltaPercent >= 0 ? '▲' : '▼'} {Math.abs(trend.deltaPercent)}% so với tháng trước
+          </div>
         </div>
-        <div className="flex h-[160px] items-end gap-4 pt-2.5">
-          {monthlyTrend.map((m) => (
-            <div className="flex h-full flex-1 flex-col items-center gap-2" key={m.month}>
-              <div className="flex w-full flex-1 items-end">
-                <div
-                  className="w-full min-h-1 rounded-t-md bg-[linear-gradient(180deg,var(--gold-bright),var(--gold-deep))]"
-                  style={{ height: `${Math.round((m.count / maxMonthly) * 100)}%` }}
-                  title={`${m.count} minh chứng · ${m.points} điểm`}
+
+        <div className="flex flex-wrap gap-x-7 gap-y-2">
+          <div className="flex items-baseline gap-1.5 text-[12.5px] text-(--text-tertiary)">
+            <span className="font-['Open_Sans',sans-serif] text-[17px] font-extrabold text-(--text-primary)">
+              {trend.totalCount}
+            </span>
+            minh chứng
+          </div>
+          <div className="flex items-baseline gap-1.5 text-[12.5px] text-(--text-tertiary)">
+            <span className="font-['Open_Sans',sans-serif] text-[17px] font-extrabold text-(--gold-bright)">
+              {formatPoints(trend.totalPoints)}
+            </span>
+            điểm
+          </div>
+          <div className="flex items-baseline gap-1.5 text-[12.5px] text-(--text-tertiary)">
+            <span className="font-['Open_Sans',sans-serif] text-[17px] font-extrabold text-(--text-primary)">
+              {trend.avgCount}
+            </span>
+            trung bình/tháng
+          </div>
+        </div>
+
+        <div className="flex gap-3">
+          <div className="flex h-[210px] flex-col justify-between pb-10 text-right text-[10.5px] font-bold text-(--text-muted)">
+            {trend.ticks.map((tick) => (
+              <span className="leading-none" key={tick}>
+                {tick}
+              </span>
+            ))}
+          </div>
+
+          <div className="relative min-w-0 flex-1">
+            {/* Lưới ngang nằm dưới cột, canh đúng vùng vẽ (trừ 40px chân nhãn tháng). */}
+            <div className="pointer-events-none absolute inset-x-0 top-0 bottom-10 flex flex-col justify-between">
+              {trend.ticks.map((tick) => (
+                <span
+                  className={`h-px w-full ${tick === 0 ? 'bg-(--text-muted) opacity-40' : 'bg-(--hairline)'}`}
+                  key={tick}
                 />
-              </div>
-              <div className="text-[11.5px] font-bold text-(--text-tertiary)">{m.month}</div>
+              ))}
             </div>
-          ))}
+
+            <div className="relative flex h-[210px] items-stretch gap-2.5 max-[640px]:gap-1.5">
+              {monthlyTrend.map((m) => {
+                const isPeak = m.count === trend.peakCount
+                return (
+                  <div className="group flex h-full min-w-0 flex-1 flex-col" key={m.month}>
+                    <div className="flex flex-1 items-end px-1 max-[640px]:px-0">
+                      <div
+                        className={`relative w-full rounded-t-lg shadow-[0_4px_12px_var(--shadow)] transition-[filter] duration-200 group-hover:brightness-110 ${
+                          isPeak
+                            ? 'bg-[linear-gradient(180deg,var(--gold-bright),var(--gold-deep))] ring-2 ring-(--gold-bright) ring-offset-2 ring-offset-(--surface-tint)'
+                            : 'bg-[linear-gradient(180deg,color-mix(in_srgb,var(--gold-bright)_55%,transparent),var(--gold-deep))]'
+                        }`}
+                        style={{ height: `${(m.count / trend.axisMax) * 100}%` }}
+                      >
+                        <span className="absolute -top-6 left-1/2 -translate-x-1/2 font-['Open_Sans',sans-serif] text-[13px] font-extrabold text-(--text-primary)">
+                          {m.count}
+                        </span>
+                      </div>
+                    </div>
+
+                    <div className="flex h-10 flex-col items-center justify-center gap-0.5 pt-1.5">
+                      <span
+                        className={`text-[11.5px] font-bold ${
+                          isPeak ? 'text-(--gold-bright)' : 'text-(--text-tertiary)'
+                        }`}
+                      >
+                        {m.month}
+                      </span>
+                      <span className="text-[10.5px] font-semibold text-(--text-muted)">{m.points}đ</span>
+                    </div>
+                  </div>
+                )
+              })}
+            </div>
+          </div>
         </div>
       </div>
 

@@ -6,6 +6,8 @@ import AdminUsersPanel from './pages/admin/AdminUsersPanel'
 import SupportAdminPanel from './pages/admin/SupportAdminPanel'
 import FeedbackPanel from './pages/admin/FeedbackPanel'
 import ReportsPanel from './pages/admin/ReportsPanel'
+import SettingsPanel from './pages/admin/SettingsPanel'
+import ProfilePanel from './pages/admin/ProfilePanel'
 import { AuthProvider, useAuth } from './context/AuthContext'
 import { ThemeProvider } from './context/ThemeContext'
 import { TrainingSessionsProvider } from './context/TrainingSessionsContext'
@@ -38,6 +40,8 @@ function AppShell() {
               <Route path="support" element={<SupportAdminPanel />} />
               <Route path="feedback" element={<FeedbackPanel />} />
               <Route path="reports" element={<ReportsPanel />} />
+              <Route path="settings" element={<SettingsPanel />} />
+              <Route path="profile" element={<ProfilePanel />} />
             </Route>
             <Route path="*" element={<Navigate to="/" replace />} />
           </Routes>

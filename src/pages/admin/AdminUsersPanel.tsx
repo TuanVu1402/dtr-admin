@@ -1,11 +1,16 @@
-import { useMemo, useState, type FormEvent } from 'react'
+import { useEffect, useMemo, useState, type FormEvent } from 'react'
 import { useSubmissions } from '../../context/SubmissionsContext'
-import { roleLabels, type Role } from '../../types/dtr'
-import { formatPoints } from '../../utils/format'
+import { roleLabels, type AdminUser, type Role } from '../../types/dtr'
+import { formatPoints, getInitials } from '../../utils/format'
 import { exportCsv } from '../../utils/exportCsv'
 import QrCodeImage from '../../components/QrCodeImage'
 import ImportExcelModal from '../../components/ImportExcelModal'
-import { DownloadIcon, ExpandIcon, QrIcon, SearchIcon } from '../../components/icons'
+import HoverPreview from '../../components/HoverPreview'
+import Pagination from '../../components/Pagination'
+import UserFormModal, { type UserFormValues } from '../../components/UserFormModal'
+import UserDetailModal from '../../components/UserDetailModal'
+import ConfirmDialog from '../../components/ConfirmDialog'
+import { DownloadIcon, EditIcon, ExpandIcon, QrIcon, SearchIcon, TrashIcon } from '../../components/icons'
 import { useTrainingSessions, type TrainingSession } from '../../context/TrainingSessionsContext'
 import SortableHeaderCell, { compareValues, nextSortState, type SortDir } from '../../components/SortableHeaderCell'
 
@@ -22,10 +27,9 @@ const btnSecondaryClass =
   "min-h-11 cursor-pointer rounded-[10px] border border-[rgba(37,99,235,0.3)] bg-transparent px-5 py-[11px] font-['Open_Sans',sans-serif] text-[13.5px] font-bold text-(--text-secondary)"
 const btnPrimaryClass =
   "min-h-11 cursor-pointer rounded-[10px] border-none bg-[linear-gradient(90deg,var(--gold-deep),var(--gold))] px-5 py-[11px] font-['Open_Sans',sans-serif] text-[13.5px] font-bold text-(--on-gold)"
-const uRowGridClass = 'grid min-w-[720px] grid-cols-[1.2fr_1fr_1.6fr_0.9fr_0.8fr] items-center gap-3 px-6 py-4'
+const uRowGridClass = 'grid min-w-[820px] grid-cols-[1.2fr_1fr_1.6fr_0.9fr_0.8fr_0.9fr] items-center gap-3 px-6 py-4'
 
-const USERS_PAGE_SIZE = 20
-const USERS_PAGE_STEP = 10
+const USERS_PAGE_SIZE = 10
 
 const roleFilters: { label: string; value: Role | 'all' }[] = [
   { label: 'Tất cả', value: 'all' },
@@ -53,7 +57,7 @@ type AdminUsersPanelProps = {
 }
 
 export default function AdminUsersPanel({ showRoleFilter = true }: AdminUsersPanelProps) {
-  const { submissions, users } = useSubmissions()
+  const { submissions, users, addUser, updateUser, deleteUser } = useSubmissions()
   const { sessions, addSession } = useTrainingSessions()
   const [sessionTitle, setSessionTitle] = useState('')
   const [sessionDate, setSessionDate] = useState('')
@@ -64,9 +68,14 @@ export default function AdminUsersPanel({ showRoleFilter = true }: AdminUsersPan
 
   const [userSearch, setUserSearch] = useState('')
   const [roleFilter, setRoleFilter] = useState<Role | 'all'>('all')
-  const [visibleUserCount, setVisibleUserCount] = useState(USERS_PAGE_SIZE)
+  const [userPage, setUserPage] = useState(1)
   const [userSortKey, setUserSortKey] = useState<UserSortKey | null>(null)
   const [userSortDir, setUserSortDir] = useState<SortDir>('asc')
+
+  const [showAddUserForm, setShowAddUserForm] = useState(false)
+  const [editingUser, setEditingUser] = useState<AdminUser | null>(null)
+  const [viewingUser, setViewingUser] = useState<AdminUser | null>(null)
+  const [deletingUser, setDeletingUser] = useState<AdminUser | null>(null)
 
   const filteredSessions = useMemo(() => {
     const keyword = sessionSearch.trim().toLowerCase()
@@ -119,7 +128,13 @@ export default function AdminUsersPanel({ showRoleFilter = true }: AdminUsersPan
     return [...filteredUsers].sort((a, b) => compareValues(getValue(a), getValue(b), userSortDir))
   }, [filteredUsers, userSortKey, userSortDir, userTotals])
 
-  const visibleUsers = sortedUsers.slice(0, visibleUserCount)
+  const userTotalPages = Math.max(1, Math.ceil(sortedUsers.length / USERS_PAGE_SIZE))
+
+  useEffect(() => {
+    setUserPage((p) => Math.min(p, userTotalPages))
+  }, [userTotalPages])
+
+  const visibleUsers = sortedUsers.slice((userPage - 1) * USERS_PAGE_SIZE, userPage * USERS_PAGE_SIZE)
 
   function handleUserSort(key: UserSortKey) {
     const next = nextSortState(userSortKey, userSortDir, key)
@@ -129,12 +144,34 @@ export default function AdminUsersPanel({ showRoleFilter = true }: AdminUsersPan
 
   function handleUserSearchChange(value: string) {
     setUserSearch(value)
-    setVisibleUserCount(USERS_PAGE_SIZE)
+    setUserPage(1)
   }
 
   function handleRoleFilterChange(value: Role | 'all') {
     setRoleFilter(value)
-    setVisibleUserCount(USERS_PAGE_SIZE)
+    setUserPage(1)
+  }
+
+  function userSubmissions(user: AdminUser) {
+    return submissions.filter((s) => s.userName === user.name)
+  }
+
+  function handleAddUser(values: UserFormValues) {
+    addUser(values.name, values.email, values.role, values.room || undefined)
+    setShowAddUserForm(false)
+  }
+
+  function handleEditUser(values: UserFormValues) {
+    if (!editingUser) return
+    updateUser(editingUser.id, { name: values.name, email: values.email, role: values.role, room: values.room || undefined })
+    setEditingUser(null)
+  }
+
+  function handleConfirmDelete() {
+    if (!deletingUser) return
+    deleteUser(deletingUser.id)
+    if (viewingUser?.id === deletingUser.id) setViewingUser(null)
+    setDeletingUser(null)
   }
 
   function handleCreateSession(e: FormEvent) {
@@ -180,6 +217,9 @@ export default function AdminUsersPanel({ showRoleFilter = true }: AdminUsersPan
             onClick={handleExportUsers}
           >
             <DownloadIcon size={15} /> Xuất Excel
+          </button>
+          <button type="button" className={btnPrimaryClass} onClick={() => setShowAddUserForm(true)}>
+            + Thêm người dùng
           </button>
         </div>
       </div>
@@ -228,13 +268,31 @@ export default function AdminUsersPanel({ showRoleFilter = true }: AdminUsersPan
             <SortableHeaderCell label="Email" sortKey="email" activeKey={userSortKey} dir={userSortDir} onSort={handleUserSort} />
             <SortableHeaderCell label="Vai trò" sortKey="role" activeKey={userSortKey} dir={userSortDir} onSort={handleUserSort} />
             <SortableHeaderCell label="Tổng điểm" sortKey="points" activeKey={userSortKey} dir={userSortDir} onSort={handleUserSort} />
+            <div>Thao tác</div>
           </div>
           {filteredUsers.length === 0 && (
             <p className="px-6 py-5 text-sm font-medium text-(--text-tertiary)">Không tìm thấy người dùng phù hợp.</p>
           )}
           {visibleUsers.map((user) => (
             <div className={`${uRowGridClass} border-t border-(--hairline)`} key={user.id}>
-              <div className="text-sm font-bold text-(--text-primary)">{user.name}</div>
+              <HoverPreview text={`${user.room ?? 'Chưa gán phòng'}\n${user.email}\n${roleLabels[user.role]}`}>
+                <button
+                  type="button"
+                  className="flex cursor-pointer items-center gap-2.5 border-none bg-none p-0 text-left font-inherit hover:text-(--gold-bright)"
+                  onClick={() => setViewingUser(user)}
+                >
+                  <span className="flex h-8 w-8 shrink-0 items-center justify-center overflow-hidden rounded-full bg-[linear-gradient(135deg,var(--gold),var(--gold-deep))] text-[11px] font-bold text-(--on-gold)">
+                    {user.avatarUrl ? (
+                      <img className="h-full w-full object-cover" src={user.avatarUrl} alt={user.name} />
+                    ) : (
+                      getInitials(user.name)
+                    )}
+                  </span>
+                  <span className="text-sm font-bold text-(--text-primary) underline decoration-[rgba(37,99,235,0.4)] decoration-dotted underline-offset-[3px]">
+                    {user.name}
+                  </span>
+                </button>
+              </HoverPreview>
               <div className="text-[13.5px] font-semibold text-(--text-secondary)">{user.room ?? '—'}</div>
               <div className="text-[13.5px] text-(--text-tertiary)">{user.email}</div>
               <div>
@@ -247,33 +305,34 @@ export default function AdminUsersPanel({ showRoleFilter = true }: AdminUsersPan
               <div className="font-['Open_Sans',sans-serif] text-sm font-extrabold text-(--gold-bright)">
                 {formatPoints(userTotals.get(user.name) ?? 0)}
               </div>
+              <div className="flex gap-2">
+                <button
+                  type="button"
+                  className="flex h-8 w-8 cursor-pointer items-center justify-center rounded-lg border border-[rgba(37,99,235,0.25)] bg-transparent text-(--gold-bright) hover:bg-[rgba(37,99,235,0.08)]"
+                  aria-label="Sửa người dùng"
+                  onClick={() => setEditingUser(user)}
+                >
+                  <EditIcon size={14} />
+                </button>
+                <button
+                  type="button"
+                  className="flex h-8 w-8 cursor-pointer items-center justify-center rounded-lg border border-[rgba(217,122,108,0.3)] bg-transparent text-(--negative) hover:bg-[rgba(217,122,108,0.1)]"
+                  aria-label="Xóa người dùng"
+                  onClick={() => setDeletingUser(user)}
+                >
+                  <TrashIcon size={14} />
+                </button>
+              </div>
             </div>
           ))}
         </div>
 
         {filteredUsers.length > 0 && (
-          <div className="flex items-center justify-center gap-2.5">
+          <div className="flex flex-col items-center gap-2.5">
             <span className="text-[12.5px] text-(--text-tertiary)">
-              Hiện {visibleUsers.length}/{filteredUsers.length} người dùng
+              Hiện {visibleUsers.length}/{filteredUsers.length} người dùng — trang {userPage}/{userTotalPages}
             </span>
-            {visibleUserCount < filteredUsers.length && (
-              <button
-                type="button"
-                className="cursor-pointer rounded-full border border-[rgba(37,99,235,0.28)] bg-transparent px-4 py-[7px] font-inherit text-[12.5px] font-bold text-(--gold-bright) transition-[background,border-color] duration-150 hover:border-[rgba(37,99,235,0.45)] hover:bg-[rgba(37,99,235,0.08)]"
-                onClick={() => setVisibleUserCount((v) => Math.min(v + USERS_PAGE_STEP, filteredUsers.length))}
-              >
-                Xem thêm
-              </button>
-            )}
-            {visibleUserCount > USERS_PAGE_SIZE && (
-              <button
-                type="button"
-                className="cursor-pointer rounded-full border border-(--hairline) bg-transparent px-4 py-[7px] font-inherit text-[12.5px] font-bold text-(--text-tertiary) transition-[background,border-color] duration-150 hover:border-(--text-tertiary) hover:bg-(--surface-tint)"
-                onClick={() => setVisibleUserCount(USERS_PAGE_SIZE)}
-              >
-                Thu gọn
-              </button>
-            )}
+            <Pagination page={userPage} totalPages={userTotalPages} onChange={setUserPage} />
           </div>
         )}
       </div>
@@ -468,6 +527,39 @@ export default function AdminUsersPanel({ showRoleFilter = true }: AdminUsersPan
             // TODO: đọc và parse file Excel thành danh sách người dùng khi có thư viện xử lý file ở backend/BE.
             setShowImportModal(false)
           }}
+        />
+      )}
+
+      {showAddUserForm && (
+        <UserFormModal onCancel={() => setShowAddUserForm(false)} onSubmit={handleAddUser} />
+      )}
+
+      {editingUser && (
+        <UserFormModal user={editingUser} onCancel={() => setEditingUser(null)} onSubmit={handleEditUser} />
+      )}
+
+      {viewingUser && (
+        <UserDetailModal
+          user={viewingUser}
+          submissions={userSubmissions(viewingUser)}
+          totalPoints={userTotals.get(viewingUser.name) ?? 0}
+          onClose={() => setViewingUser(null)}
+          onEdit={() => {
+            setEditingUser(viewingUser)
+            setViewingUser(null)
+          }}
+          onDelete={() => setDeletingUser(viewingUser)}
+        />
+      )}
+
+      {deletingUser && (
+        <ConfirmDialog
+          title="Xóa người dùng"
+          message={`Bạn có chắc muốn xóa "${deletingUser.name}"? Thao tác này không thể hoàn tác.`}
+          confirmLabel="Xóa"
+          danger
+          onCancel={() => setDeletingUser(null)}
+          onConfirm={handleConfirmDelete}
         />
       )}
     </section>

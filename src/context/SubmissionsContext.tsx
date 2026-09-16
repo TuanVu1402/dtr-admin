@@ -1,6 +1,6 @@
 import { createContext, useContext, useEffect, useState, type ReactNode } from 'react'
 import { adminSubmissions, adminUsers } from '../data/adminData'
-import type { AdminSubmission, AdminUser, SubmissionStatus } from '../types/dtr'
+import type { AdminSubmission, AdminUser, Role, SubmissionStatus } from '../types/dtr'
 
 export type NewSubmissionInput = {
   userName: string
@@ -19,7 +19,9 @@ type SubmissionsContextValue = {
   setStatus: (id: string, status: SubmissionStatus) => void
   rejectSubmission: (id: string, reason: string) => void
   addSubmission: (input: NewSubmissionInput) => AdminSubmission
-  addUser: (name: string, email: string) => AdminUser
+  addUser: (name: string, email: string, role?: Role, room?: string) => AdminUser
+  updateUser: (id: string, updates: Partial<Omit<AdminUser, 'id'>>) => void
+  deleteUser: (id: string) => void
 }
 
 const SubmissionsContext = createContext<SubmissionsContextValue | null>(null)
@@ -36,7 +38,7 @@ const USERS_KEY = 'dtr-users'
 // Tăng số này mỗi khi sửa dữ liệu mẫu (adminData.ts) — dữ liệu cũ trong localStorage của
 // trình duyệt sẽ tự bị bỏ qua và nạp lại dữ liệu mẫu mới nhất, khỏi cần người dùng tự xóa
 // localStorage thủ công mỗi lần demo có cập nhật.
-const DATA_VERSION = '9'
+const DATA_VERSION = '10'
 const VERSION_KEY = 'dtr-data-version'
 
 function loadFromStorage<T>(key: string, fallback: T): T {
@@ -102,15 +104,23 @@ export function SubmissionsProvider({ children }: { children: ReactNode }) {
     return submission
   }
 
-  function addUser(name: string, email: string): AdminUser {
-    const user: AdminUser = { id: generateUserId(), name, email, role: 'user' }
+  function addUser(name: string, email: string, role: Role = 'user', room?: string): AdminUser {
+    const user: AdminUser = { id: generateUserId(), name, email, role, room }
     setUsers((prev) => [...prev, user])
     return user
   }
 
+  function updateUser(id: string, updates: Partial<Omit<AdminUser, 'id'>>) {
+    setUsers((prev) => prev.map((u) => (u.id === id ? { ...u, ...updates } : u)))
+  }
+
+  function deleteUser(id: string) {
+    setUsers((prev) => prev.filter((u) => u.id !== id))
+  }
+
   return (
     <SubmissionsContext.Provider
-      value={{ submissions, users, setStatus, rejectSubmission, addSubmission, addUser }}
+      value={{ submissions, users, setStatus, rejectSubmission, addSubmission, addUser, updateUser, deleteUser }}
     >
       {children}
     </SubmissionsContext.Provider>

@@ -1,4 +1,6 @@
 import { useEffect, useRef, useState } from 'react'
+import { useNavigate } from 'react-router-dom'
+import { GearIcon, PersonIcon } from './icons'
 
 type UserMenuProps = {
   name: string
@@ -6,11 +8,12 @@ type UserMenuProps = {
   onLogout: () => void
 }
 
-/** Chip avatar + tên ở navbar — bấm vào mở dropdown "Đăng xuất" thay vì hiện thẳng nút
- * Đăng xuất ngay trong thanh navbar. */
+/** Chip avatar + tên ở navbar — bấm vào mở dropdown "Hồ sơ cá nhân / Cài đặt / Đăng xuất" thay vì
+ * hiện thẳng nút Đăng xuất ngay trong thanh navbar. */
 export default function UserMenu({ name, initials, onLogout }: UserMenuProps) {
   const [open, setOpen] = useState(false)
   const rootRef = useRef<HTMLDivElement>(null)
+  const navigate = useNavigate()
 
   useEffect(() => {
     if (!open) return
@@ -22,6 +25,11 @@ export default function UserMenu({ name, initials, onLogout }: UserMenuProps) {
     document.addEventListener('mousedown', handleClick)
     return () => document.removeEventListener('mousedown', handleClick)
   }, [open])
+
+  function goTo(path: string) {
+    setOpen(false)
+    navigate(path)
+  }
 
   return (
     <div className="relative" ref={rootRef}>
@@ -39,7 +47,22 @@ export default function UserMenu({ name, initials, onLogout }: UserMenuProps) {
       </button>
 
       {open && (
-        <div className="absolute top-[calc(100%+10px)] right-0 z-[70] flex min-w-[190px] flex-col gap-0.5 rounded-xl border border-[rgba(37,99,235,0.28)] bg-[linear-gradient(160deg,var(--surface-1),var(--surface-2))] p-1.5 shadow-[0_20px_40px_var(--shadow-strong)]">
+        <div className="absolute top-[calc(100%+10px)] right-0 z-[70] flex min-w-[200px] flex-col gap-0.5 rounded-xl border border-[rgba(37,99,235,0.28)] bg-[linear-gradient(160deg,var(--surface-1),var(--surface-2))] p-1.5 shadow-[0_20px_40px_var(--shadow-strong)]">
+          <button
+            type="button"
+            className="flex w-full cursor-pointer items-center gap-2.5 rounded-lg border-none bg-none px-3 py-2.5 text-left text-[13.5px] font-bold text-(--text-primary) no-underline hover:bg-[rgba(37,99,235,0.1)] hover:text-(--gold-bright)"
+            onClick={() => goTo('/profile')}
+          >
+            <PersonIcon size={16} /> Hồ sơ cá nhân
+          </button>
+          <button
+            type="button"
+            className="flex w-full cursor-pointer items-center gap-2.5 rounded-lg border-none bg-none px-3 py-2.5 text-left text-[13.5px] font-bold text-(--text-primary) no-underline hover:bg-[rgba(37,99,235,0.1)] hover:text-(--gold-bright)"
+            onClick={() => goTo('/settings')}
+          >
+            <GearIcon size={16} /> Cài đặt
+          </button>
+          <div className="my-1 h-px bg-(--hairline)" />
           <button
             type="button"
             className="block w-full cursor-pointer rounded-lg border-none bg-none px-3 py-2.5 text-left text-[13.5px] font-bold text-(--negative) no-underline hover:bg-[rgba(217,122,108,0.1)] hover:text-(--negative)"

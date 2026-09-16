@@ -4,6 +4,7 @@ import NotificationsMenu from '../../components/NotificationsMenu'
 import UserMenu from '../../components/UserMenu'
 import { useAuth } from '../../context/AuthContext'
 import { useTheme } from '../../context/ThemeContext'
+import { getInitials } from '../../utils/format'
 
 const tabs = [
   { to: 'manager', label: 'Manager' },
@@ -14,7 +15,7 @@ const tabs = [
 ]
 
 export default function AdminLayout() {
-  const { logout } = useAuth()
+  const { logout, profile } = useAuth()
   const { theme, toggleTheme } = useTheme()
   const navigate = useNavigate()
 
@@ -44,7 +45,7 @@ export default function AdminLayout() {
             {theme === 'dark' ? <SunIcon /> : <MoonIcon />}
           </button>
           <NotificationsMenu />
-          <UserMenu name="Đỗ Thanh Hằng" initials="HA" onLogout={handleLogout} />
+          <UserMenu name={profile.name} initials={getInitials(profile.name)} onLogout={handleLogout} />
         </div>
       </header>
 

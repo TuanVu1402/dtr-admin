@@ -220,6 +220,35 @@ export function QrIcon({ size = 20, color = 'currentColor' }: IconProps) {
   )
 }
 
+export function GearIcon({ size = 18, color = 'currentColor' }: IconProps) {
+  return (
+    <svg width={size} height={size} viewBox="0 0 24 24" {...base} stroke={color}>
+      <circle cx="12" cy="12" r="3.2" />
+      <path d="M12 3.5v2.1M12 18.4v2.1M20.5 12h-2.1M5.6 12H3.5M18 6l-1.5 1.5M7.5 16.5 6 18M18 18l-1.5-1.5M7.5 7.5 6 6" />
+    </svg>
+  )
+}
+
+export function TrashIcon({ size = 16, color = 'currentColor' }: IconProps) {
+  return (
+    <svg width={size} height={size} viewBox="0 0 24 24" {...base} stroke={color}>
+      <path d="M4 7h16" />
+      <path d="M9 7V4.8c0-.44.36-.8.8-.8h4.4c.44 0 .8.36.8.8V7" />
+      <path d="M6.5 7 7.3 19.2c.05.98.86 1.8 1.85 1.8h5.7c.99 0 1.8-.82 1.85-1.8L17.5 7" />
+      <path d="M10 11v6M14 11v6" />
+    </svg>
+  )
+}
+
+export function EditIcon({ size = 16, color = 'currentColor' }: IconProps) {
+  return (
+    <svg width={size} height={size} viewBox="0 0 24 24" {...base} stroke={color}>
+      <path d="M4 20h4L18.5 9.5a2.1 2.1 0 0 0-3-3L5 17v3Z" />
+      <path d="m14 6.5 3 3" />
+    </svg>
+  )
+}
+
 export function ExpandIcon({ size = 16, color = 'currentColor' }: IconProps) {
   return (
     <svg width={size} height={size} viewBox="0 0 24 24" {...base} stroke={color}>

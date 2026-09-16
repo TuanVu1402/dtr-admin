@@ -1,8 +1,10 @@
-import { useMemo, useState, type CSSProperties } from 'react'
+import { useMemo, useState } from 'react'
 import { useSubmissions } from '../../context/SubmissionsContext'
 import type { AdminSubmission, SubmissionStatus } from '../../types/dtr'
 import { formatPoints } from '../../utils/format'
 import EvidenceModal from '../../components/EvidenceModal'
+import HoverPreview from '../../components/HoverPreview'
+import RejectReasonModal from '../../components/RejectReasonModal'
 import ManualEntryForm from '../../components/ManualEntryForm'
 import ImportExcelModal from '../../components/ImportExcelModal'
 import { SearchIcon } from '../../components/icons'
@@ -17,12 +19,13 @@ const statusFilters: { label: string; value: SubmissionStatus | 'all' }[] = [
 ]
 
 export default function ManagerPanel() {
-  const { submissions, users, setStatus, addSubmission } = useSubmissions()
+  const { submissions, users, setStatus, rejectSubmission, addSubmission } = useSubmissions()
   const [statusFilter, setStatusFilter] = useState<SubmissionStatus | 'all'>('all')
   const [categoryFilter, setCategoryFilter] = useState('all')
   const [userFilter, setUserFilter] = useState('all')
   const [searchTerm, setSearchTerm] = useState('')
   const [selectedSubmission, setSelectedSubmission] = useState<AdminSubmission | null>(null)
+  const [rejectingSubmission, setRejectingSubmission] = useState<AdminSubmission | null>(null)
   const [showManualForm, setShowManualForm] = useState(false)
   const [showImportModal, setShowImportModal] = useState(false)
 
@@ -181,30 +184,28 @@ export default function ManagerPanel() {
           const descTooltip = `${s.description}\n\nNgày nộp: ${s.date} • Điểm: ${formatPoints(s.points)}`
           return (
           <div className="s-row s-body" key={s.id}>
-            <div className="s-user" data-tooltip={userTooltip} tabIndex={0}>
+            <HoverPreview text={userTooltip} className="s-user">
               {s.userName}
-            </div>
+            </HoverPreview>
             <div className="s-cat">{s.categoryLabel}</div>
             <div className="s-desc">
               {s.imageDataUrl ? (
-                <button
-                  type="button"
-                  className="s-desc-btn s-desc-btn-image"
-                  style={{ '--evidence-img': `url(${s.imageDataUrl})` } as CSSProperties}
-                  aria-label="Hover để xem ảnh minh chứng"
-                  onClick={() => setSelectedSubmission(s)}
-                >
-                  {s.description}
-                </button>
+                <HoverPreview imageUrl={s.imageDataUrl}>
+                  <button
+                    type="button"
+                    className="s-desc-btn s-desc-btn-image"
+                    aria-label="Hover để xem ảnh minh chứng"
+                    onClick={() => setSelectedSubmission(s)}
+                  >
+                    {s.description}
+                  </button>
+                </HoverPreview>
               ) : (
-                <button
-                  type="button"
-                  className="s-desc-btn"
-                  data-tooltip={descTooltip}
-                  onClick={() => setSelectedSubmission(s)}
-                >
-                  {s.description}
-                </button>
+                <HoverPreview text={descTooltip}>
+                  <button type="button" className="s-desc-btn" onClick={() => setSelectedSubmission(s)}>
+                    {s.description}
+                  </button>
+                </HoverPreview>
               )}
               {s.link && (
                 <>
@@ -232,7 +233,7 @@ export default function ManagerPanel() {
                 className={`action-btn reject${
                   s.status === 'rejected' ? ' active' : s.status === 'approved' ? ' muted' : ''
                 }`}
-                onClick={() => setStatus(s.id, 'rejected')}
+                onClick={() => setRejectingSubmission(s)}
               >
                 Từ chối
               </button>
@@ -244,6 +245,17 @@ export default function ManagerPanel() {
 
       {selectedSubmission && (
         <EvidenceModal submission={selectedSubmission} onClose={() => setSelectedSubmission(null)} />
+      )}
+
+      {rejectingSubmission && (
+        <RejectReasonModal
+          submission={rejectingSubmission}
+          onCancel={() => setRejectingSubmission(null)}
+          onConfirm={(reason) => {
+            rejectSubmission(rejectingSubmission.id, reason)
+            setRejectingSubmission(null)
+          }}
+        />
       )}
 
       {showManualForm && (

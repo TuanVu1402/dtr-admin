@@ -42,6 +42,8 @@ export default function ReportsPanel() {
     [submissions],
   )
 
+  const userByName = useMemo(() => new Map(users.map((u) => [u.name, u])), [users])
+
   const filteredForExport = useMemo(() => {
     const now = new Date()
     let rangeStart: Date | null = null
@@ -121,9 +123,10 @@ export default function ReportsPanel() {
     const nameSlug = exportUser === 'all' ? 'tat-ca' : exportUser.toLowerCase().replace(/\s+/g, '-')
     exportCsv(
       `bao-cao-dtr-${nameSlug}-${new Date().toISOString().slice(0, 10)}.csv`,
-      ['Người nộp', 'Hạng mục', 'Mô tả', 'Ngày nộp', 'Điểm', 'Trạng thái'],
+      ['Người nộp', 'Phòng', 'Hạng mục', 'Mô tả', 'Ngày nộp', 'Điểm', 'Trạng thái'],
       filteredForExport.map((s) => [
         s.userName,
+        userByName.get(s.userName)?.room ?? '—',
         s.categoryLabel,
         s.description,
         s.date,

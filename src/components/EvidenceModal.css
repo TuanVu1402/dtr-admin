@@ -46,6 +46,14 @@
   margin: 0;
 }
 
+.evidence-reject-reason {
+  padding: 12px 14px;
+  border-radius: 10px;
+  background: rgba(217, 122, 108, 0.1);
+  border: 1px solid rgba(217, 122, 108, 0.35);
+  color: var(--negative);
+}
+
 .evidence-link-box,
 .evidence-photo-placeholder {
   display: flex;

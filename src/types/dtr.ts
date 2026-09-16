@@ -32,6 +32,8 @@ export type HistoryEntry = {
   link?: string
   /** Ảnh minh chứng người dùng tải lên, lưu dạng data URL (bản demo, chưa có backend lưu file thật). */
   imageDataUrl?: string
+  /** Lý do từ chối — admin nhập khi bấm "Từ chối". */
+  rejectReason?: string
 }
 
 export type PointBreakdown = {

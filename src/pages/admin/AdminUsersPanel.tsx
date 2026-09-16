@@ -41,8 +41,14 @@ export default function AdminUsersPanel() {
   function handleExportUsers() {
     exportCsv(
       `danh-sach-nguoi-dung-dtr-${new Date().toISOString().slice(0, 10)}.csv`,
-      ['Họ tên', 'Email', 'Vai trò', 'Tổng điểm'],
-      users.map((u) => [u.name, u.email, roleLabels[u.role], formatPoints(userTotals.get(u.name) ?? 0)]),
+      ['Họ tên', 'Phòng', 'Email', 'Vai trò', 'Tổng điểm'],
+      users.map((u) => [
+        u.name,
+        u.room ?? '—',
+        u.email,
+        roleLabels[u.role],
+        formatPoints(userTotals.get(u.name) ?? 0),
+      ]),
     )
   }
 
@@ -66,6 +72,7 @@ export default function AdminUsersPanel() {
       <div className="table-card">
         <div className="u-row u-head">
           <div>Họ tên</div>
+          <div>Phòng</div>
           <div>Email</div>
           <div>Vai trò</div>
           <div>Tổng điểm</div>
@@ -73,6 +80,7 @@ export default function AdminUsersPanel() {
         {users.map((user) => (
           <div className="u-row u-body" key={user.id}>
             <div className="u-name">{user.name}</div>
+            <div className="u-room">{user.room ?? '—'}</div>
             <div className="u-email">{user.email}</div>
             <div>
               <span className={`role-chip role-chip-${user.role}`}>{roleLabels[user.role]}</span>
@@ -136,10 +144,10 @@ export default function AdminUsersPanel() {
           eyebrow="Quản lý người dùng"
           title="Nhập danh sách người dùng từ Excel"
           description="Tải lên file danh sách người dùng để tạo tài khoản hàng loạt thay vì nhập tay từng người."
-          columns={['Họ tên', 'Email', 'Vai trò']}
+          columns={['Họ tên', 'Phòng', 'Email', 'Vai trò']}
           sampleRows={[
-            ['Nguyễn Văn Bình', 'binh.nguyen@dtr.vn', 'Người dùng'],
-            ['Lê Thị Cẩm', 'cam.le@dtr.vn', 'Người dùng'],
+            ['Nguyễn Văn Bình', 'Phòng Kinh doanh 1', 'binh.nguyen@dtr.vn', 'Người dùng'],
+            ['Lê Thị Cẩm', 'Phòng Kinh doanh 2', 'cam.le@dtr.vn', 'Người dùng'],
           ]}
           templateFilename="mau-nhap-nguoi-dung-dtr.csv"
           onCancel={() => setShowImportModal(false)}

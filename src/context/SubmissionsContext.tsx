@@ -17,6 +17,7 @@ type SubmissionsContextValue = {
   submissions: AdminSubmission[]
   users: AdminUser[]
   setStatus: (id: string, status: SubmissionStatus) => void
+  rejectSubmission: (id: string, reason: string) => void
   addSubmission: (input: NewSubmissionInput) => AdminSubmission
   addUser: (name: string, email: string) => AdminUser
 }
@@ -84,7 +85,15 @@ export function SubmissionsProvider({ children }: { children: ReactNode }) {
   }, [])
 
   function setStatus(id: string, status: SubmissionStatus) {
-    setSubmissions((prev) => prev.map((s) => (s.id === id ? { ...s, status } : s)))
+    setSubmissions((prev) =>
+      prev.map((s) => (s.id === id ? { ...s, status, rejectReason: undefined } : s)),
+    )
+  }
+
+  function rejectSubmission(id: string, reason: string) {
+    setSubmissions((prev) =>
+      prev.map((s) => (s.id === id ? { ...s, status: 'rejected', rejectReason: reason } : s)),
+    )
   }
 
   function addSubmission(input: NewSubmissionInput): AdminSubmission {
@@ -100,7 +109,9 @@ export function SubmissionsProvider({ children }: { children: ReactNode }) {
   }
 
   return (
-    <SubmissionsContext.Provider value={{ submissions, users, setStatus, addSubmission, addUser }}>
+    <SubmissionsContext.Provider
+      value={{ submissions, users, setStatus, rejectSubmission, addSubmission, addUser }}
+    >
       {children}
     </SubmissionsContext.Provider>
   )

@@ -47,6 +47,13 @@ export default function EvidenceModal({ submission, onClose }: EvidenceModalProp
           <p className="evidence-desc">{submission.description}</p>
         </div>
 
+        {submission.status === 'rejected' && submission.rejectReason && (
+          <div className="field">
+            <label className="field-label">Lý do từ chối</label>
+            <p className="evidence-desc evidence-reject-reason">{submission.rejectReason}</p>
+          </div>
+        )}
+
         <div className="field">
           <label className="field-label">Minh chứng</label>
           {submission.link ? (

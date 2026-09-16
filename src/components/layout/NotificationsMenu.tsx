@@ -1,6 +1,6 @@
 import { useEffect, useRef, useState } from 'react'
-import { BellIcon } from './icons'
-import { initialNotifications, type AppNotification, type NotificationKind } from '../data/notificationsData'
+import { BellIcon } from '../ui/icons'
+import { initialNotifications, type AppNotification, type NotificationKind } from '../../data/notificationsData'
 
 const kindDotClass: Record<NotificationKind, string> = {
   success: 'bg-(--positive)',

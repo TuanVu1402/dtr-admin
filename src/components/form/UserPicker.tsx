@@ -1,6 +1,6 @@
 import { useState } from 'react'
-import type { AdminUser } from '../types/dtr'
-import { SearchIcon } from './icons'
+import type { AdminUser } from '../../types/dtr'
+import { SearchIcon } from '../ui/icons'
 
 export const NEW_USER_VALUE = '__new__'
 const NEW_USER_LABEL = '+ Tạo người mới…'

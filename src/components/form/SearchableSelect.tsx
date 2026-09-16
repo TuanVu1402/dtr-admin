@@ -1,5 +1,5 @@
 import { useEffect, useMemo, useRef, useState } from 'react'
-import { SearchIcon } from './icons'
+import { SearchIcon } from '../ui/icons'
 
 export type SearchableOption = {
   value: string

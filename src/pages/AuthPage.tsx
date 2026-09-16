@@ -1,6 +1,6 @@
 import { useState, type FormEvent } from 'react'
-import { BriefcaseIcon, CrownIcon, MoonIcon, ShieldIcon, SunIcon } from '../components/icons'
-import BrandLogo from '../components/BrandLogo'
+import { BriefcaseIcon, CrownIcon, MoonIcon, ShieldIcon, SunIcon } from '../components/ui/icons'
+import BrandLogo from '../components/ui/BrandLogo'
 import { useTheme } from '../context/ThemeContext'
 import { roleLabels, type Role } from '../types/dtr'
 

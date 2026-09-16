@@ -1,7 +1,7 @@
 import { useMemo, useState } from 'react'
 import { useFeedback } from '../../context/FeedbackContext'
 import { feedbackTypeLabels, type FeedbackEntry, type FeedbackStatus } from '../../types/dtr'
-import SortableHeaderCell, { compareValues, nextSortState, type SortDir } from '../../components/SortableHeaderCell'
+import SortableHeaderCell, { compareValues, nextSortState, type SortDir } from '../../components/ui/SortableHeaderCell'
 
 const statusFilters: { label: string; value: FeedbackStatus | 'all' }[] = [
   { label: 'Tất cả', value: 'all' },

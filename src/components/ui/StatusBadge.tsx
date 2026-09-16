@@ -1,4 +1,4 @@
-import type { SubmissionStatus } from '../types/dtr'
+import type { SubmissionStatus } from '../../types/dtr'
 
 const statusConfig: Record<SubmissionStatus, { label: string; className: string }> = {
   approved: {

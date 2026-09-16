@@ -1,5 +1,6 @@
 import AdminUsersPanel from './AdminUsersPanel'
 import ManagerPanel from './ManagerPanel'
+import TrainingQrSection from './TrainingQrSection'
 
 export default function SupportAdminPanel() {
   return (
@@ -11,8 +12,11 @@ export default function SupportAdminPanel() {
         </div>
       </section>
 
-      <AdminUsersPanel showRoleFilter={false} />
+      <AdminUsersPanel showRoleFilter={false} showQrSection={false} />
       <ManagerPanel />
+      <section className="px-11 pt-2 max-[640px]:px-5">
+        <TrainingQrSection />
+      </section>
     </>
   )
 }

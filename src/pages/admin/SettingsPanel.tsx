@@ -1,6 +1,6 @@
 import { useEffect, useState, type FormEvent } from 'react'
 import { useTheme } from '../../context/ThemeContext'
-import { MoonIcon, SunIcon } from '../../components/icons'
+import { MoonIcon, SunIcon } from '../../components/ui/icons'
 
 type NotificationPrefs = {
   emailNewSubmission: boolean

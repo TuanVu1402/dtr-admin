@@ -1,6 +1,6 @@
-import { roleLabels, type AdminSubmission, type AdminUser } from '../types/dtr'
-import { formatPoints, getInitials } from '../utils/format'
-import StatusBadge from './StatusBadge'
+import { roleLabels, type AdminSubmission, type AdminUser } from '../../types/dtr'
+import { formatPoints, getInitials } from '../../utils/format'
+import StatusBadge from '../ui/StatusBadge'
 
 type UserDetailModalProps = {
   user: AdminUser

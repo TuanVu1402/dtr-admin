@@ -1,6 +1,6 @@
 import { useState, type ChangeEvent, type DragEvent } from 'react'
-import { DownloadIcon, SheetIcon, UploadIcon } from './icons'
-import { exportCsv } from '../utils/exportCsv'
+import { DownloadIcon, SheetIcon, UploadIcon } from '../ui/icons'
+import { exportCsv } from '../../utils/exportCsv'
 
 type ImportExcelModalProps = {
   eyebrow: string

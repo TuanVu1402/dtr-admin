@@ -1,4 +1,4 @@
-import logo from '../assets/dong-tay-land-logo.png'
+import logo from '../../assets/dong-tay-land-logo.png'
 
 type BrandLogoProps = {
   height?: number

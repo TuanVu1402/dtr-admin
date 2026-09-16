@@ -1,8 +1,8 @@
 import { useState, type FormEvent } from 'react'
-import { useSubmissions, type NewSubmissionInput } from '../context/SubmissionsContext'
-import { categories } from '../data/dtrData'
-import type { SubmissionStatus } from '../types/dtr'
-import { formatPoints, slugify } from '../utils/format'
+import { useSubmissions, type NewSubmissionInput } from '../../context/SubmissionsContext'
+import { categories } from '../../data/dtrData'
+import type { SubmissionStatus } from '../../types/dtr'
+import { formatPoints, slugify } from '../../utils/format'
 import UserPicker, { NEW_USER_VALUE } from './UserPicker'
 
 type FlatOption = {

@@ -1,6 +1,6 @@
-import type { AdminSubmission } from '../types/dtr'
-import { formatPoints } from '../utils/format'
-import StatusBadge from './StatusBadge'
+import type { AdminSubmission } from '../../types/dtr'
+import { formatPoints } from '../../utils/format'
+import StatusBadge from '../ui/StatusBadge'
 
 type EvidenceModalProps = {
   submission: AdminSubmission

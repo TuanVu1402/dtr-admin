@@ -1,5 +1,5 @@
 import { useState, type FormEvent } from 'react'
-import type { AdminSubmission } from '../types/dtr'
+import type { AdminSubmission } from '../../types/dtr'
 
 type RejectReasonModalProps = {
   submission: AdminSubmission

@@ -1,5 +1,5 @@
 import { useState, type FormEvent } from 'react'
-import { roleLabels, type AdminUser, type Role } from '../types/dtr'
+import { roleLabels, type AdminUser, type Role } from '../../types/dtr'
 
 export type UserFormValues = {
   name: string

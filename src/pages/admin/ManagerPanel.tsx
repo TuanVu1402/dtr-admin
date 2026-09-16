@@ -1,7 +1,11 @@
 import { useEffect, useMemo, useState } from 'react'
 import { useSubmissions } from '../../context/SubmissionsContext'
+import { useAuth } from '../../context/AuthContext'
+import { useAudit } from '../../context/AuditContext'
+import { useNotifications } from '../../context/NotificationsContext'
 import type { AdminSubmission, SubmissionStatus } from '../../types/dtr'
 import { formatPoints, getInitials, parseVNDate } from '../../utils/format'
+import { parseCsvText, parseStatusLabel, readFileAsText } from '../../utils/parseCsv'
 import EvidenceModal from '../../components/modal/EvidenceModal'
 import HoverPreview from '../../components/ui/HoverPreview'
 import RejectReasonModal from '../../components/modal/RejectReasonModal'
@@ -55,7 +59,10 @@ function actionBtnClass(kind: 'approve' | 'reject', state: 'active' | 'muted' | 
 }
 
 export default function ManagerPanel() {
-  const { submissions, users, setStatus, rejectSubmission, addSubmission } = useSubmissions()
+  const { submissions, users, setStatus, rejectSubmission, addSubmission, addSubmissions } = useSubmissions()
+  const { role, profile } = useAuth()
+  const { logAudit } = useAudit()
+  const { pushNotification } = useNotifications()
   const [statusFilter, setStatusFilter] = useState<SubmissionStatus | 'all'>('all')
   const [categoryFilter, setCategoryFilter] = useState('all')
   const [userFilter, setUserFilter] = useState('all')
@@ -65,6 +72,7 @@ export default function ManagerPanel() {
   const [rejectingSubmission, setRejectingSubmission] = useState<AdminSubmission | null>(null)
   const [showManualForm, setShowManualForm] = useState(false)
   const [showImportModal, setShowImportModal] = useState(false)
+  const [importMessage, setImportMessage] = useState<string | null>(null)
   const [page, setPage] = useState(1)
   const [sortKey, setSortKey] = useState<SubmissionSortKey | null>(null)
   const [sortDir, setSortDir] = useState<SortDir>('asc')
@@ -161,6 +169,15 @@ export default function ManagerPanel() {
           </button>
         </div>
       </div>
+
+      {importMessage && (
+        <div className="flex items-center justify-between gap-3 rounded-lg border border-[rgba(37,99,235,0.25)] bg-[rgba(37,99,235,0.08)] px-4 py-3 text-[13px] text-(--text-primary)">
+          <span>{importMessage}</span>
+          <button type="button" className="cursor-pointer border-none bg-transparent text-lg" onClick={() => setImportMessage(null)}>
+            ×
+          </button>
+        </div>
+      )}
 
       <div className="grid grid-cols-3 gap-4 max-[640px]:grid-cols-1">
         <div className="rounded-2xl border border-[rgba(37,99,235,0.2)] bg-(--surface-tint) px-5.5 py-5">
@@ -346,7 +363,13 @@ export default function ManagerPanel() {
                     'approve',
                     s.status === 'approved' ? 'active' : s.status === 'rejected' ? 'muted' : '',
                   )}
-                  onClick={() => setStatus(s.id, 'approved')}
+                  onClick={() => {
+                    setStatus(s.id, 'approved')
+                    if (role) {
+                      logAudit({ actor: profile.name, actorRole: role, action: 'approve', target: s.userName, detail: s.categoryLabel })
+                      pushNotification({ kind: 'success', title: 'Đã duyệt minh chứng', description: `${s.userName} — ${s.categoryLabel}` })
+                    }
+                  }}
                 >
                   Duyệt
                 </button>
@@ -385,6 +408,20 @@ export default function ManagerPanel() {
           onCancel={() => setRejectingSubmission(null)}
           onConfirm={(reason) => {
             rejectSubmission(rejectingSubmission.id, reason)
+            if (role) {
+              logAudit({
+                actor: profile.name,
+                actorRole: role,
+                action: 'reject',
+                target: rejectingSubmission.userName,
+                detail: reason,
+              })
+              pushNotification({
+                kind: 'warning',
+                title: 'Đã từ chối minh chứng',
+                description: `${rejectingSubmission.userName} — ${rejectingSubmission.categoryLabel}`,
+              })
+            }
             setRejectingSubmission(null)
           }}
         />
@@ -404,7 +441,7 @@ export default function ManagerPanel() {
         <ImportExcelModal
           eyebrow="Chấm điểm hàng loạt"
           title="Nhập minh chứng từ file Excel"
-          description="Tải lên file danh sách minh chứng để chấm điểm hàng loạt thay vì nhập tay từng dòng."
+          description="Dùng file CSV (Excel → Lưu thành CSV UTF-8). Cột: Người nộp, Phòng, Hạng mục, Điểm, Ngày, Mô tả, Trạng thái."
           columns={['Người nộp', 'Phòng', 'Hạng mục', 'Điểm', 'Ngày thực hiện', 'Mô tả', 'Trạng thái']}
           sampleRows={[
             [
@@ -428,8 +465,46 @@ export default function ManagerPanel() {
           ]}
           templateFilename="mau-nhap-minh-chung-dtr.csv"
           onCancel={() => setShowImportModal(false)}
-          onImport={() => {
-            // TODO: đọc và parse file Excel thành danh sách minh chứng khi có thư viện xử lý file ở backend/BE.
+          onImport={async (file) => {
+            if (file.name.toLowerCase().endsWith('.xlsx') || file.name.toLowerCase().endsWith('.xls')) {
+              setImportMessage('Hãy lưu file thành CSV (Excel → Save As → CSV UTF-8) rồi nhập lại.')
+              setShowImportModal(false)
+              return
+            }
+            try {
+              const text = await readFileAsText(file)
+              const rows = parseCsvText(text)
+              if (rows.length === 0) {
+                setImportMessage('File trống.')
+                setShowImportModal(false)
+                return
+              }
+              const header = rows[0].join(' ').toLowerCase()
+              const dataRows = /người|hạng|điểm/.test(header) ? rows.slice(1) : rows
+              const inputs = dataRows
+                .map((row) => ({
+                  userName: (row[0] ?? '').trim(),
+                  categoryLabel: (row[2] ?? '').trim() || 'Khác',
+                  points: Number(String(row[3] ?? '0').replace(',', '.')) || 0,
+                  date: (row[4] ?? '').trim() || new Date().toLocaleDateString('vi-VN'),
+                  description: (row[5] ?? '').trim() || '—',
+                  status: parseStatusLabel(row[6] ?? 'pending'),
+                }))
+                .filter((row) => row.userName)
+              const added = addSubmissions(inputs)
+              if (role) {
+                logAudit({
+                  actor: profile.name,
+                  actorRole: role,
+                  action: 'import_submissions',
+                  target: file.name,
+                  detail: `Thêm ${added} minh chứng`,
+                })
+              }
+              setImportMessage(`Đã nhập ${added} minh chứng từ file.`)
+            } catch {
+              setImportMessage('Không đọc được file CSV.')
+            }
             setShowImportModal(false)
           }}
         />

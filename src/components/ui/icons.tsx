@@ -240,6 +240,24 @@ export function TrashIcon({ size = 16, color = 'currentColor' }: IconProps) {
   )
 }
 
+export function KeyIcon({ size = 16, color = 'currentColor' }: IconProps) {
+  return (
+    <svg width={size} height={size} viewBox="0 0 24 24" {...base} stroke={color}>
+      <circle cx="8" cy="15" r="3.2" />
+      <path d="M11 15h9l-2 2.2M17.5 15 16 17.2" />
+    </svg>
+  )
+}
+
+export function LockIcon({ size = 16, color = 'currentColor' }: IconProps) {
+  return (
+    <svg width={size} height={size} viewBox="0 0 24 24" {...base} stroke={color}>
+      <rect x="5" y="11" width="14" height="9" rx="1.6" />
+      <path d="M8 11V8.2A4 4 0 0 1 16 8.2V11" />
+    </svg>
+  )
+}
+
 export function EditIcon({ size = 16, color = 'currentColor' }: IconProps) {
   return (
     <svg width={size} height={size} viewBox="0 0 24 24" {...base} stroke={color}>

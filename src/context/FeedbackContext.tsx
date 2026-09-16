@@ -8,6 +8,7 @@ type FeedbackContextValue = {
   feedbackList: FeedbackEntry[]
   addFeedback: (type: FeedbackType, content: string, email?: string) => void
   setFeedbackStatus: (id: string, status: FeedbackStatus) => void
+  updateFeedback: (id: string, updates: Partial<FeedbackEntry>) => void
 }
 
 const FeedbackContext = createContext<FeedbackContextValue | null>(null)
@@ -56,8 +57,12 @@ export function FeedbackProvider({ children }: { children: ReactNode }) {
     setFeedbackList((prev) => prev.map((f) => (f.id === id ? { ...f, status } : f)))
   }
 
+  function updateFeedback(id: string, updates: Partial<FeedbackEntry>) {
+    setFeedbackList((prev) => prev.map((f) => (f.id === id ? { ...f, ...updates } : f)))
+  }
+
   return (
-    <FeedbackContext.Provider value={{ feedbackList, addFeedback, setFeedbackStatus }}>
+    <FeedbackContext.Provider value={{ feedbackList, addFeedback, setFeedbackStatus, updateFeedback }}>
       {children}
     </FeedbackContext.Provider>
   )

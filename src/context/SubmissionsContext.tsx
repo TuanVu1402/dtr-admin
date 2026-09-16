@@ -19,7 +19,9 @@ type SubmissionsContextValue = {
   setStatus: (id: string, status: SubmissionStatus) => void
   rejectSubmission: (id: string, reason: string) => void
   addSubmission: (input: NewSubmissionInput) => AdminSubmission
+  addSubmissions: (inputs: NewSubmissionInput[]) => number
   addUser: (name: string, email: string, role?: Role, room?: string) => AdminUser
+  addUsers: (inputs: { name: string; email: string; role?: Role; room?: string }[]) => number
   updateUser: (id: string, updates: Partial<Omit<AdminUser, 'id'>>) => void
   deleteUser: (id: string) => void
 }
@@ -38,7 +40,7 @@ const USERS_KEY = 'dtr-users'
 // Tăng số này mỗi khi sửa dữ liệu mẫu (adminData.ts) — dữ liệu cũ trong localStorage của
 // trình duyệt sẽ tự bị bỏ qua và nạp lại dữ liệu mẫu mới nhất, khỏi cần người dùng tự xóa
 // localStorage thủ công mỗi lần demo có cập nhật.
-const DATA_VERSION = '10'
+const DATA_VERSION = '11'
 const VERSION_KEY = 'dtr-data-version'
 
 function loadFromStorage<T>(key: string, fallback: T): T {
@@ -104,10 +106,41 @@ export function SubmissionsProvider({ children }: { children: ReactNode }) {
     return submission
   }
 
+  function addSubmissions(inputs: NewSubmissionInput[]): number {
+    if (inputs.length === 0) return 0
+    const rows = inputs.map((input) => ({ id: generateSubmissionId(), ...input }))
+    setSubmissions((prev) => [...rows, ...prev])
+    return rows.length
+  }
+
   function addUser(name: string, email: string, role: Role = 'user', room?: string): AdminUser {
-    const user: AdminUser = { id: generateUserId(), name, email, role, room }
+    const user: AdminUser = { id: generateUserId(), name, email, role, room, accountStatus: 'active' }
     setUsers((prev) => [...prev, user])
     return user
+  }
+
+  function addUsers(inputs: { name: string; email: string; role?: Role; room?: string }[]): number {
+    const existingEmails = new Set(users.map((u) => u.email.toLowerCase()))
+    const existingNames = new Set(users.map((u) => u.name.toLowerCase()))
+    const fresh: AdminUser[] = []
+    for (const input of inputs) {
+      const name = input.name.trim()
+      const email = input.email.trim()
+      if (!name || !email) continue
+      if (existingEmails.has(email.toLowerCase()) || existingNames.has(name.toLowerCase())) continue
+      existingEmails.add(email.toLowerCase())
+      existingNames.add(name.toLowerCase())
+      fresh.push({
+        id: generateUserId(),
+        name,
+        email,
+        role: input.role ?? 'user',
+        room: input.room,
+        accountStatus: 'active',
+      })
+    }
+    if (fresh.length > 0) setUsers((prev) => [...prev, ...fresh])
+    return fresh.length
   }
 
   function updateUser(id: string, updates: Partial<Omit<AdminUser, 'id'>>) {
@@ -120,7 +153,18 @@ export function SubmissionsProvider({ children }: { children: ReactNode }) {
 
   return (
     <SubmissionsContext.Provider
-      value={{ submissions, users, setStatus, rejectSubmission, addSubmission, addUser, updateUser, deleteUser }}
+      value={{
+        submissions,
+        users,
+        setStatus,
+        rejectSubmission,
+        addSubmission,
+        addSubmissions,
+        addUser,
+        addUsers,
+        updateUser,
+        deleteUser,
+      }}
     >
       {children}
     </SubmissionsContext.Provider>

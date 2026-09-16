@@ -5,6 +5,7 @@ export type UserProfile = {
   name: string
   email: string
   avatarUrl?: string
+  password?: string
 }
 
 type ProfilesMap = Record<Role, UserProfile>
@@ -12,10 +13,10 @@ type ProfilesMap = Record<Role, UserProfile>
 const STORAGE_KEY = 'dtr-admin-profiles-v1'
 
 const defaultProfiles: ProfilesMap = {
-  admin: { name: 'Đỗ Thanh Hằng', email: 'hang.do@dtr.vn' },
-  manager: { name: 'Phạm Quốc Huy', email: 'huy.pham@dtr.vn' },
-  support_admin: { name: 'Vũ Lan Anh', email: 'lananh.vu@dtr.vn' },
-  user: { name: 'Người dùng', email: '' },
+  admin: { name: 'Đỗ Thanh Hằng', email: 'hang.do@dtr.vn', password: '123456' },
+  manager: { name: 'Phạm Quốc Huy', email: 'huy.pham@dtr.vn', password: '123456' },
+  support_admin: { name: 'Vũ Lan Anh', email: 'lananh.vu@dtr.vn', password: '123456' },
+  user: { name: 'Người dùng', email: '', password: '123456' },
 }
 
 function loadProfiles(): ProfilesMap {

@@ -1,5 +1,7 @@
 import { useEffect, useState, type FormEvent } from 'react'
 import { useTheme } from '../../context/ThemeContext'
+import { useAuth } from '../../context/AuthContext'
+import { DEFAULT_DEMO_PASSWORD } from '../../utils/roles'
 import { MoonIcon, SunIcon } from '../../components/ui/icons'
 
 type NotificationPrefs = {
@@ -57,6 +59,7 @@ function Toggle({ checked, onChange, label, hint }: { checked: boolean; onChange
 
 export default function SettingsPanel() {
   const { theme, toggleTheme } = useTheme()
+  const { profile, updateProfile } = useAuth()
   const [prefs, setPrefs] = useState<NotificationPrefs>(loadPrefs)
   const [currentPassword, setCurrentPassword] = useState('')
   const [newPassword, setNewPassword] = useState('')
@@ -79,8 +82,8 @@ export default function SettingsPanel() {
   function handleChangePassword(e: FormEvent) {
     e.preventDefault()
     setPasswordSaved(false)
-    if (!currentPassword || !newPassword) {
-      setPasswordError('Vui lòng nhập đầy đủ mật khẩu hiện tại và mật khẩu mới.')
+    if (currentPassword !== (profile.password || DEFAULT_DEMO_PASSWORD)) {
+      setPasswordError('Mật khẩu hiện tại không đúng.')
       return
     }
     if (newPassword.length < 6) {
@@ -92,6 +95,7 @@ export default function SettingsPanel() {
       return
     }
     setPasswordError(null)
+    updateProfile({ password: newPassword })
     setPasswordSaved(true)
     setCurrentPassword('')
     setNewPassword('')
@@ -136,7 +140,7 @@ export default function SettingsPanel() {
             checked={prefs.emailNewSubmission}
             onChange={(v) => updatePref('emailNewSubmission', v)}
             label="Email khi có minh chứng mới chờ duyệt"
-            hint="Gửi email tổng hợp khi người dùng nộp minh chứng mới."
+            hint="Demo: bật/tắt được lưu trên máy. Chuông trên header gắn với duyệt điểm và QR."
           />
           <Toggle
             checked={prefs.emailFeedback}

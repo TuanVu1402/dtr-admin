@@ -19,6 +19,8 @@ export type Category = {
   /** Danh sách tên dự án/VPBH cụ thể, mỗi cái hiện thành 1 nhãn nhỏ riêng bên dưới tiêu đề —
    * bấm vào bất kỳ nhãn nào cũng mở form nộp minh chứng cho hạng mục này. */
   locationLabels?: string[]
+  /** Tắt hạng mục thì sale không nộp được, QR Training cũng ẩn nếu tắt. */
+  enabled?: boolean
 }
 
 export type HistoryEntry = {
@@ -60,6 +62,8 @@ export type AdminUser = {
   room?: string
   /** Ảnh đại diện — URL công khai hoặc data URL. Không có thì bảng xếp hạng hiện chữ cái đầu tên. */
   avatarUrl?: string
+  accountStatus?: 'active' | 'locked'
+  tempPassword?: string
 }
 
 /** Một minh chứng người dùng nộp, nhìn từ phía admin (có thêm tên người nộp). */
@@ -85,4 +89,8 @@ export type FeedbackEntry = {
   email?: string
   createdAt: string
   status: FeedbackStatus
+  assignedTo?: string
+  reply?: string
+  repliedAt?: string
+  emailSentAt?: string
 }

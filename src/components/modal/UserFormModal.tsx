@@ -11,6 +11,7 @@ export type UserFormValues = {
 type UserFormModalProps = {
   /** Có user nghĩa là đang sửa, không có nghĩa là đang thêm mới. */
   user?: AdminUser
+  allowedRoles: Role[]
   onCancel: () => void
   onSubmit: (values: UserFormValues) => void
 }
@@ -21,11 +22,13 @@ const fieldLabelClass = 'text-[12.5px] font-bold text-(--text-secondary)'
 
 const roleOrder: Role[] = ['user', 'manager', 'admin', 'support_admin']
 
-export default function UserFormModal({ user, onCancel, onSubmit }: UserFormModalProps) {
+export default function UserFormModal({ user, allowedRoles, onCancel, onSubmit }: UserFormModalProps) {
   const isEdit = Boolean(user)
   const [name, setName] = useState(user?.name ?? '')
   const [email, setEmail] = useState(user?.email ?? '')
-  const [role, setRole] = useState<Role>(user?.role ?? 'user')
+  const [role, setRole] = useState<Role>(
+    user?.role && allowedRoles.includes(user.role) ? user.role : (allowedRoles[0] ?? 'user'),
+  )
   const [room, setRoom] = useState(user?.room ?? '')
   const [error, setError] = useState<string | null>(null)
 
@@ -128,7 +131,7 @@ export default function UserFormModal({ user, onCancel, onSubmit }: UserFormModa
               value={role}
               onChange={(e) => setRole(e.target.value as Role)}
             >
-              {roleOrder.map((r) => (
+              {roleOrder.filter((r) => allowedRoles.includes(r)).map((r) => (
                 <option key={r} value={r} className="bg-[#fdf8ec] text-[#0d1f3d]">
                   {roleLabels[r]}
                 </option>

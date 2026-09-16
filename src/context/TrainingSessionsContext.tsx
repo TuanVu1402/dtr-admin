@@ -1,4 +1,5 @@
 import { createContext, useContext, useEffect, useState, type ReactNode } from 'react'
+import { readShared, subscribeShared, writeShared } from '../utils/sharedStore'
 
 export type TrainingAttendee = {
   userName: string
@@ -45,12 +46,7 @@ function normalizeSessions(raw: unknown): TrainingSession[] {
 }
 
 function loadSessions(): TrainingSession[] {
-  try {
-    const raw = localStorage.getItem(STORAGE_KEY)
-    return raw ? normalizeSessions(JSON.parse(raw)) : []
-  } catch {
-    return []
-  }
+  return normalizeSessions(readShared(STORAGE_KEY, []))
 }
 
 function generateCode() {
@@ -65,24 +61,14 @@ export function TrainingSessionsProvider({ children }: { children: ReactNode }) 
   const [sessions, setSessions] = useState<TrainingSession[]>(() => loadSessions())
 
   useEffect(() => {
-    try {
-      localStorage.setItem(STORAGE_KEY, JSON.stringify(sessions))
-    } catch {
-      // localStorage not available (private mode, etc.) — sessions stay in-memory only.
-    }
+    writeShared(STORAGE_KEY, sessions)
   }, [sessions])
 
   useEffect(() => {
-    function onStorage(e: StorageEvent) {
-      if (e.key !== STORAGE_KEY || !e.newValue) return
-      try {
-        setSessions(normalizeSessions(JSON.parse(e.newValue)))
-      } catch {
-        // Bỏ qua payload hỏng từ tab khác.
-      }
-    }
-    window.addEventListener('storage', onStorage)
-    return () => window.removeEventListener('storage', onStorage)
+    return subscribeShared(STORAGE_KEY, () => {
+      const next = loadSessions()
+      setSessions((prev) => (JSON.stringify(prev) === JSON.stringify(next) ? prev : next))
+    })
   }, [])
 
   function addSession(title: string, date: string) {

@@ -1,25 +1,14 @@
-import { useState, type FormEvent } from 'react'
+import { useMemo, useState, type FormEvent } from 'react'
 import { useSubmissions, type NewSubmissionInput } from '../../context/SubmissionsContext'
-import { categories } from '../../data/dtrData'
+import { useCategories } from '../../context/CategoriesContext'
 import type { SubmissionStatus } from '../../types/dtr'
 import { formatPoints, slugify } from '../../utils/format'
 import UserPicker, { NEW_USER_VALUE } from './UserPicker'
 
-type FlatOption = {
-  key: string
-  categoryLabel: string
-  points: number
-  evidenceType?: 'file' | 'link'
+type ManualEntryFormProps = {
+  onCancel: () => void
+  onSubmit: (input: NewSubmissionInput) => void
 }
-
-const flatOptions: FlatOption[] = categories.flatMap((category) =>
-  category.pointOptions.map((option) => ({
-    key: `${category.id}::${option.label}`,
-    categoryLabel: option.label === 'Điểm' ? category.title : option.label,
-    points: option.points,
-    evidenceType: category.evidenceType,
-  })),
-)
 
 const statusOptions: { label: string; value: SubmissionStatus }[] = [
   { label: 'Đã duyệt', value: 'approved' },
@@ -31,13 +20,23 @@ const fieldInputClass =
   "w-full rounded-[10px] border border-[rgba(37,99,235,0.25)] bg-(--surface-tint) px-3.5 py-[11px] font-['Open_Sans',sans-serif] text-sm text-(--text-primary) placeholder:text-(--text-muted) focus:border-(--gold) focus:outline-none"
 const fieldLabelClass = 'text-[12.5px] font-bold text-(--text-secondary)'
 
-type ManualEntryFormProps = {
-  onCancel: () => void
-  onSubmit: (input: NewSubmissionInput) => void
-}
-
 export default function ManualEntryForm({ onCancel, onSubmit }: ManualEntryFormProps) {
   const { users, addUser } = useSubmissions()
+  const { categories } = useCategories()
+  const flatOptions = useMemo(
+    () =>
+      categories
+        .filter((category) => category.enabled !== false)
+        .flatMap((category) =>
+          category.pointOptions.map((option) => ({
+            key: `${category.id}::${option.label}`,
+            categoryLabel: option.label === 'Điểm' ? category.title : option.label,
+            points: option.points,
+            evidenceType: category.evidenceType,
+          })),
+        ),
+    [categories],
+  )
   // Chỉ những tài khoản vai trò "Người dùng" (sales) mới là người nộp minh chứng —
   // Admin / Manager / Support Admin là nhân sự vận hành, không nộp minh chứng.
   const submitterUsers = users.filter((user) => user.role === 'user')

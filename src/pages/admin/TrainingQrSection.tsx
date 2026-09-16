@@ -5,6 +5,9 @@ import { DownloadIcon, ExpandIcon, QrIcon, SearchIcon, TrashIcon } from '../../c
 import ConfirmDialog from '../../components/modal/ConfirmDialog'
 import { useTrainingSessions, type TrainingAttendee, type TrainingSession } from '../../context/TrainingSessionsContext'
 import { useSubmissions } from '../../context/SubmissionsContext'
+import { useAuth } from '../../context/AuthContext'
+import { useAudit } from '../../context/AuditContext'
+import { useNotifications } from '../../context/NotificationsContext'
 import { exportCsv } from '../../utils/exportCsv'
 import { getInitials } from '../../utils/format'
 
@@ -41,15 +44,20 @@ function mergeAttendees(session: TrainingSession, submissions: { userName: strin
 /** Khối tạo / chiếu mã QR điểm danh Training — thuộc Admin, không phải Manager. */
 export default function TrainingQrSection() {
   const { sessions, addSession, closeSession, reopenSession, deleteSession, recordCheckin } = useTrainingSessions()
-  const { submissions, users, addSubmission } = useSubmissions()
+  const { submissions, users, addUser, addSubmission } = useSubmissions()
+  const { role, profile } = useAuth()
+  const { logAudit } = useAudit()
+  const { pushNotification } = useNotifications()
   const [sessionTitle, setSessionTitle] = useState('')
   const [sessionDate, setSessionDate] = useState('')
   const [sessionSearch, setSessionSearch] = useState('')
   const [qrDataUrls, setQrDataUrls] = useState<Record<string, string>>({})
   const [viewingCode, setViewingCode] = useState<string | null>(null)
   const [deletingCode, setDeletingCode] = useState<string | null>(null)
-  const [rosterTab, setRosterTab] = useState<'present' | 'absent'>('present')
-  const [manualUser, setManualUser] = useState('')
+  const [newName, setNewName] = useState('')
+  const [newRoom, setNewRoom] = useState('')
+  const [existingUser, setExistingUser] = useState('')
+  const [addHint, setAddHint] = useState<string | null>(null)
   const [copiedLink, setCopiedLink] = useState(false)
 
   const viewingSession = sessions.find((s) => s.code === viewingCode) ?? null
@@ -72,6 +80,10 @@ export default function TrainingQrSection() {
     e.preventDefault()
     if (!sessionTitle.trim()) return
     addSession(sessionTitle.trim(), sessionDate)
+    if (role) {
+      logAudit({ actor: profile.name, actorRole: role, action: 'create_qr', target: sessionTitle.trim() })
+      pushNotification({ kind: 'info', title: 'Đã tạo mã QR', description: sessionTitle.trim() })
+    }
     setSessionTitle('')
     setSessionDate('')
   }
@@ -105,14 +117,60 @@ export default function TrainingQrSection() {
       points: 1,
       status: 'approved',
     })
+    if (role) {
+      logAudit({ actor: profile.name, actorRole: role, action: 'add_attendee', target: userName, detail: session.title })
+      pushNotification({ kind: 'success', title: 'Đã thêm người vào sổ', description: `${userName} — ${session.title}` })
+    }
     return result
   }
 
-  function handleManualCheckin() {
-    if (!viewingSession || !manualUser) return
-    const user = users.find((u) => u.name === manualUser)
-    checkInUser(viewingSession, manualUser, user?.room)
-    setManualUser('')
+  function slugEmail(name: string) {
+    const slug = name
+      .toLowerCase()
+      .normalize('NFD')
+      .replace(/[\u0300-\u036f]/g, '')
+      .replace(/[^a-z0-9]+/g, '.')
+      .replace(/^\.+|\.+$/g, '')
+    return `${slug || 'sale'}.${Date.now().toString(36)}@dtr.vn`
+  }
+
+  function handleAddPerson() {
+    if (!viewingSession) return
+    const name = newName.trim()
+    const room = newRoom.trim() || undefined
+    if (!name) {
+      setAddHint('Nhập họ tên người cần thêm.')
+      return
+    }
+    if (viewingAttendees.some((a) => a.userName.toLowerCase() === name.toLowerCase())) {
+      setAddHint('Người này đã có trong sổ điểm danh.')
+      return
+    }
+    let user = users.find((u) => u.name.toLowerCase() === name.toLowerCase())
+    if (!user) {
+      user = addUser(name, slugEmail(name), 'user', room)
+    }
+    const result = checkInUser(viewingSession, user.name, room ?? user.room)
+    if (result !== 'ok') {
+      setAddHint(result === 'closed' ? 'Buổi đã đóng, không thêm được.' : 'Không thêm được người này.')
+      return
+    }
+    setNewName('')
+    setNewRoom('')
+    setExistingUser('')
+    setAddHint(`Đã thêm ${user.name} và cộng +1 điểm.`)
+  }
+
+  function handleAddExisting() {
+    if (!viewingSession || !existingUser) return
+    const user = users.find((u) => u.name === existingUser)
+    const result = checkInUser(viewingSession, existingUser, user?.room)
+    if (result !== 'ok') {
+      setAddHint(result === 'duplicate' ? 'Người này đã có trong sổ điểm danh.' : 'Không thêm được người này.')
+      return
+    }
+    setExistingUser('')
+    setAddHint(`Đã thêm ${existingUser} và cộng +1 điểm.`)
   }
 
   async function handleCopyLink(code: string) {
@@ -218,8 +276,10 @@ export default function TrainingQrSection() {
                       className="flex min-w-0 flex-1 cursor-pointer items-center gap-3.5 border-none bg-transparent px-3.5 py-2.5 text-left font-inherit"
                       onClick={() => {
                         setViewingCode(session.code)
-                        setRosterTab('present')
-                        setManualUser('')
+                        setNewName('')
+                        setNewRoom('')
+                        setExistingUser('')
+                        setAddHint(null)
                         setCopiedLink(false)
                       }}
                     >
@@ -339,25 +399,8 @@ export default function TrainingQrSection() {
 
               <div className="flex min-w-0 flex-col gap-3">
                 <div className="flex flex-wrap items-center justify-between gap-2">
-                  <div className="flex rounded-full border border-[rgba(37,99,235,0.25)] p-0.5">
-                    <button
-                      type="button"
-                      className={`cursor-pointer rounded-full border-none px-3 py-1.5 font-inherit text-[12px] font-bold ${
-                        rosterTab === 'present' ? 'bg-(--gold) text-(--on-gold)' : 'bg-transparent text-(--text-secondary)'
-                      }`}
-                      onClick={() => setRosterTab('present')}
-                    >
-                      Đã điểm danh {viewingAttendees.length}
-                    </button>
-                    <button
-                      type="button"
-                      className={`cursor-pointer rounded-full border-none px-3 py-1.5 font-inherit text-[12px] font-bold ${
-                        rosterTab === 'absent' ? 'bg-(--gold) text-(--on-gold)' : 'bg-transparent text-(--text-secondary)'
-                      }`}
-                      onClick={() => setRosterTab('absent')}
-                    >
-                      Chưa điểm danh {viewingAbsentees.length}
-                    </button>
+                  <div className="rounded-full bg-(--gold) px-3 py-1.5 text-[12px] font-bold text-white">
+                    Đã điểm danh {viewingAttendees.length}
                   </div>
                   <button
                     type="button"
@@ -369,81 +412,104 @@ export default function TrainingQrSection() {
                   </button>
                 </div>
 
-                {viewingSession.status === 'open' && viewingAbsentees.length > 0 && (
-                  <div className="flex flex-wrap items-end gap-2">
-                    <div className="min-w-[180px] flex-1">
-                      <SearchableSelect
-                        options={viewingAbsentees.map((u) => ({ value: u.name, label: u.name }))}
-                        value={manualUser}
-                        onChange={setManualUser}
-                        placeholder="Điểm danh hộ..."
-                      />
+                {viewingSession.status === 'open' && (
+                  <div className="flex flex-col gap-3 rounded-xl border border-[rgba(37,99,235,0.18)] bg-[rgba(37,99,235,0.04)] p-3">
+                    <div className="text-[12px] font-bold text-(--text-secondary)">Thêm người không quét được QR</div>
+                    <div className="flex flex-wrap items-end gap-2">
+                      <div className="min-w-[160px] flex-1">
+                        <input
+                          className="w-full rounded-[10px] border border-[rgba(37,99,235,0.25)] bg-(--surface-1) px-3.5 py-2.5 font-['Open_Sans',sans-serif] text-sm text-(--text-primary) placeholder:text-(--text-muted) focus:border-(--gold) focus:outline-none"
+                          type="text"
+                          placeholder="Họ tên"
+                          value={newName}
+                          onChange={(e) => {
+                            setNewName(e.target.value)
+                            setAddHint(null)
+                          }}
+                          onKeyDown={(e) => {
+                            if (e.key === 'Enter') {
+                              e.preventDefault()
+                              handleAddPerson()
+                            }
+                          }}
+                        />
+                      </div>
+                      <div className="min-w-[120px] w-[34%]">
+                        <input
+                          className="w-full rounded-[10px] border border-[rgba(37,99,235,0.25)] bg-(--surface-1) px-3.5 py-2.5 font-['Open_Sans',sans-serif] text-sm text-(--text-primary) placeholder:text-(--text-muted) focus:border-(--gold) focus:outline-none"
+                          type="text"
+                          placeholder="Phòng (không bắt buộc)"
+                          value={newRoom}
+                          onChange={(e) => setNewRoom(e.target.value)}
+                          onKeyDown={(e) => {
+                            if (e.key === 'Enter') {
+                              e.preventDefault()
+                              handleAddPerson()
+                            }
+                          }}
+                        />
+                      </div>
+                      <button
+                        type="button"
+                        className="min-h-[42px] cursor-pointer rounded-[10px] border-none bg-[linear-gradient(90deg,var(--gold-deep),var(--gold))] px-4 py-2 font-['Open_Sans',sans-serif] text-[12.5px] font-bold text-white disabled:cursor-not-allowed disabled:opacity-40"
+                        disabled={!newName.trim()}
+                        onClick={handleAddPerson}
+                      >
+                        Thêm người
+                      </button>
                     </div>
-                    <button
-                      type="button"
-                      className="min-h-[42px] cursor-pointer rounded-[10px] border-none bg-[linear-gradient(90deg,var(--gold-deep),var(--gold))] px-4 py-2 font-['Open_Sans',sans-serif] text-[12.5px] font-bold text-(--on-gold) disabled:cursor-not-allowed disabled:opacity-40"
-                      disabled={!manualUser}
-                      onClick={handleManualCheckin}
-                    >
-                      Cộng +1 điểm
-                    </button>
+                    {viewingAbsentees.length > 0 && (
+                      <div className="flex flex-wrap items-end gap-2">
+                        <div className="min-w-[180px] flex-1">
+                          <SearchableSelect
+                            options={viewingAbsentees.map((u) => ({
+                              value: u.name,
+                              label: u.room ? `${u.name} — ${u.room}` : u.name,
+                            }))}
+                            value={existingUser}
+                            onChange={(value) => {
+                              setExistingUser(value)
+                              setAddHint(null)
+                            }}
+                            placeholder="Chọn người đã có trong danh sách..."
+                          />
+                        </div>
+                        <button
+                          type="button"
+                          className="min-h-[42px] cursor-pointer rounded-[10px] border border-[rgba(37,99,235,0.3)] bg-transparent px-4 py-2 font-['Open_Sans',sans-serif] text-[12.5px] font-bold text-(--gold-bright) disabled:cursor-not-allowed disabled:opacity-40"
+                          disabled={!existingUser}
+                          onClick={handleAddExisting}
+                        >
+                          Thêm
+                        </button>
+                      </div>
+                    )}
+                    {addHint && <p className="m-0 text-[12px] text-(--text-tertiary)">{addHint}</p>}
                   </div>
                 )}
 
-                {rosterTab === 'present' ? (
-                  viewingAttendees.length === 0 ? (
-                    <p className="m-0 rounded-xl border border-dashed border-[rgba(37,99,235,0.25)] px-4 py-6 text-center text-[13px] text-(--text-tertiary)">
-                      Chưa có ai điểm danh buổi này. Sale quét mã, hoặc điểm danh hộ ở trên.
-                    </p>
-                  ) : (
-                    <div className="flex max-h-[240px] flex-col overflow-y-auto rounded-xl border border-[rgba(37,99,235,0.16)]">
-                      {viewingAttendees.map((a) => (
-                        <div
-                          className="flex items-center gap-3 border-b border-(--hairline) px-3.5 py-2.5 last:border-b-0"
-                          key={`${a.userName}-${a.checkedInAt}`}
-                        >
-                          <span className="flex h-8 w-8 shrink-0 items-center justify-center rounded-full bg-[linear-gradient(135deg,var(--gold),var(--gold-deep))] text-[11px] font-bold text-(--on-gold)">
-                            {getInitials(a.userName)}
-                          </span>
-                          <div className="min-w-0 flex-1">
-                            <div className="truncate text-[13.5px] font-bold text-(--text-primary)">{a.userName}</div>
-                            <div className="text-[11.5px] text-(--text-tertiary)">{a.room ?? 'Chưa gán phòng'}</div>
-                          </div>
-                          <div className="shrink-0 text-right">
-                            <div className="text-[12px] font-bold text-(--gold-bright)">+1 điểm</div>
-                            <div className="text-[11px] text-(--text-muted)">{a.checkedInAt}</div>
-                          </div>
-                        </div>
-                      ))}
-                    </div>
-                  )
-                ) : viewingAbsentees.length === 0 ? (
+                {viewingAttendees.length === 0 ? (
                   <p className="m-0 rounded-xl border border-dashed border-[rgba(37,99,235,0.25)] px-4 py-6 text-center text-[13px] text-(--text-tertiary)">
-                    Mọi sale đã điểm danh buổi này.
+                    Chưa có ai điểm danh buổi này. Sale quét mã, hoặc thêm người không quét được QR ở trên.
                   </p>
                 ) : (
                   <div className="flex max-h-[240px] flex-col overflow-y-auto rounded-xl border border-[rgba(37,99,235,0.16)]">
-                    {viewingAbsentees.map((u) => (
+                    {viewingAttendees.map((a) => (
                       <div
                         className="flex items-center gap-3 border-b border-(--hairline) px-3.5 py-2.5 last:border-b-0"
-                        key={u.id}
+                        key={`${a.userName}-${a.checkedInAt}`}
                       >
-                        <span className="flex h-8 w-8 shrink-0 items-center justify-center rounded-full bg-[rgba(37,99,235,0.12)] text-[11px] font-bold text-(--text-secondary)">
-                          {getInitials(u.name)}
+                        <span className="flex h-8 w-8 shrink-0 items-center justify-center rounded-full bg-[linear-gradient(135deg,var(--gold),var(--gold-deep))] text-[11px] font-bold text-white">
+                          {getInitials(a.userName)}
                         </span>
                         <div className="min-w-0 flex-1">
-                          <div className="truncate text-[13.5px] font-bold text-(--text-primary)">{u.name}</div>
-                          <div className="text-[11.5px] text-(--text-tertiary)">{u.room ?? 'Chưa gán phòng'}</div>
+                          <div className="truncate text-[13.5px] font-bold text-(--text-primary)">{a.userName}</div>
+                          <div className="text-[11.5px] text-(--text-tertiary)">{a.room ?? 'Chưa gán phòng'}</div>
                         </div>
-                        {viewingSession.status === 'open' && (
-                          <button
-                            type="button"
-                            className="shrink-0 cursor-pointer rounded-lg border border-[rgba(37,99,235,0.28)] bg-transparent px-2.5 py-1.5 text-[11.5px] font-bold text-(--gold-bright)"
-                            onClick={() => checkInUser(viewingSession, u.name, u.room)}
-                          >
-                            Điểm danh hộ
-                          </button>
-                        )}
+                        <div className="shrink-0 text-right">
+                          <div className="text-[12px] font-bold text-(--gold-bright)">+1 điểm</div>
+                          <div className="text-[11px] text-(--text-muted)">{a.checkedInAt}</div>
+                        </div>
                       </div>
                     ))}
                   </div>
@@ -456,7 +522,10 @@ export default function TrainingQrSection() {
                 <button
                   type="button"
                   className="min-h-11 cursor-pointer rounded-[10px] border border-[rgba(37,99,235,0.3)] bg-transparent px-5 py-[11px] font-['Open_Sans',sans-serif] text-[13.5px] font-bold text-(--text-secondary)"
-                  onClick={() => closeSession(viewingSession.code)}
+                  onClick={() => {
+                    closeSession(viewingSession.code)
+                    if (role) logAudit({ actor: profile.name, actorRole: role, action: 'close_qr', target: viewingSession.title })
+                  }}
                 >
                   Đóng điểm danh
                 </button>
@@ -464,7 +533,10 @@ export default function TrainingQrSection() {
                 <button
                   type="button"
                   className="min-h-11 cursor-pointer rounded-[10px] border border-[rgba(37,99,235,0.3)] bg-transparent px-5 py-[11px] font-['Open_Sans',sans-serif] text-[13.5px] font-bold text-(--text-secondary)"
-                  onClick={() => reopenSession(viewingSession.code)}
+                  onClick={() => {
+                    reopenSession(viewingSession.code)
+                    if (role) logAudit({ actor: profile.name, actorRole: role, action: 'reopen_qr', target: viewingSession.title })
+                  }}
                 >
                   Mở lại điểm danh
                 </button>
@@ -497,6 +569,7 @@ export default function TrainingQrSection() {
           onCancel={() => setDeletingCode(null)}
           onConfirm={() => {
             deleteSession(deletingSession.code)
+            if (role) logAudit({ actor: profile.name, actorRole: role, action: 'delete_qr', target: deletingSession.title })
             setDeletingCode(null)
             if (viewingCode === deletingSession.code) setViewingCode(null)
           }}

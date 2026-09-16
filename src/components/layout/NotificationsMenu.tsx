@@ -1,6 +1,7 @@
-import { useEffect, useRef, useState } from 'react'
+import { useNotifications } from '../../context/NotificationsContext'
 import { BellIcon } from '../ui/icons'
-import { initialNotifications, type AppNotification, type NotificationKind } from '../../data/notificationsData'
+import type { NotificationKind } from '../../data/notificationsData'
+import { useEffect, useRef, useState } from 'react'
 
 const kindDotClass: Record<NotificationKind, string> = {
   success: 'bg-(--positive)',
@@ -9,11 +10,9 @@ const kindDotClass: Record<NotificationKind, string> = {
 }
 
 export default function NotificationsMenu() {
-  const [items, setItems] = useState<AppNotification[]>(initialNotifications)
+  const { items, unreadCount, markAllRead } = useNotifications()
   const [open, setOpen] = useState(false)
   const rootRef = useRef<HTMLDivElement>(null)
-
-  const unreadCount = items.filter((n) => !n.read).length
 
   useEffect(() => {
     if (!open) return
@@ -25,10 +24,6 @@ export default function NotificationsMenu() {
     document.addEventListener('mousedown', handleClick)
     return () => document.removeEventListener('mousedown', handleClick)
   }, [open])
-
-  function markAllRead() {
-    setItems((prev) => prev.map((n) => ({ ...n, read: true })))
-  }
 
   return (
     <div className="relative" ref={rootRef}>

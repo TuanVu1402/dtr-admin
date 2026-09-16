@@ -5,6 +5,7 @@ import { DownloadIcon, TrendUpIcon } from '../../components/ui/icons'
 import SearchableSelect from '../../components/form/SearchableSelect'
 import { formatPoints, parseVNDate } from '../../utils/format'
 import { exportCsv } from '../../utils/exportCsv'
+import { exportPdf } from '../../utils/exportPdf'
 import type { SubmissionStatus } from '../../types/dtr'
 
 type RangePreset = 'all' | 'month' | 'quarter' | 'custom'
@@ -15,15 +16,14 @@ const statusLabels: Record<SubmissionStatus, string> = {
   rejected: 'Từ chối',
 }
 
-// Số liệu xu hướng theo tháng — minh hoạ, chưa có dữ liệu lịch sử thật để tổng hợp.
-const monthlyTrend = [
-  { month: 'T4', count: 14, points: 42 },
-  { month: 'T5', count: 18, points: 55 },
-  { month: 'T6', count: 21, points: 63 },
-  { month: 'T7', count: 19, points: 58 },
-  { month: 'T8', count: 24, points: 71 },
-  { month: 'T9', count: 12, points: 39 },
-]
+function lastSixMonths(now = new Date()) {
+  const months: { key: string; label: string; year: number; month: number }[] = []
+  for (let i = 5; i >= 0; i -= 1) {
+    const d = new Date(now.getFullYear(), now.getMonth() - i, 1)
+    months.push({ key: `${d.getFullYear()}-${d.getMonth()}`, label: `T${d.getMonth() + 1}`, year: d.getFullYear(), month: d.getMonth() })
+  }
+  return months
+}
 
 // Các bước chia trục thường gặp, chọn bước đầu tiên cho ra tối đa 4 vạch lưới.
 const AXIS_STEPS = [1, 2, 5, 10, 20, 25, 50, 100, 200, 500]
@@ -168,24 +168,53 @@ export default function ReportsPanel() {
       .slice(0, 6)
   }, [submissions])
 
+  const monthlyTrend = useMemo(() => {
+    const buckets = lastSixMonths()
+    return buckets.map((bucket) => {
+      let count = 0
+      let points = 0
+      for (const s of submissions) {
+        const d = parseVNDate(s.date)
+        if (d.getFullYear() === bucket.year && d.getMonth() === bucket.month) {
+          count += 1
+          if (s.status === 'approved') points += s.points
+        }
+      }
+      return { month: bucket.label, count, points }
+    })
+  }, [submissions])
+
   const trend = useMemo(() => {
     const counts = monthlyTrend.map((m) => m.count)
-    const peakCount = Math.max(...counts)
+    const peakCount = Math.max(0, ...counts)
     const totalCount = counts.reduce((sum, c) => sum + c, 0)
     const latest = monthlyTrend[monthlyTrend.length - 1]
     const previous = monthlyTrend[monthlyTrend.length - 2]
     const deltaPercent =
       previous && previous.count > 0 ? Math.round(((latest.count - previous.count) / previous.count) * 100) : 0
     return {
-      ...buildAxis(peakCount),
+      ...buildAxis(Math.max(peakCount, 1)),
       peakCount,
       totalCount,
-      avgCount: Math.round(totalCount / counts.length),
+      avgCount: monthlyTrend.length ? Math.round(totalCount / monthlyTrend.length) : 0,
       totalPoints: monthlyTrend.reduce((sum, m) => sum + m.points, 0),
       deltaPercent,
       latest,
     }
-  }, [])
+  }, [monthlyTrend])
+
+  function handleExportPdf() {
+    const rows = filteredForExport
+      .map(
+        (s) =>
+          `<tr><td>${s.userName}</td><td>${userByName.get(s.userName)?.room ?? '—'}</td><td>${s.categoryLabel}</td><td>${s.date}</td><td>${formatPoints(s.points)}</td><td>${statusLabels[s.status]}</td></tr>`,
+      )
+      .join('')
+    exportPdf(
+      'Báo cáo DTR Point',
+      `<table><thead><tr><th>Người nộp</th><th>Phòng</th><th>Hạng mục</th><th>Ngày</th><th>Điểm</th><th>Trạng thái</th></tr></thead><tbody>${rows}</tbody></table>`,
+    )
+  }
 
   function handleExportCsv() {
     const nameSlug = exportUser === 'all' ? 'tat-ca' : exportUser.toLowerCase().replace(/\s+/g, '-')
@@ -219,7 +248,7 @@ export default function ReportsPanel() {
 
       <div className={reportCardClass}>
         <div className="flex flex-wrap items-center justify-between gap-3">
-          <div className={reportCardTitleClass}>Bộ lọc xuất báo cáo Excel</div>
+          <div className={reportCardTitleClass}>Bộ lọc xuất báo cáo Excel / PDF</div>
           {hasActiveFilters && (
             <button
               type="button"
@@ -363,14 +392,24 @@ export default function ReportsPanel() {
           <p className="m-0 text-sm font-medium text-(--text-tertiary)">
             Khớp {filteredForExport.length} minh chứng theo bộ lọc hiện tại.
           </p>
-          <button
-            type="button"
-            className="inline-flex min-h-11 cursor-pointer items-center gap-1.5 rounded-[10px] border-none bg-[linear-gradient(90deg,var(--gold-deep),var(--gold))] px-5 py-[11px] font-['Open_Sans',sans-serif] text-[13.5px] font-bold text-(--on-gold) disabled:cursor-not-allowed disabled:opacity-50"
-            disabled={filteredForExport.length === 0}
-            onClick={handleExportCsv}
-          >
-            <DownloadIcon size={15} /> Xuất Excel
-          </button>
+          <div className="flex flex-wrap gap-2">
+            <button
+              type="button"
+              className="inline-flex min-h-11 cursor-pointer items-center gap-1.5 rounded-[10px] border border-[rgba(37,99,235,0.3)] bg-transparent px-5 py-[11px] font-['Open_Sans',sans-serif] text-[13.5px] font-bold text-(--text-secondary) disabled:cursor-not-allowed disabled:opacity-50"
+              disabled={filteredForExport.length === 0}
+              onClick={handleExportPdf}
+            >
+              <DownloadIcon size={15} /> Xuất PDF
+            </button>
+            <button
+              type="button"
+              className="inline-flex min-h-11 cursor-pointer items-center gap-1.5 rounded-[10px] border-none bg-[linear-gradient(90deg,var(--gold-deep),var(--gold))] px-5 py-[11px] font-['Open_Sans',sans-serif] text-[13.5px] font-bold text-(--on-gold) disabled:cursor-not-allowed disabled:opacity-50"
+              disabled={filteredForExport.length === 0}
+              onClick={handleExportCsv}
+            >
+              <DownloadIcon size={15} /> Xuất Excel
+            </button>
+          </div>
         </div>
       </div>
 

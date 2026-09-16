@@ -5,19 +5,13 @@ import UserMenu from '../../components/layout/UserMenu'
 import { useAuth } from '../../context/AuthContext'
 import { useTheme } from '../../context/ThemeContext'
 import { getInitials } from '../../utils/format'
-
-const tabs = [
-  { to: 'manager', label: 'Manager' },
-  { to: 'users', label: 'Admin' },
-  { to: 'support', label: 'Support Admin' },
-  { to: 'feedback', label: 'Phản hồi' },
-  { to: 'reports', label: 'Thống kê' },
-]
+import { appTabs } from '../../utils/roles'
 
 export default function AdminLayout() {
-  const { logout, profile } = useAuth()
+  const { logout, profile, role } = useAuth()
   const { theme, toggleTheme } = useTheme()
   const navigate = useNavigate()
+  const visibleTabs = appTabs.filter((tab) => role && tab.roles.includes(role))
 
   function handleLogout() {
     logout()
@@ -50,16 +44,16 @@ export default function AdminLayout() {
       </header>
 
       <section className="flex flex-col gap-3.5 px-11 pt-9 max-[640px]:px-5">
-        <div className="text-xs font-bold tracking-[1.4px] text-(--text-tertiary) uppercase">Xem theo vai trò</div>
+        <div className="text-xs font-bold tracking-[1.4px] text-(--text-tertiary) uppercase">Menu theo quyền</div>
         <div className="flex flex-wrap gap-2.5">
-          {tabs.map((tab) => (
+          {visibleTabs.map((tab) => (
             <NavLink
               key={tab.to}
               to={tab.to}
               className={({ isActive }) =>
                 `cursor-pointer rounded-full border px-5 py-2.5 font-['Open_Sans',sans-serif] text-[13.5px] font-bold no-underline ${
                   isActive
-                    ? 'border-(--gold) bg-(--gold) text-(--on-gold)'
+                    ? 'border-(--gold) bg-(--gold) text-white'
                     : 'border-[rgba(37,99,235,0.25)] bg-transparent text-(--text-secondary)'
                 }`
               }
@@ -69,11 +63,10 @@ export default function AdminLayout() {
           ))}
         </div>
         <p className="mt-1 max-w-[780px] text-[13px] leading-[1.6] text-(--text-tertiary)">
-          <b className="text-(--gold-bright)">Manager</b> duyệt / từ chối minh chứng để chấm điểm DTR.{' '}
-          <b className="text-(--gold-bright)">Admin</b> quản lý danh sách người dùng &amp; tạo mã QR điểm danh.{' '}
-          <b className="text-(--gold-bright)">Support Admin</b> toàn quyền — thấy được cả 2 mục trên.{' '}
-          <b className="text-(--gold-bright)">Phản hồi</b> xem báo lỗi / góp ý người dùng gửi từ Trang chủ User.{' '}
-          <b className="text-(--gold-bright)">Thống kê</b> tổng quan số liệu và xuất báo cáo Excel/PDF.
+          Đăng nhập với vai trò nào thì chỉ thấy mục của vai trò đó.{' '}
+          <b className="text-(--gold-bright)">Manager</b> chấm điểm.{' '}
+          <b className="text-(--gold-bright)">Admin</b> quản lý user, QR, hạng mục.{' '}
+          <b className="text-(--gold-bright)">Support Admin</b> thấy toàn bộ menu.
         </p>
       </section>
 

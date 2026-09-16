@@ -3,8 +3,6 @@ import { BriefcaseIcon, CrownIcon, MoonIcon, ShieldIcon, SunIcon } from '../comp
 import BrandLogo from '../components/BrandLogo'
 import { useTheme } from '../context/ThemeContext'
 import { roleLabels, type Role } from '../types/dtr'
-import '../styles/shared.css'
-import './AuthPage.css'
 
 type AuthTab = 'login' | 'register' | 'forgot'
 
@@ -17,6 +15,14 @@ const quickRoles: { role: Role; icon: typeof ShieldIcon }[] = [
   { role: 'admin', icon: ShieldIcon },
   { role: 'support_admin', icon: CrownIcon },
 ]
+
+const fieldInputClass =
+  "w-full rounded-[10px] border border-[rgba(37,99,235,0.25)] bg-(--surface-tint) px-3.5 py-[11px] font-['Open_Sans',sans-serif] text-sm text-(--text-primary) placeholder:text-(--text-muted) focus:border-(--gold) focus:outline-none"
+const fieldLabelClass = 'text-[12.5px] font-bold text-(--text-secondary)'
+const authSubmitClass =
+  "min-h-[46px] cursor-pointer rounded-[10px] border-none bg-[linear-gradient(90deg,var(--gold-deep),var(--gold))] px-5 py-[13px] font-['Open_Sans',sans-serif] text-sm font-bold text-(--on-gold)"
+const authLinkBtnClass = 'cursor-pointer border-none bg-none p-0 font-inherit font-bold text-(--gold-bright)'
+const authSwitchClass = 'm-0 text-center text-[13.5px] text-(--text-tertiary)'
 
 export default function AuthPage({ onAuthenticated }: AuthPageProps) {
   const [tab, setTab] = useState<AuthTab>('login')
@@ -47,51 +53,59 @@ export default function AuthPage({ onAuthenticated }: AuthPageProps) {
   }
 
   return (
-    <div className="auth-root page-bg">
+    <div className="relative flex min-h-svh items-center justify-center bg-[radial-gradient(1100px_480px_at_85%_-10%,var(--bg-glow),transparent_60%),linear-gradient(180deg,var(--bg-1)_0%,var(--bg-2)_40%,var(--bg-3)_100%)] px-5 py-10 text-(--text-primary)">
       <button
         type="button"
-        className="icon-btn auth-theme-toggle"
+        className="absolute top-5 right-5 flex h-10 w-10 items-center justify-center rounded-full border border-[rgba(37,99,235,0.22)] bg-[rgba(37,99,235,0.08)] text-(--gold)"
         onClick={toggleTheme}
         aria-label={theme === 'dark' ? 'Chuyển sang giao diện sáng' : 'Chuyển sang giao diện tối'}
         title={theme === 'dark' ? 'Giao diện sáng' : 'Giao diện tối'}
       >
         {theme === 'dark' ? <SunIcon /> : <MoonIcon />}
       </button>
-      <div className="auth-shell">
-        <div className="auth-brand">
+      <div className="flex w-full max-w-[420px] flex-col items-center gap-7">
+        <div className="flex flex-col items-center gap-1.5">
           <BrandLogo height={56} />
-          <div className="auth-tagline">YOUR TIME HAS COME</div>
+          <div className="text-[11px] font-semibold tracking-[3px] text-(--text-tertiary)">YOUR TIME HAS COME</div>
         </div>
 
-        <div className="auth-card">
+        <div className="flex w-full flex-col gap-5.5 rounded-[20px] border border-[rgba(37,99,235,0.28)] bg-(--surface-1) p-8 shadow-[0_30px_60px_var(--shadow)] dark:bg-[linear-gradient(160deg,color-mix(in_srgb,var(--surface-1)_60%,transparent),color-mix(in_srgb,var(--surface-2)_60%,transparent))]">
           {tab === 'forgot' ? (
-            <div className="auth-card-head">
-              <h1 className="auth-title">Quên mật khẩu</h1>
-              <p className="auth-subtitle">
+            <div className="flex flex-col gap-2">
+              <h1 className="m-0 font-['Open_Sans',sans-serif] text-[22px] font-extrabold text-(--text-primary)">
+                Quên mật khẩu
+              </h1>
+              <p className="m-0 text-[13.5px] leading-[1.55] text-(--text-tertiary)">
                 Nhập email đã đăng ký, mình sẽ gửi liên kết đặt lại mật khẩu cho bạn.
               </p>
             </div>
           ) : (
-            <div className="auth-card-head">
-              <h1 className="auth-title">Chào mừng bạn quay lại</h1>
-              <p className="auth-subtitle">
+            <div className="flex flex-col gap-2">
+              <h1 className="m-0 font-['Open_Sans',sans-serif] text-[22px] font-extrabold text-(--text-primary)">
+                Chào mừng bạn quay lại
+              </h1>
+              <p className="m-0 text-[13.5px] leading-[1.55] text-(--text-tertiary)">
                 Đăng nhập vào DTR Point Admin để chấm điểm, quản lý người dùng và xem phản hồi.
               </p>
             </div>
           )}
 
           {tab !== 'forgot' && (
-            <div className="auth-tabs">
+            <div className="flex rounded-full border border-[rgba(37,99,235,0.2)] bg-(--surface-tint) p-1.5">
               <button
                 type="button"
-                className={`auth-tab${tab === 'login' ? ' active' : ''}`}
+                className={`flex-1 cursor-pointer rounded-full border-none p-2.5 font-['Open_Sans',sans-serif] text-[13.5px] font-bold ${
+                  tab === 'login' ? 'bg-(--gold) text-(--on-gold)' : 'bg-transparent text-(--text-secondary)'
+                }`}
                 onClick={() => setTab('login')}
               >
                 Đăng nhập
               </button>
               <button
                 type="button"
-                className={`auth-tab${tab === 'register' ? ' active' : ''}`}
+                className={`flex-1 cursor-pointer rounded-full border-none p-2.5 font-['Open_Sans',sans-serif] text-[13.5px] font-bold ${
+                  tab === 'register' ? 'bg-(--gold) text-(--on-gold)' : 'bg-transparent text-(--text-secondary)'
+                }`}
                 onClick={() => setTab('register')}
               >
                 Đăng ký
@@ -101,12 +115,12 @@ export default function AuthPage({ onAuthenticated }: AuthPageProps) {
 
           {tab === 'login' ? (
             <>
-              <div className="quick-role-grid">
+              <div className="grid grid-cols-2 gap-2.5 max-[480px]:grid-cols-1">
                 {quickRoles.map(({ role, icon: Icon }) => (
                   <button
                     key={role}
                     type="button"
-                    className="quick-role-btn"
+                    className="flex min-h-11 items-center gap-2 rounded-[10px] border border-[rgba(37,99,235,0.28)] bg-(--surface-tint) px-3 py-[11px] text-left font-['Open_Sans',sans-serif] text-[12.5px] font-bold text-(--text-primary) hover:border-(--gold) hover:bg-[rgba(37,99,235,0.12)]"
                     onClick={() => onAuthenticated(role)}
                   >
                     <Icon size={18} />
@@ -115,120 +129,114 @@ export default function AuthPage({ onAuthenticated }: AuthPageProps) {
                 ))}
               </div>
 
-              <div className="auth-divider">
+              <div className="flex items-center gap-3 text-[11px] font-bold tracking-[1px] text-(--text-muted) before:h-px before:flex-1 before:bg-[rgba(37,99,235,0.18)] before:content-[''] after:h-px after:flex-1 after:bg-[rgba(37,99,235,0.18)] after:content-['']">
                 <span>HOẶC ĐĂNG NHẬP THỦ CÔNG</span>
               </div>
 
-              <form className="auth-form" onSubmit={handleLogin}>
-                <div className="field">
-                  <label className="field-label" htmlFor="login-email">
+              <form className="flex flex-col gap-4.5" onSubmit={handleLogin}>
+                <div className="flex flex-col gap-2">
+                  <label className={fieldLabelClass} htmlFor="login-email">
                     Email
                   </label>
-                  <input
-                    id="login-email"
-                    className="field-input"
-                    type="email"
-                    placeholder="ban@dtr.vn"
-                    required
-                  />
+                  <input id="login-email" className={fieldInputClass} type="email" placeholder="ban@dtr.vn" required />
                 </div>
 
-                <div className="field">
-                  <label className="field-label" htmlFor="login-password">
+                <div className="flex flex-col gap-2">
+                  <label className={fieldLabelClass} htmlFor="login-password">
                     Mật khẩu
                   </label>
                   <input
                     id="login-password"
-                    className="field-input"
+                    className={fieldInputClass}
                     type="password"
                     placeholder="••••••••"
                     required
                   />
                 </div>
 
-                <div className="auth-row">
-                  <label className="auth-checkbox">
-                    <input type="checkbox" />
+                <div className="-mt-1.5 flex flex-wrap items-center justify-between gap-2.5">
+                  <label className="flex cursor-pointer items-center gap-2 text-[13px] text-(--text-secondary)">
+                    <input type="checkbox" className="accent-(--gold)" />
                     Ghi nhớ đăng nhập
                   </label>
-                  <button type="button" className="auth-link-btn" onClick={() => setTab('forgot')}>
+                  <button type="button" className={authLinkBtnClass} onClick={() => setTab('forgot')}>
                     Quên mật khẩu?
                   </button>
                 </div>
 
-                <button type="submit" className="auth-submit">
+                <button type="submit" className={authSubmitClass}>
                   Đăng nhập
                 </button>
 
-                <p className="auth-switch">
+                <p className={authSwitchClass}>
                   Chưa có tài khoản?{' '}
-                  <button type="button" className="auth-link-btn" onClick={() => setTab('register')}>
+                  <button type="button" className={authLinkBtnClass} onClick={() => setTab('register')}>
                     Đăng ký ngay
                   </button>
                 </p>
               </form>
             </>
           ) : tab === 'register' ? (
-            <form className="auth-form" onSubmit={handleRegister}>
-              <div className="field">
-                <label className="field-label" htmlFor="register-name">
+            <form className="flex flex-col gap-4.5" onSubmit={handleRegister}>
+              <div className="flex flex-col gap-2">
+                <label className={fieldLabelClass} htmlFor="register-name">
                   Họ và tên
                 </label>
                 <input
                   id="register-name"
-                  className="field-input"
+                  className={fieldInputClass}
                   type="text"
                   placeholder="Nguyễn An"
                   required
                 />
               </div>
 
-              <div className="field">
-                <label className="field-label" htmlFor="register-email">
+              <div className="flex flex-col gap-2">
+                <label className={fieldLabelClass} htmlFor="register-email">
                   Email
                 </label>
                 <input
                   id="register-email"
-                  className="field-input"
+                  className={fieldInputClass}
                   type="email"
                   placeholder="ban@dtr.vn"
                   required
                 />
               </div>
 
-              <div className="field">
-                <label className="field-label" htmlFor="register-phone">
+              <div className="flex flex-col gap-2">
+                <label className={fieldLabelClass} htmlFor="register-phone">
                   Số điện thoại
                 </label>
                 <input
                   id="register-phone"
-                  className="field-input"
+                  className={fieldInputClass}
                   type="tel"
                   placeholder="09xx xxx xxx"
                   required
                 />
               </div>
 
-              <div className="auth-form-grid">
-                <div className="field">
-                  <label className="field-label" htmlFor="register-password">
+              <div className="grid grid-cols-2 gap-3.5 max-[480px]:grid-cols-1">
+                <div className="flex flex-col gap-2">
+                  <label className={fieldLabelClass} htmlFor="register-password">
                     Mật khẩu
                   </label>
                   <input
                     id="register-password"
-                    className="field-input"
+                    className={fieldInputClass}
                     type="password"
                     placeholder="••••••••"
                     required
                   />
                 </div>
-                <div className="field">
-                  <label className="field-label" htmlFor="register-password-confirm">
+                <div className="flex flex-col gap-2">
+                  <label className={fieldLabelClass} htmlFor="register-password-confirm">
                     Xác nhận mật khẩu
                   </label>
                   <input
                     id="register-password-confirm"
-                    className="field-input"
+                    className={fieldInputClass}
                     type="password"
                     placeholder="••••••••"
                     required
@@ -236,36 +244,36 @@ export default function AuthPage({ onAuthenticated }: AuthPageProps) {
                 </div>
               </div>
 
-              <button type="submit" className="auth-submit">
+              <button type="submit" className={authSubmitClass}>
                 Tạo tài khoản
               </button>
 
-              <p className="auth-switch">
+              <p className={authSwitchClass}>
                 Đã có tài khoản?{' '}
-                <button type="button" className="auth-link-btn" onClick={() => setTab('login')}>
+                <button type="button" className={authLinkBtnClass} onClick={() => setTab('login')}>
                   Đăng nhập
                 </button>
               </p>
             </form>
           ) : resetSent ? (
-            <div className="auth-reset-done">
-              <p className="auth-subtitle">
-                Đã gửi liên kết đặt lại mật khẩu tới <b className="gold-text">{resetEmail}</b> (giả lập
-                — chưa nối email thật). Kiểm tra hộp thư để tiếp tục.
+            <div className="flex flex-col gap-4.5">
+              <p className="m-0 text-[13.5px] leading-[1.55] text-(--text-tertiary)">
+                Đã gửi liên kết đặt lại mật khẩu tới <b className="text-(--gold-bright)">{resetEmail}</b> (giả lập —
+                chưa nối email thật). Kiểm tra hộp thư để tiếp tục.
               </p>
-              <button type="button" className="auth-submit" onClick={backToLogin}>
+              <button type="button" className={authSubmitClass} onClick={backToLogin}>
                 Quay lại đăng nhập
               </button>
             </div>
           ) : (
-            <form className="auth-form" onSubmit={handleForgotPassword}>
-              <div className="field">
-                <label className="field-label" htmlFor="forgot-email">
+            <form className="flex flex-col gap-4.5" onSubmit={handleForgotPassword}>
+              <div className="flex flex-col gap-2">
+                <label className={fieldLabelClass} htmlFor="forgot-email">
                   Email
                 </label>
                 <input
                   id="forgot-email"
-                  className="field-input"
+                  className={fieldInputClass}
                   type="email"
                   placeholder="ban@dtr.vn"
                   value={resetEmail}
@@ -274,13 +282,13 @@ export default function AuthPage({ onAuthenticated }: AuthPageProps) {
                 />
               </div>
 
-              <button type="submit" className="auth-submit">
+              <button type="submit" className={authSubmitClass}>
                 Gửi liên kết đặt lại mật khẩu
               </button>
 
-              <p className="auth-switch">
+              <p className={authSwitchClass}>
                 Nhớ ra mật khẩu rồi?{' '}
-                <button type="button" className="auth-link-btn" onClick={backToLogin}>
+                <button type="button" className={authLinkBtnClass} onClick={backToLogin}>
                   Quay lại đăng nhập
                 </button>
               </p>
@@ -288,7 +296,7 @@ export default function AuthPage({ onAuthenticated }: AuthPageProps) {
           )}
         </div>
 
-        <div className="auth-footer">© 2026 DTR — Your Time Has Come</div>
+        <div className="text-center text-xs text-(--text-muted)">© 2026 DTR — Your Time Has Come</div>
       </div>
     </div>
   )

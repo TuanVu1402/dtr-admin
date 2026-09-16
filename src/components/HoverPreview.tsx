@@ -1,5 +1,4 @@
 import { useRef, useState, type ReactNode } from 'react'
-import './HoverPreview.css'
 
 type HoverPreviewProps = {
   children: ReactNode
@@ -59,8 +58,14 @@ export default function HoverPreview({ children, text, imageUrl, className }: Ho
       {children}
       {style && (
         <div
-          className={`hover-preview-box${imageUrl ? ' hover-preview-image' : ''}`}
+          className={
+            imageUrl
+              ? 'pointer-events-none h-[220px] w-[220px] rounded-[10px] bg-(--surface-2) bg-cover bg-center'
+              : 'pointer-events-none w-max max-w-[260px] rounded-lg border border-[rgba(37,99,235,0.3)] bg-(--surface-2) px-3 py-2 text-[12.5px] leading-[1.4] font-semibold whitespace-pre-line text-(--text-primary) shadow-[0_12px_28px_var(--shadow-strong)]'
+          }
           style={{
+            position: 'fixed',
+            zIndex: 9999,
             top: style.placement === 'bottom' ? style.top : undefined,
             bottom: style.placement === 'top' ? window.innerHeight - style.top : undefined,
             left: style.left,

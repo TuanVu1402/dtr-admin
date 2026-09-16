@@ -1,8 +1,6 @@
 import { useState } from 'react'
 import type { AdminUser } from '../types/dtr'
 import { SearchIcon } from './icons'
-import '../styles/shared.css'
-import './UserPicker.css'
 
 export const NEW_USER_VALUE = '__new__'
 const NEW_USER_LABEL = '+ Tạo người mới…'
@@ -27,11 +25,13 @@ export default function UserPicker({ users, value, onChange }: UserPickerProps) 
   }
 
   return (
-    <div className="user-picker" onBlur={() => setTimeout(() => setOpen(false), 120)}>
-      <div className="search-input-wrap">
-        <SearchIcon size={16} />
+    <div className="relative" onBlur={() => setTimeout(() => setOpen(false), 120)}>
+      <div className="relative flex items-center">
+        <span className="pointer-events-none absolute left-3.5">
+          <SearchIcon size={16} />
+        </span>
         <input
-          className="field-input search-input"
+          className="w-full rounded-[10px] border border-[rgba(37,99,235,0.25)] bg-(--surface-tint) py-[11px] pr-3.5 pl-[38px] font-['Open_Sans',sans-serif] text-sm text-(--text-primary) placeholder:text-(--text-muted) focus:border-(--gold) focus:outline-none"
           type="text"
           value={open ? query : selectedLabel}
           placeholder="Tìm tên người nộp..."
@@ -45,20 +45,26 @@ export default function UserPicker({ users, value, onChange }: UserPickerProps) 
       </div>
 
       {open && (
-        <div className="user-picker-list">
+        <div className="absolute top-[calc(100%+6px)] right-0 left-0 z-[5] flex max-h-[220px] flex-col gap-0.5 overflow-y-auto rounded-[10px] border border-[rgba(37,99,235,0.35)] bg-(--surface-1) p-1.5 shadow-[0_20px_40px_var(--shadow-strong)]">
           <button
             type="button"
-            className={`user-picker-item new${value === NEW_USER_VALUE ? ' active' : ''}`}
+            className={`mb-0.5 rounded-lg rounded-b-none border-b border-[rgba(37,99,235,0.2)] px-3 py-2.5 text-left font-inherit text-sm font-bold text-(--gold-bright) hover:bg-[rgba(37,99,235,0.16)] ${
+              value === NEW_USER_VALUE ? 'bg-[rgba(37,99,235,0.16)]' : ''
+            }`}
             onMouseDown={() => pick(NEW_USER_VALUE)}
           >
             {NEW_USER_LABEL}
           </button>
-          {filtered.length === 0 && <div className="user-picker-empty">Không tìm thấy tên phù hợp</div>}
+          {filtered.length === 0 && (
+            <div className="px-3 py-2.5 text-[13px] text-(--text-tertiary)">Không tìm thấy tên phù hợp</div>
+          )}
           {filtered.map((user) => (
             <button
               key={user.id}
               type="button"
-              className={`user-picker-item${user.name === value ? ' active' : ''}`}
+              className={`rounded-lg border-none bg-transparent px-3 py-2.5 text-left font-inherit text-sm text-(--text-primary) hover:bg-[rgba(37,99,235,0.16)] hover:text-(--gold-bright) ${
+                user.name === value ? 'bg-[rgba(37,99,235,0.16)] text-(--gold-bright)' : ''
+              }`}
               onMouseDown={() => pick(user.name)}
             >
               {user.name}

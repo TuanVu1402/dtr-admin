@@ -24,16 +24,8 @@ export default function QrCodeImage({ value, size = 168 }: QrCodeImageProps) {
   }, [value, size])
 
   if (!dataUrl) {
-    return <div style={{ width: size, height: size, background: 'rgba(255,255,255,0.06)', borderRadius: 12 }} />
+    return <div className="rounded-xl bg-[rgba(255,255,255,0.06)]" style={{ width: size, height: size }} />
   }
 
-  return (
-    <img
-      src={dataUrl}
-      width={size}
-      height={size}
-      alt="Mã QR điểm danh"
-      style={{ borderRadius: 12, display: 'block' }}
-    />
-  )
+  return <img className="block rounded-xl" src={dataUrl} width={size} height={size} alt="Mã QR điểm danh" />
 }

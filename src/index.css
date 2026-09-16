@@ -1,6 +1,8 @@
-* {
-  box-sizing: border-box;
-}
+@import 'tailwindcss';
+
+/* Cho phép dùng tiền tố dark: (Tailwind) ứng với [data-theme='dark'] thay vì
+   media prefers-color-scheme, vì theme ở đây do người dùng bấm nút chuyển. */
+@custom-variant dark (&:where([data-theme='dark'], [data-theme='dark'] *));
 
 /* Theme tokens — mặc định là SÁNG ngay từ :root (không cần chờ JS gắn data-theme mới
    có màu đúng, tránh chớp tối lúc tải trang). Giao diện tối là phần ghi đè qua

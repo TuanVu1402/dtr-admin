@@ -4,8 +4,6 @@ import { categories } from '../data/dtrData'
 import type { SubmissionStatus } from '../types/dtr'
 import { formatPoints, slugify } from '../utils/format'
 import UserPicker, { NEW_USER_VALUE } from './UserPicker'
-import '../styles/shared.css'
-import './ManualEntryForm.css'
 
 type FlatOption = {
   key: string
@@ -28,6 +26,10 @@ const statusOptions: { label: string; value: SubmissionStatus }[] = [
   { label: 'Chờ duyệt', value: 'pending' },
   { label: 'Từ chối', value: 'rejected' },
 ]
+
+const fieldInputClass =
+  "w-full rounded-[10px] border border-[rgba(37,99,235,0.25)] bg-(--surface-tint) px-3.5 py-[11px] font-['Open_Sans',sans-serif] text-sm text-(--text-primary) placeholder:text-(--text-muted) focus:border-(--gold) focus:outline-none"
+const fieldLabelClass = 'text-[12.5px] font-bold text-(--text-secondary)'
 
 type ManualEntryFormProps = {
   onCancel: () => void
@@ -77,32 +79,48 @@ export default function ManualEntryForm({ onCancel, onSubmit }: ManualEntryFormP
   }
 
   return (
-    <div className="form-overlay" onClick={onCancel}>
-      <form className="form-card" onClick={(e) => e.stopPropagation()} onSubmit={handleSubmit}>
-        <div className="form-header">
+    <div
+      className="fixed inset-0 z-50 flex items-center justify-center bg-(--scrim) p-6 backdrop-blur-[2px]"
+      onClick={onCancel}
+    >
+      <form
+        className="flex w-full max-w-[480px] max-h-[90svh] flex-col gap-5 overflow-y-auto rounded-[18px] border border-[rgba(37,99,235,0.32)] bg-[linear-gradient(160deg,var(--surface-1),var(--surface-2))] p-7 shadow-[0_30px_60px_var(--shadow-strong)]"
+        onClick={(e) => e.stopPropagation()}
+        onSubmit={handleSubmit}
+      >
+        <div className="flex items-start justify-between gap-4">
           <div>
-            <div className="form-eyebrow">Nhập minh chứng thủ công</div>
-            <div className="form-title">Ghi nhận thay cho người dùng</div>
+            <div className="text-xs font-bold tracking-[1.4px] text-(--gold-bright) uppercase">
+              Nhập minh chứng thủ công
+            </div>
+            <div className="mt-1.5 font-['Open_Sans',sans-serif] text-lg leading-[1.35] font-bold text-(--text-primary)">
+              Ghi nhận thay cho người dùng
+            </div>
           </div>
-          <button type="button" className="form-close" onClick={onCancel} aria-label="Đóng">
+          <button
+            type="button"
+            className="h-8 w-8 shrink-0 cursor-pointer rounded-full border border-[rgba(37,99,235,0.3)] bg-transparent text-xl leading-none text-(--gold-bright)"
+            onClick={onCancel}
+            aria-label="Đóng"
+          >
             ×
           </button>
         </div>
 
-        <div className="field">
-          <label className="field-label">Người nộp</label>
+        <div className="flex flex-col gap-2">
+          <label className={fieldLabelClass}>Người nộp</label>
           <UserPicker users={submitterUsers} value={selectedUser} onChange={setSelectedUser} />
         </div>
 
         {isNewUser && (
-          <div className="manual-form-grid">
-            <div className="field">
-              <label className="field-label" htmlFor="manual-new-name">
+          <div className="grid grid-cols-2 gap-3.5 max-[420px]:grid-cols-1">
+            <div className="flex flex-col gap-2">
+              <label className={fieldLabelClass} htmlFor="manual-new-name">
                 Họ tên người mới
               </label>
               <input
                 id="manual-new-name"
-                className="field-input"
+                className={fieldInputClass}
                 type="text"
                 placeholder="Nguyễn Văn A"
                 value={newUserName}
@@ -110,13 +128,13 @@ export default function ManualEntryForm({ onCancel, onSubmit }: ManualEntryFormP
                 required
               />
             </div>
-            <div className="field">
-              <label className="field-label" htmlFor="manual-new-email">
+            <div className="flex flex-col gap-2">
+              <label className={fieldLabelClass} htmlFor="manual-new-email">
                 Email (tuỳ chọn)
               </label>
               <input
                 id="manual-new-email"
-                className="field-input"
+                className={fieldInputClass}
                 type="email"
                 placeholder="ten@dtr.vn"
                 value={newUserEmail}
@@ -126,49 +144,49 @@ export default function ManualEntryForm({ onCancel, onSubmit }: ManualEntryFormP
           </div>
         )}
 
-        <div className="field">
-          <label className="field-label" htmlFor="manual-category">
+        <div className="flex flex-col gap-2">
+          <label className={fieldLabelClass} htmlFor="manual-category">
             Hạng mục
           </label>
           <select
             id="manual-category"
-            className="field-input"
+            className={`cursor-pointer ${fieldInputClass}`}
             value={optionKey}
             onChange={(e) => setOptionKey(e.target.value)}
           >
             {flatOptions.map((option) => (
-              <option key={option.key} value={option.key}>
+              <option key={option.key} value={option.key} className="bg-[#fdf8ec] text-[#0d1f3d]">
                 {option.categoryLabel} · {formatPoints(option.points)} điểm
               </option>
             ))}
           </select>
         </div>
 
-        <div className="manual-form-grid">
-          <div className="field">
-            <label className="field-label" htmlFor="manual-date">
+        <div className="grid grid-cols-2 gap-3.5 max-[420px]:grid-cols-1">
+          <div className="flex flex-col gap-2">
+            <label className={fieldLabelClass} htmlFor="manual-date">
               Ngày thực hiện
             </label>
             <input
               id="manual-date"
-              className="field-input"
+              className={fieldInputClass}
               type="date"
               value={date}
               onChange={(e) => setDate(e.target.value)}
             />
           </div>
-          <div className="field">
-            <label className="field-label" htmlFor="manual-status">
+          <div className="flex flex-col gap-2">
+            <label className={fieldLabelClass} htmlFor="manual-status">
               Trạng thái
             </label>
             <select
               id="manual-status"
-              className="field-input"
+              className={`cursor-pointer ${fieldInputClass}`}
               value={status}
               onChange={(e) => setStatus(e.target.value as SubmissionStatus)}
             >
               {statusOptions.map((option) => (
-                <option key={option.value} value={option.value}>
+                <option key={option.value} value={option.value} className="bg-[#fdf8ec] text-[#0d1f3d]">
                   {option.label}
                 </option>
               ))}
@@ -176,13 +194,13 @@ export default function ManualEntryForm({ onCancel, onSubmit }: ManualEntryFormP
           </div>
         </div>
 
-        <div className="field">
-          <label className="field-label" htmlFor="manual-desc">
+        <div className="flex flex-col gap-2">
+          <label className={fieldLabelClass} htmlFor="manual-desc">
             Mô tả / ghi chú
           </label>
           <textarea
             id="manual-desc"
-            className="field-input field-textarea"
+            className={`min-h-[88px] resize-y ${fieldInputClass}`}
             placeholder="Ví dụ: Dự án, mã booking, tên sự kiện, nhóm khách hàng..."
             value={description}
             onChange={(e) => setDescription(e.target.value)}
@@ -190,13 +208,13 @@ export default function ManualEntryForm({ onCancel, onSubmit }: ManualEntryFormP
         </div>
 
         {selectedOption?.evidenceType === 'link' && (
-          <div className="field">
-            <label className="field-label" htmlFor="manual-link">
+          <div className="flex flex-col gap-2">
+            <label className={fieldLabelClass} htmlFor="manual-link">
               Link minh chứng (tuỳ chọn)
             </label>
             <input
               id="manual-link"
-              className="field-input"
+              className={fieldInputClass}
               type="url"
               placeholder="Dán link clip..."
               value={link}
@@ -205,11 +223,18 @@ export default function ManualEntryForm({ onCancel, onSubmit }: ManualEntryFormP
           </div>
         )}
 
-        <div className="form-actions">
-          <button type="button" className="btn-secondary" onClick={onCancel}>
+        <div className="mt-1 flex justify-end gap-3">
+          <button
+            type="button"
+            className="min-h-11 cursor-pointer rounded-[10px] border border-[rgba(37,99,235,0.3)] bg-transparent px-5 py-[11px] font-['Open_Sans',sans-serif] text-[13.5px] font-bold text-(--text-secondary)"
+            onClick={onCancel}
+          >
             Hủy
           </button>
-          <button type="submit" className="btn-primary">
+          <button
+            type="submit"
+            className="min-h-11 cursor-pointer rounded-[10px] border-none bg-[linear-gradient(90deg,var(--gold-deep),var(--gold))] px-5 py-[11px] font-['Open_Sans',sans-serif] text-[13.5px] font-bold text-(--on-gold)"
+          >
             Lưu minh chứng
           </button>
         </div>

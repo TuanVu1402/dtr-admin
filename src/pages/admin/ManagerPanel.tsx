@@ -8,8 +8,6 @@ import RejectReasonModal from '../../components/RejectReasonModal'
 import ManualEntryForm from '../../components/ManualEntryForm'
 import ImportExcelModal from '../../components/ImportExcelModal'
 import { SearchIcon } from '../../components/icons'
-import '../../styles/shared.css'
-import './admin.css'
 
 const statusFilters: { label: string; value: SubmissionStatus | 'all' }[] = [
   { label: 'Tất cả', value: 'all' },
@@ -17,6 +15,31 @@ const statusFilters: { label: string; value: SubmissionStatus | 'all' }[] = [
   { label: 'Đã duyệt', value: 'approved' },
   { label: 'Từ chối', value: 'rejected' },
 ]
+
+const fieldInputClass =
+  "w-full rounded-[10px] border border-[rgba(37,99,235,0.25)] bg-(--surface-tint) px-3.5 py-[11px] font-['Open_Sans',sans-serif] text-sm text-(--text-primary) placeholder:text-(--text-muted) focus:border-(--gold) focus:outline-none"
+const fieldLabelClass = 'text-[12.5px] font-bold text-(--text-secondary)'
+const btnSecondaryClass =
+  "min-h-11 cursor-pointer rounded-[10px] border border-[rgba(37,99,235,0.3)] bg-transparent px-5 py-[11px] font-['Open_Sans',sans-serif] text-[13.5px] font-bold text-(--text-secondary)"
+const btnPrimaryClass =
+  "min-h-11 cursor-pointer rounded-[10px] border-none bg-[linear-gradient(90deg,var(--gold-deep),var(--gold))] px-5 py-[11px] font-['Open_Sans',sans-serif] text-[13.5px] font-bold text-(--on-gold) disabled:cursor-not-allowed disabled:opacity-50"
+const sRowGridClass = 'grid min-w-[920px] grid-cols-[1.1fr_1fr_1.8fr_0.9fr_0.6fr_1.4fr] items-center gap-3 px-6 py-4'
+
+function actionBtnClass(kind: 'approve' | 'reject', state: 'active' | 'muted' | '') {
+  const base = "cursor-pointer rounded-lg border px-3 py-2 font-['Open_Sans',sans-serif] text-[12.5px] font-bold transition-[transform,background,box-shadow,opacity] duration-150"
+  const tone =
+    kind === 'approve'
+      ? 'border-[rgba(76,175,130,0.4)] bg-[rgba(76,175,130,0.14)] text-(--positive)'
+      : 'border-[rgba(217,122,108,0.4)] bg-[rgba(217,122,108,0.14)] text-(--negative)'
+  const active =
+    state === 'active'
+      ? kind === 'approve'
+        ? 'border-(--positive) bg-[rgba(76,175,130,0.3)] font-extrabold text-(--positive)'
+        : 'border-(--negative) bg-[rgba(217,122,108,0.3)] font-extrabold text-(--negative)'
+      : ''
+  const muted = state === 'muted' ? 'opacity-40' : ''
+  return `${base} ${tone} ${active} ${muted}`
+}
 
 export default function ManagerPanel() {
   const { submissions, users, setStatus, rejectSubmission, addSubmission } = useSubmissions()
@@ -63,43 +86,51 @@ export default function ManagerPanel() {
   }, [submissions, statusFilter, categoryFilter, userFilter, searchTerm])
 
   return (
-    <section className="content-section">
-      <div className="panel-head">
+    <section className="flex flex-col gap-4.5 px-11 pt-8 max-[640px]:px-5">
+      <div className="flex flex-wrap items-start justify-between gap-4">
         <div>
-          <div className="section-title">Chấm điểm minh chứng</div>
-          <p className="section-caption">Xem minh chứng người dùng đã nộp và duyệt / từ chối để chấm điểm.</p>
+          <div className="m-0 font-['Open_Sans',sans-serif] text-[30px] font-extrabold tracking-[0.5px] text-(--text-primary)">
+            Chấm điểm minh chứng
+          </div>
+          <p className="m-0 text-sm font-medium text-(--text-tertiary)">
+            Xem minh chứng người dùng đã nộp và duyệt / từ chối để chấm điểm.
+          </p>
         </div>
-        <div className="panel-head-actions">
-          <button type="button" className="btn-secondary" onClick={() => setShowImportModal(true)}>
+        <div className="flex flex-wrap items-center gap-3">
+          <button type="button" className={btnSecondaryClass} onClick={() => setShowImportModal(true)}>
             Nhập từ Excel
           </button>
-          <button type="button" className="btn-primary" onClick={() => setShowManualForm(true)}>
+          <button type="button" className={btnPrimaryClass} onClick={() => setShowManualForm(true)}>
             + Thêm minh chứng
           </button>
         </div>
       </div>
 
-      <div className="stats-row">
-        <div className="stat-card">
-          <div className="stat-num gold-text">{stats.pending}</div>
-          <div className="stat-label">Chờ duyệt</div>
+      <div className="grid grid-cols-3 gap-4 max-[640px]:grid-cols-1">
+        <div className="rounded-2xl border border-[rgba(37,99,235,0.2)] bg-(--surface-tint) px-5.5 py-5">
+          <div className="font-['Open_Sans',sans-serif] text-[30px] font-extrabold text-(--gold-bright)">{stats.pending}</div>
+          <div className="mt-1 text-[13px] font-semibold text-(--text-tertiary)">Chờ duyệt</div>
         </div>
-        <div className="stat-card">
-          <div className="stat-num stat-approved">{stats.approved}</div>
-          <div className="stat-label">Đã duyệt</div>
+        <div className="rounded-2xl border border-[rgba(37,99,235,0.2)] bg-(--surface-tint) px-5.5 py-5">
+          <div className="font-['Open_Sans',sans-serif] text-[30px] font-extrabold text-(--positive)">{stats.approved}</div>
+          <div className="mt-1 text-[13px] font-semibold text-(--text-tertiary)">Đã duyệt</div>
         </div>
-        <div className="stat-card">
-          <div className="stat-num stat-rejected">{stats.rejected}</div>
-          <div className="stat-label">Từ chối</div>
+        <div className="rounded-2xl border border-[rgba(37,99,235,0.2)] bg-(--surface-tint) px-5.5 py-5">
+          <div className="font-['Open_Sans',sans-serif] text-[30px] font-extrabold text-(--negative)">{stats.rejected}</div>
+          <div className="mt-1 text-[13px] font-semibold text-(--text-tertiary)">Từ chối</div>
         </div>
       </div>
 
-      <div className="filter-row">
+      <div className="flex flex-wrap gap-2.5">
         {statusFilters.map((filter) => (
           <button
             key={filter.value}
             type="button"
-            className={`filter-chip${filter.value === statusFilter ? ' active' : ''}`}
+            className={`cursor-pointer rounded-full border px-4.5 py-2.5 font-inherit text-[13px] font-bold ${
+              filter.value === statusFilter
+                ? 'border-(--gold) bg-(--gold) text-(--on-gold)'
+                : 'border-[rgba(37,99,235,0.25)] bg-transparent text-(--text-secondary)'
+            }`}
             onClick={() => setStatusFilter(filter.value)}
           >
             {filter.label}
@@ -107,16 +138,18 @@ export default function ManagerPanel() {
         ))}
       </div>
 
-      <div className="select-filter-row">
-        <div className="field search-field">
-          <label className="field-label" htmlFor="filter-search">
+      <div className="flex flex-wrap gap-4">
+        <div className="flex min-w-[240px] flex-1 flex-col gap-2">
+          <label className={fieldLabelClass} htmlFor="filter-search">
             Tìm kiếm
           </label>
-          <div className="search-input-wrap">
-            <SearchIcon size={16} />
+          <div className="relative flex items-center">
+            <span className="pointer-events-none absolute left-3.5">
+              <SearchIcon size={16} />
+            </span>
             <input
               id="filter-search"
-              className="field-input search-input"
+              className={`pl-[38px] ${fieldInputClass}`}
               type="text"
               placeholder="Tìm theo người nộp, hạng mục, mô tả..."
               value={searchTerm}
@@ -124,37 +157,41 @@ export default function ManagerPanel() {
             />
           </div>
         </div>
-        <div className="field">
-          <label className="field-label" htmlFor="filter-category">
+        <div className="flex min-w-[200px] flex-col gap-2">
+          <label className={fieldLabelClass} htmlFor="filter-category">
             Hạng mục
           </label>
           <select
             id="filter-category"
-            className="field-input"
+            className={`cursor-pointer ${fieldInputClass}`}
             value={categoryFilter}
             onChange={(e) => setCategoryFilter(e.target.value)}
           >
-            <option value="all">Tất cả hạng mục</option>
+            <option value="all" className="bg-[#fdf8ec] text-[#0d1f3d]">
+              Tất cả hạng mục
+            </option>
             {categoryOptions.map((label) => (
-              <option key={label} value={label}>
+              <option key={label} value={label} className="bg-[#fdf8ec] text-[#0d1f3d]">
                 {label}
               </option>
             ))}
           </select>
         </div>
-        <div className="field">
-          <label className="field-label" htmlFor="filter-user">
+        <div className="flex min-w-[200px] flex-col gap-2">
+          <label className={fieldLabelClass} htmlFor="filter-user">
             Người nộp
           </label>
           <select
             id="filter-user"
-            className="field-input"
+            className={`cursor-pointer ${fieldInputClass}`}
             value={userFilter}
             onChange={(e) => setUserFilter(e.target.value)}
           >
-            <option value="all">Tất cả người nộp</option>
+            <option value="all" className="bg-[#fdf8ec] text-[#0d1f3d]">
+              Tất cả người nộp
+            </option>
             {userOptions.map((name) => (
-              <option key={name} value={name}>
+              <option key={name} value={name} className="bg-[#fdf8ec] text-[#0d1f3d]">
                 {name}
               </option>
             ))}
@@ -162,8 +199,10 @@ export default function ManagerPanel() {
         </div>
       </div>
 
-      <div className="table-card">
-        <div className="s-row s-head">
+      <div className="overflow-hidden overflow-x-auto rounded-2xl border border-[rgba(37,99,235,0.18)]">
+        <div
+          className={`${sRowGridClass} bg-[rgba(37,99,235,0.08)] text-xs font-extrabold tracking-[0.8px] text-(--gold-bright) uppercase`}
+        >
           <div>Người nộp</div>
           <div>Hạng mục</div>
           <div>Mô tả / minh chứng</div>
@@ -172,9 +211,7 @@ export default function ManagerPanel() {
           <div>Duyệt</div>
         </div>
         {filteredSubmissions.length === 0 && (
-          <p className="section-caption" style={{ padding: '20px 24px' }}>
-            Không có minh chứng nào khớp bộ lọc.
-          </p>
+          <p className="px-6 py-5 text-sm font-medium text-(--text-tertiary)">Không có minh chứng nào khớp bộ lọc.</p>
         )}
         {filteredSubmissions.map((s) => {
           const submitter = userByName.get(s.userName)
@@ -183,62 +220,78 @@ export default function ManagerPanel() {
             : 'Chưa rõ thông tin người dùng'
           const descTooltip = `${s.description}\n\nNgày nộp: ${s.date} • Điểm: ${formatPoints(s.points)}`
           return (
-          <div className="s-row s-body" key={s.id}>
-            <HoverPreview text={userTooltip} className="s-user">
-              {s.userName}
-            </HoverPreview>
-            <div className="s-cat">{s.categoryLabel}</div>
-            <div className="s-desc">
-              {s.imageDataUrl ? (
-                <HoverPreview imageUrl={s.imageDataUrl}>
-                  <button
-                    type="button"
-                    className="s-desc-btn s-desc-btn-image"
-                    aria-label="Hover để xem ảnh minh chứng"
-                    onClick={() => setSelectedSubmission(s)}
-                  >
-                    {s.description}
-                  </button>
-                </HoverPreview>
-              ) : (
-                <HoverPreview text={descTooltip}>
-                  <button type="button" className="s-desc-btn" onClick={() => setSelectedSubmission(s)}>
-                    {s.description}
-                  </button>
-                </HoverPreview>
-              )}
-              {s.link && (
-                <>
-                  {' '}
-                  <a className="s-link" href={s.link} target="_blank" rel="noreferrer">
-                    Xem link ↗
-                  </a>
-                </>
-              )}
-            </div>
-            <div className="s-date">{s.date}</div>
-            <div className="s-points">+{formatPoints(s.points)}</div>
-            <div className="s-actions">
-              <button
-                type="button"
-                className={`action-btn approve${
-                  s.status === 'approved' ? ' active' : s.status === 'rejected' ? ' muted' : ''
-                }`}
-                onClick={() => setStatus(s.id, 'approved')}
+            <div className={`${sRowGridClass} border-t border-(--hairline)`} key={s.id}>
+              <HoverPreview
+                text={userTooltip}
+                className="inline-block w-fit cursor-help text-sm font-bold text-(--text-primary) underline decoration-[rgba(37,99,235,0.4)] decoration-dotted underline-offset-[3px]"
               >
-                Duyệt
-              </button>
-              <button
-                type="button"
-                className={`action-btn reject${
-                  s.status === 'rejected' ? ' active' : s.status === 'approved' ? ' muted' : ''
-                }`}
-                onClick={() => setRejectingSubmission(s)}
-              >
-                Từ chối
-              </button>
+                {s.userName}
+              </HoverPreview>
+              <div className="text-[13.5px] font-semibold text-(--gold-bright)">{s.categoryLabel}</div>
+              <div className="text-[13.5px] text-(--text-tertiary)">
+                {s.imageDataUrl ? (
+                  <HoverPreview imageUrl={s.imageDataUrl}>
+                    <button
+                      type="button"
+                      className="cursor-pointer border-none bg-none p-0 text-left font-inherit text-[13.5px] text-(--text-tertiary) underline decoration-dotted underline-offset-[3px] hover:text-(--gold-bright)"
+                      aria-label="Hover để xem ảnh minh chứng"
+                      onClick={() => setSelectedSubmission(s)}
+                    >
+                      {s.description}
+                    </button>
+                  </HoverPreview>
+                ) : (
+                  <HoverPreview text={descTooltip}>
+                    <button
+                      type="button"
+                      className="cursor-pointer border-none bg-none p-0 text-left font-inherit text-[13.5px] text-(--text-tertiary) underline decoration-dotted underline-offset-[3px] hover:text-(--gold-bright)"
+                      onClick={() => setSelectedSubmission(s)}
+                    >
+                      {s.description}
+                    </button>
+                  </HoverPreview>
+                )}
+                {s.link && (
+                  <>
+                    {' '}
+                    <a
+                      className="text-[12.5px] font-bold whitespace-nowrap text-(--gold-bright)"
+                      href={s.link}
+                      target="_blank"
+                      rel="noreferrer"
+                    >
+                      Xem link ↗
+                    </a>
+                  </>
+                )}
+              </div>
+              <div className="text-[13.5px] text-(--text-secondary)">{s.date}</div>
+              <div className="font-['Open_Sans',sans-serif] text-sm font-extrabold text-(--gold-bright)">
+                +{formatPoints(s.points)}
+              </div>
+              <div className="flex gap-2">
+                <button
+                  type="button"
+                  className={actionBtnClass(
+                    'approve',
+                    s.status === 'approved' ? 'active' : s.status === 'rejected' ? 'muted' : '',
+                  )}
+                  onClick={() => setStatus(s.id, 'approved')}
+                >
+                  Duyệt
+                </button>
+                <button
+                  type="button"
+                  className={actionBtnClass(
+                    'reject',
+                    s.status === 'rejected' ? 'active' : s.status === 'approved' ? 'muted' : '',
+                  )}
+                  onClick={() => setRejectingSubmission(s)}
+                >
+                  Từ chối
+                </button>
+              </div>
             </div>
-          </div>
           )
         })}
       </div>

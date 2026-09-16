@@ -5,9 +5,6 @@ import { DownloadIcon, TrendUpIcon } from '../../components/icons'
 import { formatPoints, parseVNDate } from '../../utils/format'
 import { exportCsv } from '../../utils/exportCsv'
 import type { SubmissionStatus } from '../../types/dtr'
-import '../../styles/shared.css'
-import './admin.css'
-import './ReportsPanel.css'
 
 type RangePreset = 'all' | 'month' | 'quarter' | 'custom'
 
@@ -26,6 +23,18 @@ const monthlyTrend = [
   { month: 'T8', count: 24, points: 71 },
   { month: 'T9', count: 12, points: 39 },
 ]
+
+const fieldInputClass =
+  "w-full rounded-[10px] border border-[rgba(37,99,235,0.25)] bg-(--surface-tint) px-3.5 py-[11px] font-['Open_Sans',sans-serif] text-sm text-(--text-primary) focus:border-(--gold) focus:outline-none"
+const fieldLabelClass = 'text-[12.5px] font-bold text-(--text-secondary)'
+const reportCardClass =
+  'flex flex-col gap-4 rounded-2xl border border-[rgba(37,99,235,0.2)] bg-(--surface-tint) px-6 py-5.5'
+const reportCardTitleClass = "flex items-center gap-2 font-['Open_Sans',sans-serif] text-[15px] font-extrabold text-(--text-primary)"
+const dotClass: Record<SubmissionStatus, string> = {
+  approved: 'bg-(--positive)',
+  pending: 'bg-(--gold-bright)',
+  rejected: 'bg-(--negative)',
+}
 
 export default function ReportsPanel() {
   const { submissions, users } = useSubmissions()
@@ -137,92 +146,114 @@ export default function ReportsPanel() {
   }
 
   return (
-    <section className="content-section reports-section">
-      <div className="panel-head">
+    <section className="flex flex-col gap-4.5 px-11 pt-8 max-[640px]:px-5">
+      <div className="flex flex-wrap items-start justify-between gap-4">
         <div>
-          <div className="section-title">Thống kê &amp; báo cáo</div>
-          <p className="section-caption">Tổng quan hoạt động chấm điểm DTR — số liệu cập nhật theo dữ liệu hiện có.</p>
+          <div className="m-0 font-['Open_Sans',sans-serif] text-[30px] font-extrabold tracking-[0.5px] text-(--text-primary)">
+            Thống kê &amp; báo cáo
+          </div>
+          <p className="m-0 text-sm font-medium text-(--text-tertiary)">
+            Tổng quan hoạt động chấm điểm DTR — số liệu cập nhật theo dữ liệu hiện có.
+          </p>
         </div>
       </div>
 
-      <div className="report-card">
-        <div className="report-card-title">Bộ lọc xuất báo cáo Excel</div>
-        <div className="select-filter-row">
-          <div className="field">
-            <label className="field-label" htmlFor="export-user">
+      <div className={reportCardClass}>
+        <div className={reportCardTitleClass}>Bộ lọc xuất báo cáo Excel</div>
+        <div className="flex flex-wrap gap-4">
+          <div className="flex min-w-[200px] flex-col gap-2">
+            <label className={fieldLabelClass} htmlFor="export-user">
               Người nộp
             </label>
             <select
               id="export-user"
-              className="field-input"
+              className={`cursor-pointer ${fieldInputClass}`}
               value={exportUser}
               onChange={(e) => setExportUser(e.target.value)}
             >
-              <option value="all">Tất cả người nộp</option>
+              <option value="all" className="bg-[#fdf8ec] text-[#0d1f3d]">
+                Tất cả người nộp
+              </option>
               {submitterOptions.map((name) => (
-                <option key={name} value={name}>
+                <option key={name} value={name} className="bg-[#fdf8ec] text-[#0d1f3d]">
                   {name}
                 </option>
               ))}
             </select>
           </div>
 
-          <div className="field">
-            <label className="field-label" htmlFor="export-status">
+          <div className="flex min-w-[200px] flex-col gap-2">
+            <label className={fieldLabelClass} htmlFor="export-status">
               Trạng thái
             </label>
             <select
               id="export-status"
-              className="field-input"
+              className={`cursor-pointer ${fieldInputClass}`}
               value={exportStatus}
               onChange={(e) => setExportStatus(e.target.value as SubmissionStatus | 'all')}
             >
-              <option value="all">Tất cả trạng thái</option>
-              <option value="pending">Chờ duyệt</option>
-              <option value="approved">Đã duyệt</option>
-              <option value="rejected">Từ chối</option>
+              <option value="all" className="bg-[#fdf8ec] text-[#0d1f3d]">
+                Tất cả trạng thái
+              </option>
+              <option value="pending" className="bg-[#fdf8ec] text-[#0d1f3d]">
+                Chờ duyệt
+              </option>
+              <option value="approved" className="bg-[#fdf8ec] text-[#0d1f3d]">
+                Đã duyệt
+              </option>
+              <option value="rejected" className="bg-[#fdf8ec] text-[#0d1f3d]">
+                Từ chối
+              </option>
             </select>
           </div>
 
-          <div className="field">
-            <label className="field-label" htmlFor="export-range">
+          <div className="flex min-w-[200px] flex-col gap-2">
+            <label className={fieldLabelClass} htmlFor="export-range">
               Khoảng thời gian
             </label>
             <select
               id="export-range"
-              className="field-input"
+              className={`cursor-pointer ${fieldInputClass}`}
               value={exportRange}
               onChange={(e) => setExportRange(e.target.value as RangePreset)}
             >
-              <option value="all">Tất cả thời gian</option>
-              <option value="month">Tháng này</option>
-              <option value="quarter">Quý này</option>
-              <option value="custom">Tùy chỉnh...</option>
+              <option value="all" className="bg-[#fdf8ec] text-[#0d1f3d]">
+                Tất cả thời gian
+              </option>
+              <option value="month" className="bg-[#fdf8ec] text-[#0d1f3d]">
+                Tháng này
+              </option>
+              <option value="quarter" className="bg-[#fdf8ec] text-[#0d1f3d]">
+                Quý này
+              </option>
+              <option value="custom" className="bg-[#fdf8ec] text-[#0d1f3d]">
+                Tùy chỉnh...
+              </option>
             </select>
           </div>
 
           {exportRange === 'custom' && (
             <>
-              <div className="field">
-                <label className="field-label" htmlFor="export-from">
+              <div className="flex min-w-[200px] flex-col gap-2">
+                <label className={fieldLabelClass} htmlFor="export-from">
                   Từ ngày
                 </label>
                 <input
                   id="export-from"
                   type="date"
-                  className="field-input"
+                  className={fieldInputClass}
                   value={customFrom}
                   onChange={(e) => setCustomFrom(e.target.value)}
                 />
               </div>
-              <div className="field">
-                <label className="field-label" htmlFor="export-to">
+              <div className="flex min-w-[200px] flex-col gap-2">
+                <label className={fieldLabelClass} htmlFor="export-to">
                   Đến ngày
                 </label>
                 <input
                   id="export-to"
                   type="date"
-                  className="field-input"
+                  className={fieldInputClass}
                   value={customTo}
                   onChange={(e) => setCustomTo(e.target.value)}
                 />
@@ -231,11 +262,13 @@ export default function ReportsPanel() {
           )}
         </div>
 
-        <div className="reports-export-footer">
-          <p className="section-caption">Khớp {filteredForExport.length} minh chứng theo bộ lọc hiện tại.</p>
+        <div className="flex flex-wrap items-center justify-between gap-3 pt-1">
+          <p className="m-0 text-sm font-medium text-(--text-tertiary)">
+            Khớp {filteredForExport.length} minh chứng theo bộ lọc hiện tại.
+          </p>
           <button
             type="button"
-            className="btn-primary report-export-btn"
+            className="inline-flex min-h-11 cursor-pointer items-center gap-1.5 rounded-[10px] border-none bg-[linear-gradient(90deg,var(--gold-deep),var(--gold))] px-5 py-[11px] font-['Open_Sans',sans-serif] text-[13.5px] font-bold text-(--on-gold) disabled:cursor-not-allowed disabled:opacity-50"
             disabled={filteredForExport.length === 0}
             onClick={handleExportCsv}
           >
@@ -244,108 +277,139 @@ export default function ReportsPanel() {
         </div>
       </div>
 
-      <div className="stats-row reports-stats-row">
-        <div className="stat-card">
-          <div className="stat-num gold-text">{stats.totalUsers}</div>
-          <div className="stat-label">Tổng người dùng</div>
+      <div className="grid grid-cols-3 gap-4 max-[640px]:grid-cols-1">
+        <div className="rounded-2xl border border-[rgba(37,99,235,0.2)] bg-(--surface-tint) px-5.5 py-5">
+          <div className="font-['Open_Sans',sans-serif] text-[30px] font-extrabold text-(--gold-bright)">{stats.totalUsers}</div>
+          <div className="mt-1 text-[13px] font-semibold text-(--text-tertiary)">Tổng người dùng</div>
         </div>
-        <div className="stat-card">
-          <div className="stat-num" style={{ color: 'var(--text-primary)' }}>
+        <div className="rounded-2xl border border-[rgba(37,99,235,0.2)] bg-(--surface-tint) px-5.5 py-5">
+          <div className="font-['Open_Sans',sans-serif] text-[30px] font-extrabold text-(--text-primary)">
             {stats.totalSubmissions}
           </div>
-          <div className="stat-label">Tổng minh chứng</div>
+          <div className="mt-1 text-[13px] font-semibold text-(--text-tertiary)">Tổng minh chứng</div>
         </div>
-        <div className="stat-card">
-          <div className="stat-num gold-text">{formatPoints(stats.totalPoints)}</div>
-          <div className="stat-label">Điểm đã cộng</div>
+        <div className="rounded-2xl border border-[rgba(37,99,235,0.2)] bg-(--surface-tint) px-5.5 py-5">
+          <div className="font-['Open_Sans',sans-serif] text-[30px] font-extrabold text-(--gold-bright)">
+            {formatPoints(stats.totalPoints)}
+          </div>
+          <div className="mt-1 text-[13px] font-semibold text-(--text-tertiary)">Điểm đã cộng</div>
         </div>
-        <div className="stat-card">
-          <div className="stat-num stat-approved">{stats.approvalRate}%</div>
-          <div className="stat-label">Tỷ lệ duyệt</div>
+        <div className="rounded-2xl border border-[rgba(37,99,235,0.2)] bg-(--surface-tint) px-5.5 py-5">
+          <div className="font-['Open_Sans',sans-serif] text-[30px] font-extrabold text-(--positive)">{stats.approvalRate}%</div>
+          <div className="mt-1 text-[13px] font-semibold text-(--text-tertiary)">Tỷ lệ duyệt</div>
         </div>
       </div>
 
-      <div className="reports-grid">
-        <div className="report-card">
-          <div className="report-card-title">Minh chứng theo hạng mục</div>
-          <div className="report-bar-list">
-            {categoryBreakdown.length === 0 && <p className="section-caption">Chưa có dữ liệu.</p>}
+      <div className="grid grid-cols-2 gap-4.5 max-[960px]:grid-cols-1">
+        <div className={reportCardClass}>
+          <div className={reportCardTitleClass}>Minh chứng theo hạng mục</div>
+          <div className="flex flex-col gap-3">
+            {categoryBreakdown.length === 0 && (
+              <p className="m-0 text-sm font-medium text-(--text-tertiary)">Chưa có dữ liệu.</p>
+            )}
             {categoryBreakdown.map((item) => (
-              <div className="report-bar-row" key={item.label}>
-                <div className="report-bar-label">{item.label}</div>
-                <div className="report-bar-track">
-                  <div className="report-bar-fill" style={{ width: `${item.percent}%` }} />
+              <div
+                className="grid grid-cols-[140px_1fr_30px] items-center gap-2.5 max-[960px]:grid-cols-[100px_1fr_26px]"
+                key={item.label}
+              >
+                <div className="overflow-hidden text-[12.5px] text-ellipsis whitespace-nowrap text-(--text-secondary)">
+                  {item.label}
                 </div>
-                <div className="report-bar-value">{item.count}</div>
+                <div className="h-2.5 overflow-hidden rounded-full bg-(--hairline)">
+                  <div
+                    className="h-full rounded-full bg-[linear-gradient(90deg,var(--gold-deep),var(--gold))]"
+                    style={{ width: `${item.percent}%` }}
+                  />
+                </div>
+                <div className="text-right text-[12.5px] font-bold text-(--text-primary)">{item.count}</div>
               </div>
             ))}
           </div>
         </div>
 
-        <div className="report-card">
-          <div className="report-card-title">Top người điểm cao</div>
-          <div className="report-top-list">
-            {topPerformers.length === 0 && <p className="section-caption">Chưa có dữ liệu.</p>}
+        <div className={reportCardClass}>
+          <div className={reportCardTitleClass}>Top người điểm cao</div>
+          <div className="flex flex-col gap-2.5">
+            {topPerformers.length === 0 && (
+              <p className="m-0 text-sm font-medium text-(--text-tertiary)">Chưa có dữ liệu.</p>
+            )}
             {topPerformers.map((entry, index) => (
-              <div className="report-top-row" key={entry.name}>
-                <span className="report-top-rank">{index + 1}</span>
-                <span className="report-top-name">{entry.name}</span>
-                <span className="report-top-points">{formatPoints(entry.points)} điểm</span>
+              <div
+                className="flex items-center gap-3 border-b border-(--hairline) py-2 last:border-b-0"
+                key={entry.name}
+              >
+                <span className="flex h-6 w-6 shrink-0 items-center justify-center rounded-full bg-[rgba(37,99,235,0.14)] text-xs font-extrabold text-(--gold-bright)">
+                  {index + 1}
+                </span>
+                <span className="flex-1 text-[13.5px] font-bold text-(--text-primary)">{entry.name}</span>
+                <span className="font-['Open_Sans',sans-serif] text-[13px] font-extrabold text-(--gold-bright)">
+                  {formatPoints(entry.points)} điểm
+                </span>
               </div>
             ))}
           </div>
         </div>
       </div>
 
-      <div className="report-card">
-        <div className="report-card-title">
+      <div className={reportCardClass}>
+        <div className={reportCardTitleClass}>
           <TrendUpIcon size={16} /> Xu hướng minh chứng theo tháng
         </div>
-        <div className="report-trend-chart">
+        <div className="flex h-[160px] items-end gap-4 pt-2.5">
           {monthlyTrend.map((m) => (
-            <div className="report-trend-col" key={m.month}>
-              <div className="report-trend-bar-wrap">
+            <div className="flex h-full flex-1 flex-col items-center gap-2" key={m.month}>
+              <div className="flex w-full flex-1 items-end">
                 <div
-                  className="report-trend-bar"
+                  className="w-full min-h-1 rounded-t-md bg-[linear-gradient(180deg,var(--gold-bright),var(--gold-deep))]"
                   style={{ height: `${Math.round((m.count / maxMonthly) * 100)}%` }}
                   title={`${m.count} minh chứng · ${m.points} điểm`}
                 />
               </div>
-              <div className="report-trend-label">{m.month}</div>
+              <div className="text-[11.5px] font-bold text-(--text-tertiary)">{m.month}</div>
             </div>
           ))}
         </div>
       </div>
 
-      <div className="report-card">
-        <div className="report-card-title">Hoạt động gần đây</div>
-        <div className="report-activity-list">
-          {recentActivity.length === 0 && <p className="section-caption">Chưa có hoạt động nào.</p>}
+      <div className={reportCardClass}>
+        <div className={reportCardTitleClass}>Hoạt động gần đây</div>
+        <div className="flex flex-col">
+          {recentActivity.length === 0 && (
+            <p className="m-0 text-sm font-medium text-(--text-tertiary)">Chưa có hoạt động nào.</p>
+          )}
           {recentActivity.map((s) => (
-            <div className="report-activity-row" key={s.id}>
-              <span className={`report-activity-dot dot-${s.status}`} />
-              <div className="report-activity-body">
-                <span className="report-activity-user">{s.userName}</span> nộp{' '}
-                <span className="report-activity-cat">{s.categoryLabel}</span> — {s.description}
+            <div
+              className="flex items-center gap-3 border-b border-(--hairline) py-2.5 text-[13px] last:border-b-0"
+              key={s.id}
+            >
+              <span className={`h-2 w-2 shrink-0 rounded-full ${dotClass[s.status]}`} />
+              <div className="flex-1 text-(--text-secondary)">
+                <span className="font-bold text-(--text-primary)">{s.userName}</span> nộp{' '}
+                <span className="font-semibold text-(--gold-bright)">{s.categoryLabel}</span> — {s.description}
               </div>
-              <div className="report-activity-date">{s.date}</div>
+              <div className="text-xs whitespace-nowrap text-(--text-muted)">{s.date}</div>
             </div>
           ))}
         </div>
       </div>
 
-      <div className="report-card">
-        <div className="report-card-title">Phản hồi người dùng</div>
-        <div className="reports-feedback-row">
-          <div className="reports-feedback-item">
-            <span className="report-top-points">{feedbackList.length}</span> tổng phản hồi
+      <div className={reportCardClass}>
+        <div className={reportCardTitleClass}>Phản hồi người dùng</div>
+        <div className="flex flex-wrap gap-7">
+          <div className="flex items-baseline gap-1.5 text-[13.5px] text-(--text-secondary)">
+            <span className="font-['Open_Sans',sans-serif] text-[13px] font-extrabold text-(--gold-bright)">
+              {feedbackList.length}
+            </span>{' '}
+            tổng phản hồi
           </div>
-          <div className="reports-feedback-item">
-            <span className="report-top-points">{feedbackList.filter((f) => f.status === 'new').length}</span>{' '}
+          <div className="flex items-baseline gap-1.5 text-[13.5px] text-(--text-secondary)">
+            <span className="font-['Open_Sans',sans-serif] text-[13px] font-extrabold text-(--gold-bright)">
+              {feedbackList.filter((f) => f.status === 'new').length}
+            </span>{' '}
             chưa xử lý
           </div>
-          <div className="reports-feedback-item">
-            <span className="report-top-points">
+          <div className="flex items-baseline gap-1.5 text-[13.5px] text-(--text-secondary)">
+            <span className="font-['Open_Sans',sans-serif] text-[13px] font-extrabold text-(--gold-bright)">
               {feedbackList.filter((f) => f.status === 'resolved').length}
             </span>{' '}
             đã xử lý

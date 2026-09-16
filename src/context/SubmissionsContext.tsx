@@ -40,7 +40,7 @@ const USERS_KEY = 'dtr-users'
 // Tăng số này mỗi khi sửa dữ liệu mẫu (adminData.ts) — dữ liệu cũ trong localStorage của
 // trình duyệt sẽ tự bị bỏ qua và nạp lại dữ liệu mẫu mới nhất, khỏi cần người dùng tự xóa
 // localStorage thủ công mỗi lần demo có cập nhật.
-const DATA_VERSION = '11'
+const DATA_VERSION = '12'
 const VERSION_KEY = 'dtr-data-version'
 
 function loadFromStorage<T>(key: string, fallback: T): T {
@@ -51,6 +51,17 @@ function loadFromStorage<T>(key: string, fallback: T): T {
   } catch {
     return fallback
   }
+}
+
+/** URL avatar Vite đổi hash mỗi lần build — luôn lấy lại từ bundle, giữ ảnh upload (data:). */
+function hydrateUserAvatars(stored: AdminUser[]): AdminUser[] {
+  const byId = new Map(adminUsers.map((u) => [u.id, u.avatarUrl]))
+  const byName = new Map(adminUsers.map((u) => [u.name.toLowerCase(), u.avatarUrl]))
+  return stored.map((user) => {
+    if (user.avatarUrl?.startsWith('data:')) return user
+    const fresh = byId.get(user.id) ?? byName.get(user.name.toLowerCase())
+    return fresh ? { ...user, avatarUrl: fresh } : user
+  })
 }
 
 function saveToStorage<T>(key: string, value: T) {
@@ -74,7 +85,9 @@ export function SubmissionsProvider({ children }: { children: ReactNode }) {
   const [submissions, setSubmissions] = useState<AdminSubmission[]>(() =>
     loadFromStorage(SUBMISSIONS_KEY, adminSubmissions),
   )
-  const [users, setUsers] = useState<AdminUser[]>(() => loadFromStorage(USERS_KEY, adminUsers))
+  const [users, setUsers] = useState<AdminUser[]>(() =>
+    hydrateUserAvatars(loadFromStorage(USERS_KEY, adminUsers)),
+  )
 
   useEffect(() => saveToStorage(SUBMISSIONS_KEY, submissions), [submissions])
   useEffect(() => saveToStorage(USERS_KEY, users), [users])
@@ -82,7 +95,7 @@ export function SubmissionsProvider({ children }: { children: ReactNode }) {
   useEffect(() => {
     function handleStorage(e: StorageEvent) {
       if (e.key === SUBMISSIONS_KEY) setSubmissions(loadFromStorage(SUBMISSIONS_KEY, adminSubmissions))
-      if (e.key === USERS_KEY) setUsers(loadFromStorage(USERS_KEY, adminUsers))
+      if (e.key === USERS_KEY) setUsers(hydrateUserAvatars(loadFromStorage(USERS_KEY, adminUsers)))
     }
     window.addEventListener('storage', handleStorage)
     return () => window.removeEventListener('storage', handleStorage)

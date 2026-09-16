@@ -69,7 +69,7 @@ export default function HoverPreview({ children, text, imageUrl, className }: Ho
             top: style.placement === 'bottom' ? style.top : undefined,
             bottom: style.placement === 'top' ? window.innerHeight - style.top : undefined,
             left: style.left,
-            backgroundImage: imageUrl ? `url(${imageUrl})` : undefined,
+            backgroundImage: imageUrl ? `url(${JSON.stringify(imageUrl)})` : undefined,
           }}
         >
           {text}

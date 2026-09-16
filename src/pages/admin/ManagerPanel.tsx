@@ -151,13 +151,13 @@ export default function ManagerPanel() {
   }, [totalPages])
 
   return (
-    <section className="flex flex-col gap-4.5 px-11 pt-8 max-[640px]:px-5">
+    <section className="flex flex-col gap-4.5 px-11 pt-8 max-[640px]:px-4 max-[640px]:pt-5">
       <div className="flex flex-wrap items-start justify-between gap-4">
         <div>
-          <div className="m-0 font-['Open_Sans',sans-serif] text-[30px] font-extrabold tracking-[0.5px] text-(--text-primary)">
+          <div className="m-0 font-['Open_Sans',sans-serif] text-[30px] font-extrabold max-[640px]:text-[22px] tracking-[0.5px] text-(--text-primary)">
             Chấm điểm minh chứng
           </div>
-          <p className="m-0 text-sm font-medium text-(--text-tertiary)">
+          <p className="m-0 text-sm font-medium text-(--text-tertiary) max-[640px]:hidden">
             Xem minh chứng người dùng đã nộp và duyệt / từ chối để chấm điểm.
           </p>
         </div>
@@ -180,17 +180,17 @@ export default function ManagerPanel() {
         </div>
       )}
 
-      <div className="grid grid-cols-3 gap-4 max-[640px]:grid-cols-1">
-        <div className="rounded-2xl border border-[rgba(37,99,235,0.2)] bg-(--surface-tint) px-5.5 py-5">
-          <div className="font-['Open_Sans',sans-serif] text-[30px] font-extrabold text-(--gold-bright)">{stats.pending}</div>
+      <div className="grid grid-cols-3 gap-4 max-[640px]:gap-2">
+        <div className="rounded-2xl border border-[rgba(37,99,235,0.2)] bg-(--surface-tint) px-5.5 py-5 max-[640px]:rounded-xl max-[640px]:px-2.5 max-[640px]:py-3">
+          <div className="font-['Open_Sans',sans-serif] text-[30px] font-extrabold max-[640px]:text-[22px] text-(--gold-bright)">{stats.pending}</div>
           <div className="mt-1 text-[13px] font-semibold text-(--text-tertiary)">Chờ duyệt</div>
         </div>
-        <div className="rounded-2xl border border-[rgba(37,99,235,0.2)] bg-(--surface-tint) px-5.5 py-5">
-          <div className="font-['Open_Sans',sans-serif] text-[30px] font-extrabold text-(--positive)">{stats.approved}</div>
+        <div className="rounded-2xl border border-[rgba(37,99,235,0.2)] bg-(--surface-tint) px-5.5 py-5 max-[640px]:rounded-xl max-[640px]:px-2.5 max-[640px]:py-3">
+          <div className="font-['Open_Sans',sans-serif] text-[30px] font-extrabold max-[640px]:text-[22px] text-(--positive)">{stats.approved}</div>
           <div className="mt-1 text-[13px] font-semibold text-(--text-tertiary)">Đã duyệt</div>
         </div>
-        <div className="rounded-2xl border border-[rgba(37,99,235,0.2)] bg-(--surface-tint) px-5.5 py-5">
-          <div className="font-['Open_Sans',sans-serif] text-[30px] font-extrabold text-(--negative)">{stats.rejected}</div>
+        <div className="rounded-2xl border border-[rgba(37,99,235,0.2)] bg-(--surface-tint) px-5.5 py-5 max-[640px]:rounded-xl max-[640px]:px-2.5 max-[640px]:py-3">
+          <div className="font-['Open_Sans',sans-serif] text-[30px] font-extrabold max-[640px]:text-[22px] text-(--negative)">{stats.rejected}</div>
           <div className="mt-1 text-[13px] font-semibold text-(--text-tertiary)">Từ chối</div>
         </div>
       </div>
@@ -200,7 +200,7 @@ export default function ManagerPanel() {
           <button
             key={filter.value}
             type="button"
-            className={`cursor-pointer rounded-full border px-4.5 py-2.5 font-inherit text-[13px] font-bold ${
+            className={`cursor-pointer rounded-full border px-4.5 py-2.5 font-inherit text-[13px] font-bold max-[640px]:px-3 max-[640px]:py-1.5 max-[640px]:text-[12.5px] ${
               filter.value === statusFilter
                 ? 'border-(--gold) bg-(--gold) text-(--on-gold)'
                 : 'border-[rgba(37,99,235,0.25)] bg-transparent text-(--text-secondary)'
@@ -213,7 +213,7 @@ export default function ManagerPanel() {
       </div>
 
       <div className="flex flex-wrap gap-4">
-        <div className="flex min-w-[240px] flex-1 flex-col gap-2">
+        <div className="flex min-w-[240px] flex-1 flex-col gap-2 max-[640px]:min-w-full">
           <label className={fieldLabelClass} htmlFor="filter-search">
             Tìm kiếm
           </label>
@@ -231,7 +231,7 @@ export default function ManagerPanel() {
             />
           </div>
         </div>
-        <div className="flex min-w-[200px] flex-col gap-2">
+        <div className="flex min-w-[200px] flex-col gap-2 max-[640px]:min-w-full">
           <label className={fieldLabelClass} htmlFor="filter-category">
             Hạng mục
           </label>
@@ -246,7 +246,7 @@ export default function ManagerPanel() {
             ]}
           />
         </div>
-        <div className="flex min-w-[200px] flex-col gap-2">
+        <div className="flex min-w-[200px] flex-col gap-2 max-[640px]:min-w-full">
           <label className={fieldLabelClass} htmlFor="filter-user">
             Người nộp
           </label>
@@ -261,7 +261,7 @@ export default function ManagerPanel() {
             ]}
           />
         </div>
-        <div className="flex min-w-[200px] flex-col gap-2">
+        <div className="flex min-w-[200px] flex-col gap-2 max-[640px]:min-w-full">
           <label className={fieldLabelClass} htmlFor="filter-room">
             Phòng
           </label>

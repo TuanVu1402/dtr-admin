@@ -26,7 +26,7 @@ function loadPrefs(): NotificationPrefs {
   }
 }
 
-const cardClass = 'flex flex-col gap-5 rounded-2xl border border-[rgba(37,99,235,0.2)] bg-(--surface-1) p-7'
+const cardClass = 'flex flex-col gap-5 rounded-2xl border border-[rgba(37,99,235,0.2)] bg-(--surface-1) p-7 max-[640px]:p-4'
 const sectionTitleClass = "font-['Open_Sans',sans-serif] text-lg font-extrabold text-(--text-primary)"
 const fieldInputClass =
   "w-full rounded-[10px] border border-[rgba(37,99,235,0.25)] bg-(--surface-tint) px-3.5 py-[11px] font-['Open_Sans',sans-serif] text-sm text-(--text-primary) placeholder:text-(--text-muted) focus:border-(--gold) focus:outline-none"
@@ -103,12 +103,12 @@ export default function SettingsPanel() {
   }
 
   return (
-    <section className="flex flex-col gap-4.5 px-11 pt-8 pb-14 max-[640px]:px-5">
+    <section className="flex flex-col gap-4.5 px-11 pt-8 pb-14 max-[640px]:px-4 max-[640px]:pt-5">
       <div>
-        <div className="m-0 font-['Open_Sans',sans-serif] text-[30px] font-extrabold tracking-[0.5px] text-(--text-primary)">
+        <div className="m-0 font-['Open_Sans',sans-serif] text-[30px] font-extrabold max-[640px]:text-[22px] tracking-[0.5px] text-(--text-primary)">
           Cài đặt
         </div>
-        <p className="m-0 text-sm font-medium text-(--text-tertiary)">
+        <p className="m-0 text-sm font-medium text-(--text-tertiary) max-[640px]:hidden">
           Tùy chỉnh giao diện, thông báo và bảo mật cho tài khoản admin.
         </p>
       </div>

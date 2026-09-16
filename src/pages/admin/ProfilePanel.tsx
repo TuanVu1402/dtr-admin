@@ -38,18 +38,18 @@ export default function ProfilePanel() {
   if (!role) return null
 
   return (
-    <section className="flex flex-col gap-4.5 px-11 pt-8 pb-14 max-[640px]:px-5">
+    <section className="flex flex-col gap-4.5 px-11 pt-8 pb-14 max-[640px]:px-4 max-[640px]:pt-5">
       <div>
-        <div className="m-0 font-['Open_Sans',sans-serif] text-[30px] font-extrabold tracking-[0.5px] text-(--text-primary)">
+        <div className="m-0 font-['Open_Sans',sans-serif] text-[30px] font-extrabold max-[640px]:text-[22px] tracking-[0.5px] text-(--text-primary)">
           Hồ sơ cá nhân
         </div>
-        <p className="m-0 text-sm font-medium text-(--text-tertiary)">
+        <p className="m-0 text-sm font-medium text-(--text-tertiary) max-[640px]:hidden">
           Thông tin tài khoản đang đăng nhập theo vai trò {roleLabels[role]}.
         </p>
       </div>
 
       <form
-        className="flex max-w-[560px] flex-col gap-6 rounded-2xl border border-[rgba(37,99,235,0.2)] bg-(--surface-1) p-7"
+        className="flex max-w-[560px] flex-col gap-6 rounded-2xl border border-[rgba(37,99,235,0.2)] bg-(--surface-1) p-7 max-[640px]:p-4"
         onSubmit={handleSubmit}
       >
         <div className="flex items-center gap-4.5">

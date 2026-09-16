@@ -250,13 +250,13 @@ export default function AdminUsersPanel() {
   }
 
   return (
-    <section className="flex flex-col gap-4.5 px-11 pt-8 max-[640px]:px-5">
+    <section className="flex flex-col gap-4.5 px-11 pt-8 max-[640px]:px-4 max-[640px]:pt-5">
       <div className="flex flex-wrap items-start justify-between gap-4">
         <div>
-          <div className="m-0 font-['Open_Sans',sans-serif] text-[30px] font-extrabold tracking-[0.5px] text-(--text-primary)">
+          <div className="m-0 font-['Open_Sans',sans-serif] text-[30px] font-extrabold max-[640px]:text-[22px] tracking-[0.5px] text-(--text-primary)">
             Quản lý người dùng
           </div>
-          <p className="m-0 text-sm font-medium text-(--text-tertiary)">
+          <p className="m-0 text-sm font-medium text-(--text-tertiary) max-[640px]:hidden">
             Khóa tài khoản, reset mật khẩu, gán phòng hàng loạt. Admin không tự nâng thành Support.
           </p>
         </div>
@@ -323,7 +323,7 @@ export default function AdminUsersPanel() {
             <button
               key={filter.value}
               type="button"
-              className={`cursor-pointer rounded-full border px-4.5 py-2.5 font-inherit text-[13px] font-bold ${
+              className={`cursor-pointer rounded-full border px-4.5 py-2.5 font-inherit text-[13px] font-bold max-[640px]:px-3 max-[640px]:py-1.5 max-[640px]:text-[12.5px] ${
                 filter.value === roleFilter
                   ? 'border-(--gold) bg-(--gold) text-(--on-gold)'
                   : 'border-[rgba(37,99,235,0.25)] bg-transparent text-(--text-secondary)'

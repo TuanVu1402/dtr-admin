@@ -42,7 +42,7 @@ export default function NotificationsMenu() {
       </button>
 
       {open && (
-        <div className="absolute top-[calc(100%+12px)] right-0 z-[70] max-h-[420px] w-[340px] max-w-[calc(100vw-32px)] overflow-y-auto rounded-2xl border border-[rgba(37,99,235,0.28)] bg-[linear-gradient(160deg,var(--surface-1),var(--surface-2))] shadow-[0_24px_48px_var(--shadow-strong)] max-[480px]:fixed max-[480px]:top-[72px] max-[480px]:right-3 max-[480px]:left-3 max-[480px]:w-auto max-[480px]:max-w-none max-[480px]:max-h-[min(420px,calc(100svh-96px))]">
+        <div className="absolute top-[calc(100%+12px)] right-0 z-[70] max-h-[420px] w-[340px] max-w-[calc(100vw-32px)] overflow-y-auto rounded-2xl border border-[rgba(37,99,235,0.28)] bg-[linear-gradient(160deg,var(--surface-1),var(--surface-2))] shadow-[0_24px_48px_var(--shadow-strong)] max-[480px]:fixed max-[480px]:top-[64px] max-[480px]:right-3 max-[480px]:left-3 max-[480px]:w-auto max-[480px]:max-w-none max-[480px]:max-h-[min(420px,calc(100svh-88px))]">
           <div className="flex items-center justify-between gap-2.5 border-b border-(--hairline) px-4 py-3.5 text-[13.5px] font-extrabold text-(--text-primary)">
             <span>Thông báo</span>
             {unreadCount > 0 && (

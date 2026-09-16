@@ -105,25 +105,25 @@ export default function FeedbackPanel() {
   }
 
   return (
-    <section className="flex flex-col gap-4.5 px-11 pt-8 max-[640px]:px-5">
-      <div className="m-0 font-['Open_Sans',sans-serif] text-[30px] font-extrabold tracking-[0.5px] text-(--text-primary)">
+    <section className="flex flex-col gap-4.5 px-11 pt-8 max-[640px]:px-4 max-[640px]:pt-5">
+      <div className="m-0 font-['Open_Sans',sans-serif] text-[30px] font-extrabold max-[640px]:text-[22px] tracking-[0.5px] text-(--text-primary)">
         Phản hồi từ người dùng
       </div>
-      <p className="m-0 text-sm font-medium text-(--text-tertiary)">
+      <p className="m-0 text-sm font-medium text-(--text-tertiary) max-[640px]:hidden">
         Trả lời, gán người xử lý, gửi mail mô phỏng. Không có SMTP thật.
       </p>
 
-      <div className="grid grid-cols-3 gap-4 max-[640px]:grid-cols-1">
-        <div className="rounded-2xl border border-[rgba(37,99,235,0.2)] bg-(--surface-tint) px-5.5 py-5">
-          <div className="font-['Open_Sans',sans-serif] text-[30px] font-extrabold text-(--gold-bright)">{stats.new}</div>
+      <div className="grid grid-cols-3 gap-4 max-[640px]:gap-2">
+        <div className="rounded-2xl border border-[rgba(37,99,235,0.2)] bg-(--surface-tint) px-5.5 py-5 max-[640px]:rounded-xl max-[640px]:px-2.5 max-[640px]:py-3">
+          <div className="font-['Open_Sans',sans-serif] text-[30px] font-extrabold max-[640px]:text-[22px] text-(--gold-bright)">{stats.new}</div>
           <div className="mt-1 text-[13px] font-semibold text-(--text-tertiary)">Chưa xử lý</div>
         </div>
-        <div className="rounded-2xl border border-[rgba(37,99,235,0.2)] bg-(--surface-tint) px-5.5 py-5">
-          <div className="font-['Open_Sans',sans-serif] text-[30px] font-extrabold text-(--positive)">{stats.resolved}</div>
+        <div className="rounded-2xl border border-[rgba(37,99,235,0.2)] bg-(--surface-tint) px-5.5 py-5 max-[640px]:rounded-xl max-[640px]:px-2.5 max-[640px]:py-3">
+          <div className="font-['Open_Sans',sans-serif] text-[30px] font-extrabold max-[640px]:text-[22px] text-(--positive)">{stats.resolved}</div>
           <div className="mt-1 text-[13px] font-semibold text-(--text-tertiary)">Đã xử lý</div>
         </div>
-        <div className="rounded-2xl border border-[rgba(37,99,235,0.2)] bg-(--surface-tint) px-5.5 py-5">
-          <div className="font-['Open_Sans',sans-serif] text-[30px] font-extrabold text-(--text-primary)">{stats.total}</div>
+        <div className="rounded-2xl border border-[rgba(37,99,235,0.2)] bg-(--surface-tint) px-5.5 py-5 max-[640px]:rounded-xl max-[640px]:px-2.5 max-[640px]:py-3">
+          <div className="font-['Open_Sans',sans-serif] text-[30px] font-extrabold max-[640px]:text-[22px] text-(--text-primary)">{stats.total}</div>
           <div className="mt-1 text-[13px] font-semibold text-(--text-tertiary)">Tổng số</div>
         </div>
       </div>
@@ -133,7 +133,7 @@ export default function FeedbackPanel() {
           <button
             key={filter.value}
             type="button"
-            className={`cursor-pointer rounded-full border px-4.5 py-2.5 font-inherit text-[13px] font-bold ${
+            className={`cursor-pointer rounded-full border px-4.5 py-2.5 font-inherit text-[13px] font-bold max-[640px]:px-3 max-[640px]:py-1.5 max-[640px]:text-[12.5px] ${
               filter.value === statusFilter
                 ? 'border-(--gold) bg-(--gold) text-(--on-gold)'
                 : 'border-[rgba(37,99,235,0.25)] bg-transparent text-(--text-secondary)'
@@ -205,9 +205,9 @@ export default function FeedbackPanel() {
       </div>
 
       {working && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center bg-(--scrim) p-6 backdrop-blur-[2px]" onClick={() => setWorking(null)}>
+        <div className="fixed inset-0 z-50 flex items-center justify-center bg-(--scrim) p-6 backdrop-blur-[2px] max-[640px]:items-end max-[640px]:p-0" onClick={() => setWorking(null)}>
           <div
-            className="flex w-full max-w-[520px] flex-col gap-4 rounded-[18px] border border-[rgba(37,99,235,0.32)] bg-[linear-gradient(160deg,var(--surface-1),var(--surface-2))] p-7"
+            className="flex w-full max-w-[520px] flex-col gap-4 rounded-[18px] border border-[rgba(37,99,235,0.32)] bg-[linear-gradient(160deg,var(--surface-1),var(--surface-2))] p-7 max-[640px]:max-h-[92svh] max-[640px]:overflow-y-auto max-[640px]:rounded-b-none max-[640px]:p-5 max-[640px]:pb-[max(1.25rem,env(safe-area-inset-bottom))]"
             onClick={(e) => e.stopPropagation()}
           >
             <div className="font-['Open_Sans',sans-serif] text-lg font-bold text-(--text-primary)">Xử lý phản hồi</div>

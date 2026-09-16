@@ -185,7 +185,7 @@ export default function TrainingQrSection() {
 
   return (
     <>
-      <div className="flex flex-col gap-6 rounded-2xl border border-[rgba(37,99,235,0.2)] bg-(--surface-1) p-7">
+      <div className="flex flex-col gap-6 rounded-2xl border border-[rgba(37,99,235,0.2)] bg-(--surface-1) p-7 max-[640px]:gap-4 max-[640px]:p-4">
         <div className="flex items-start gap-4">
           <div className="flex h-11 w-11 shrink-0 items-center justify-center rounded-[12px] border border-[rgba(37,99,235,0.25)] bg-[rgba(37,99,235,0.1)] text-(--gold)">
             <QrIcon size={22} />
@@ -194,7 +194,7 @@ export default function TrainingQrSection() {
             <div className="font-['Open_Sans',sans-serif] text-lg font-extrabold tracking-[0.3px] text-(--text-primary)">
               Tạo mã QR điểm danh Training / Kick off
             </div>
-            <p className="m-0 mt-1 text-sm font-medium text-(--text-tertiary)">
+            <p className="m-0 mt-1 text-sm font-medium text-(--text-tertiary) max-[640px]:hidden">
               Tạo buổi rồi chiếu mã lên màn hình. Sale quét sẽ được +1 điểm và hiện trong sổ điểm danh của buổi.
               Đóng mã khi hết giờ; xóa mã nếu tạo nhầm.
             </p>
@@ -227,7 +227,7 @@ export default function TrainingQrSection() {
           </div>
           <button
             type="submit"
-            className="inline-flex min-h-[44px] cursor-pointer items-center gap-2 rounded-[10px] border-none bg-[linear-gradient(90deg,var(--gold-deep),var(--gold))] px-6 py-[11px] font-['Open_Sans',sans-serif] text-[13.5px] font-bold text-(--on-gold)"
+            className="inline-flex min-h-[44px] cursor-pointer items-center justify-center gap-2 rounded-[10px] border-none bg-[linear-gradient(90deg,var(--gold-deep),var(--gold))] px-6 py-[11px] font-['Open_Sans',sans-serif] text-[13.5px] font-bold text-(--on-gold) max-[640px]:w-full"
           >
             <QrIcon size={16} /> Tạo mã QR
           </button>
@@ -237,7 +237,7 @@ export default function TrainingQrSection() {
           <p className="m-0 text-sm font-medium text-(--text-tertiary)">Chưa có buổi Training nào được tạo.</p>
         ) : (
           <div className="flex flex-col gap-3">
-            <div className="flex items-center justify-between gap-3">
+            <div className="flex flex-wrap items-center justify-between gap-3">
               <div className="text-[12.5px] font-bold text-(--text-secondary)">
                 Đã tạo {sessions.length} buổi — bấm vào một buổi để chiếu QR và xem ai đã điểm danh.
               </div>
@@ -313,8 +313,8 @@ export default function TrainingQrSection() {
                           </span>
                         </div>
                       </div>
-                      <span className="flex shrink-0 items-center gap-1.5 rounded-full border border-[rgba(37,99,235,0.28)] px-3 py-1.5 text-xs font-bold text-(--gold-bright)">
-                        <ExpandIcon size={13} /> Chi tiết
+                      <span className="flex shrink-0 items-center gap-1.5 rounded-full border border-[rgba(37,99,235,0.28)] px-3 py-1.5 text-xs font-bold text-(--gold-bright) max-[640px]:px-2">
+                        <ExpandIcon size={13} /> <span className="max-[640px]:hidden">Chi tiết</span>
                       </span>
                     </button>
                     <button
@@ -335,11 +335,11 @@ export default function TrainingQrSection() {
 
       {viewingSession && (
         <div
-          className="fixed inset-0 z-50 flex items-center justify-center bg-(--scrim) p-6 backdrop-blur-[2px]"
+          className="fixed inset-0 z-50 flex items-center justify-center bg-(--scrim) p-6 backdrop-blur-[2px] max-[640px]:items-end max-[640px]:p-0"
           onClick={() => setViewingCode(null)}
         >
           <div
-            className="flex max-h-[90svh] w-full max-w-[820px] flex-col gap-5 overflow-y-auto rounded-[18px] border border-[rgba(37,99,235,0.32)] bg-[linear-gradient(160deg,var(--surface-1),var(--surface-2))] p-7 shadow-[0_30px_60px_var(--shadow-strong)]"
+            className="flex max-h-[90svh] w-full max-w-[820px] flex-col gap-5 overflow-y-auto rounded-[18px] border border-[rgba(37,99,235,0.32)] bg-[linear-gradient(160deg,var(--surface-1),var(--surface-2))] p-7 shadow-[0_30px_60px_var(--shadow-strong)] max-[640px]:max-h-[92svh] max-[640px]:rounded-b-none max-[640px]:p-5 max-[640px]:pb-[max(1.25rem,env(safe-area-inset-bottom))]"
             onClick={(e) => e.stopPropagation()}
           >
             <div className="flex items-start justify-between gap-4">
@@ -416,7 +416,7 @@ export default function TrainingQrSection() {
                   <div className="flex flex-col gap-3 rounded-xl border border-[rgba(37,99,235,0.18)] bg-[rgba(37,99,235,0.04)] p-3">
                     <div className="text-[12px] font-bold text-(--text-secondary)">Thêm người không quét được QR</div>
                     <div className="flex flex-wrap items-end gap-2">
-                      <div className="min-w-[160px] flex-1">
+                      <div className="min-w-[160px] flex-1 max-[640px]:min-w-full">
                         <input
                           className="w-full rounded-[10px] border border-[rgba(37,99,235,0.25)] bg-(--surface-1) px-3.5 py-2.5 font-['Open_Sans',sans-serif] text-sm text-(--text-primary) placeholder:text-(--text-muted) focus:border-(--gold) focus:outline-none"
                           type="text"
@@ -434,7 +434,7 @@ export default function TrainingQrSection() {
                           }}
                         />
                       </div>
-                      <div className="min-w-[120px] w-[34%]">
+                      <div className="min-w-[120px] w-[34%] max-[640px]:min-w-full max-[640px]:w-full">
                         <input
                           className="w-full rounded-[10px] border border-[rgba(37,99,235,0.25)] bg-(--surface-1) px-3.5 py-2.5 font-['Open_Sans',sans-serif] text-sm text-(--text-primary) placeholder:text-(--text-muted) focus:border-(--gold) focus:outline-none"
                           type="text"
@@ -451,7 +451,7 @@ export default function TrainingQrSection() {
                       </div>
                       <button
                         type="button"
-                        className="min-h-[42px] cursor-pointer rounded-[10px] border-none bg-[linear-gradient(90deg,var(--gold-deep),var(--gold))] px-4 py-2 font-['Open_Sans',sans-serif] text-[12.5px] font-bold text-white disabled:cursor-not-allowed disabled:opacity-40"
+                        className="min-h-[42px] cursor-pointer rounded-[10px] border-none bg-[linear-gradient(90deg,var(--gold-deep),var(--gold))] px-4 py-2 font-['Open_Sans',sans-serif] text-[12.5px] font-bold text-white disabled:cursor-not-allowed disabled:opacity-40 max-[640px]:w-full"
                         disabled={!newName.trim()}
                         onClick={handleAddPerson}
                       >
@@ -460,7 +460,7 @@ export default function TrainingQrSection() {
                     </div>
                     {viewingAbsentees.length > 0 && (
                       <div className="flex flex-wrap items-end gap-2">
-                        <div className="min-w-[180px] flex-1">
+                        <div className="min-w-[180px] flex-1 max-[640px]:min-w-full">
                           <SearchableSelect
                             options={viewingAbsentees.map((u) => ({
                               value: u.name,

@@ -234,13 +234,13 @@ export default function ReportsPanel() {
   }
 
   return (
-    <section className="flex flex-col gap-4.5 px-11 pt-8 max-[640px]:px-5">
+    <section className="flex flex-col gap-4.5 px-11 pt-8 max-[640px]:px-4 max-[640px]:pt-5">
       <div className="flex flex-wrap items-start justify-between gap-4">
         <div>
-          <div className="m-0 font-['Open_Sans',sans-serif] text-[30px] font-extrabold tracking-[0.5px] text-(--text-primary)">
+          <div className="m-0 font-['Open_Sans',sans-serif] text-[30px] font-extrabold max-[640px]:text-[22px] tracking-[0.5px] text-(--text-primary)">
             Thống kê &amp; báo cáo
           </div>
-          <p className="m-0 text-sm font-medium text-(--text-tertiary)">
+          <p className="m-0 text-sm font-medium text-(--text-tertiary) max-[640px]:hidden">
             Tổng quan hoạt động chấm điểm DTR — số liệu cập nhật theo dữ liệu hiện có.
           </p>
         </div>
@@ -260,7 +260,7 @@ export default function ReportsPanel() {
           )}
         </div>
         <div className="flex flex-wrap gap-4">
-          <div className="flex min-w-[200px] flex-col gap-2">
+          <div className="flex min-w-[200px] flex-col gap-2 max-[640px]:min-w-full">
             <label className={fieldLabelClass} htmlFor="export-user">
               Người nộp
             </label>
@@ -276,7 +276,7 @@ export default function ReportsPanel() {
             />
           </div>
 
-          <div className="flex min-w-[200px] flex-col gap-2">
+          <div className="flex min-w-[200px] flex-col gap-2 max-[640px]:min-w-full">
             <label className={fieldLabelClass} htmlFor="export-room">
               Phòng
             </label>
@@ -292,7 +292,7 @@ export default function ReportsPanel() {
             />
           </div>
 
-          <div className="flex min-w-[200px] flex-col gap-2">
+          <div className="flex min-w-[200px] flex-col gap-2 max-[640px]:min-w-full">
             <label className={fieldLabelClass} htmlFor="export-category">
               Hạng mục
             </label>
@@ -308,7 +308,7 @@ export default function ReportsPanel() {
             />
           </div>
 
-          <div className="flex min-w-[200px] flex-col gap-2">
+          <div className="flex min-w-[200px] flex-col gap-2 max-[640px]:min-w-full">
             <label className={fieldLabelClass} htmlFor="export-status">
               Trạng thái
             </label>
@@ -333,7 +333,7 @@ export default function ReportsPanel() {
             </select>
           </div>
 
-          <div className="flex min-w-[200px] flex-col gap-2">
+          <div className="flex min-w-[200px] flex-col gap-2 max-[640px]:min-w-full">
             <label className={fieldLabelClass} htmlFor="export-range">
               Khoảng thời gian
             </label>
@@ -360,7 +360,7 @@ export default function ReportsPanel() {
 
           {exportRange === 'custom' && (
             <>
-              <div className="flex min-w-[200px] flex-col gap-2">
+              <div className="flex min-w-[200px] flex-col gap-2 max-[640px]:min-w-full">
                 <label className={fieldLabelClass} htmlFor="export-from">
                   Từ ngày
                 </label>
@@ -372,7 +372,7 @@ export default function ReportsPanel() {
                   onChange={(e) => setCustomFrom(e.target.value)}
                 />
               </div>
-              <div className="flex min-w-[200px] flex-col gap-2">
+              <div className="flex min-w-[200px] flex-col gap-2 max-[640px]:min-w-full">
                 <label className={fieldLabelClass} htmlFor="export-to">
                   Đến ngày
                 </label>
@@ -413,25 +413,25 @@ export default function ReportsPanel() {
         </div>
       </div>
 
-      <div className="grid grid-cols-3 gap-4 max-[640px]:grid-cols-1">
-        <div className="rounded-2xl border border-[rgba(37,99,235,0.2)] bg-(--surface-tint) px-5.5 py-5">
-          <div className="font-['Open_Sans',sans-serif] text-[30px] font-extrabold text-(--gold-bright)">{stats.totalUsers}</div>
+      <div className="grid grid-cols-3 gap-4 max-[960px]:grid-cols-2 max-[640px]:gap-2">
+        <div className="rounded-2xl border border-[rgba(37,99,235,0.2)] bg-(--surface-tint) px-5.5 py-5 max-[640px]:rounded-xl max-[640px]:px-2.5 max-[640px]:py-3">
+          <div className="font-['Open_Sans',sans-serif] text-[30px] font-extrabold max-[640px]:text-[22px] text-(--gold-bright)">{stats.totalUsers}</div>
           <div className="mt-1 text-[13px] font-semibold text-(--text-tertiary)">Tổng người dùng</div>
         </div>
-        <div className="rounded-2xl border border-[rgba(37,99,235,0.2)] bg-(--surface-tint) px-5.5 py-5">
-          <div className="font-['Open_Sans',sans-serif] text-[30px] font-extrabold text-(--text-primary)">
+        <div className="rounded-2xl border border-[rgba(37,99,235,0.2)] bg-(--surface-tint) px-5.5 py-5 max-[640px]:rounded-xl max-[640px]:px-2.5 max-[640px]:py-3">
+          <div className="font-['Open_Sans',sans-serif] text-[30px] font-extrabold max-[640px]:text-[22px] text-(--text-primary)">
             {stats.totalSubmissions}
           </div>
           <div className="mt-1 text-[13px] font-semibold text-(--text-tertiary)">Tổng minh chứng</div>
         </div>
-        <div className="rounded-2xl border border-[rgba(37,99,235,0.2)] bg-(--surface-tint) px-5.5 py-5">
-          <div className="font-['Open_Sans',sans-serif] text-[30px] font-extrabold text-(--gold-bright)">
+        <div className="rounded-2xl border border-[rgba(37,99,235,0.2)] bg-(--surface-tint) px-5.5 py-5 max-[640px]:rounded-xl max-[640px]:px-2.5 max-[640px]:py-3">
+          <div className="font-['Open_Sans',sans-serif] text-[30px] font-extrabold max-[640px]:text-[22px] text-(--gold-bright)">
             {formatPoints(stats.totalPoints)}
           </div>
           <div className="mt-1 text-[13px] font-semibold text-(--text-tertiary)">Điểm đã cộng</div>
         </div>
-        <div className="rounded-2xl border border-[rgba(37,99,235,0.2)] bg-(--surface-tint) px-5.5 py-5">
-          <div className="font-['Open_Sans',sans-serif] text-[30px] font-extrabold text-(--positive)">{stats.approvalRate}%</div>
+        <div className="rounded-2xl border border-[rgba(37,99,235,0.2)] bg-(--surface-tint) px-5.5 py-5 max-[640px]:rounded-xl max-[640px]:px-2.5 max-[640px]:py-3">
+          <div className="font-['Open_Sans',sans-serif] text-[30px] font-extrabold max-[640px]:text-[22px] text-(--positive)">{stats.approvalRate}%</div>
           <div className="mt-1 text-[13px] font-semibold text-(--text-tertiary)">Tỷ lệ duyệt</div>
         </div>
       </div>

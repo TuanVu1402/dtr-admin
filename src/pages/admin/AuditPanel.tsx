@@ -21,13 +21,13 @@ export default function AuditPanel() {
   }, [events, keyword])
 
   return (
-    <section className="flex flex-col gap-4.5 px-11 pt-8 max-[640px]:px-5">
+    <section className="flex flex-col gap-4.5 px-11 pt-8 max-[640px]:px-4 max-[640px]:pt-5">
       <div className="flex flex-wrap items-start justify-between gap-4">
         <div>
-          <div className="m-0 font-['Open_Sans',sans-serif] text-[30px] font-extrabold tracking-[0.5px] text-(--text-primary)">
+          <div className="m-0 font-['Open_Sans',sans-serif] text-[30px] font-extrabold max-[640px]:text-[22px] tracking-[0.5px] text-(--text-primary)">
             Nhật ký thao tác
           </div>
-          <p className="m-0 text-sm font-medium text-(--text-tertiary)">
+          <p className="m-0 text-sm font-medium text-(--text-tertiary) max-[640px]:hidden">
             Ghi nhận duyệt điểm, QR, khóa tài khoản, nhập Excel — lưu trên trình duyệt.
           </p>
         </div>

@@ -56,13 +56,13 @@ export default function CategoriesPanel() {
   }
 
   return (
-    <section className="flex flex-col gap-4.5 px-11 pt-8 max-[640px]:px-5">
+    <section className="flex flex-col gap-4.5 px-11 pt-8 max-[640px]:px-4 max-[640px]:pt-5">
       <div className="flex flex-wrap items-start justify-between gap-4">
         <div>
-          <div className="m-0 font-['Open_Sans',sans-serif] text-[30px] font-extrabold tracking-[0.5px] text-(--text-primary)">
+          <div className="m-0 font-['Open_Sans',sans-serif] text-[30px] font-extrabold max-[640px]:text-[22px] tracking-[0.5px] text-(--text-primary)">
             Hạng mục điểm
           </div>
-          <p className="m-0 text-sm font-medium text-(--text-tertiary)">
+          <p className="m-0 text-sm font-medium text-(--text-tertiary) max-[640px]:hidden">
             Bật/tắt hạng mục, sửa điểm. Sale chỉ thấy hạng mục đang mở.
           </p>
         </div>

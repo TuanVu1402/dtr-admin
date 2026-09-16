@@ -11,11 +11,11 @@ type ConfirmDialogProps = {
 export default function ConfirmDialog({ title, message, confirmLabel, danger, onCancel, onConfirm }: ConfirmDialogProps) {
   return (
     <div
-      className="fixed inset-0 z-[60] flex items-center justify-center bg-(--scrim) p-6 backdrop-blur-[2px]"
+      className="fixed inset-0 z-[60] flex items-center justify-center bg-(--scrim) p-6 backdrop-blur-[2px] max-[640px]:items-end max-[640px]:p-0"
       onClick={onCancel}
     >
       <div
-        className="flex w-full max-w-[420px] flex-col gap-5 rounded-[18px] border border-[rgba(37,99,235,0.32)] bg-[linear-gradient(160deg,var(--surface-1),var(--surface-2))] p-7 shadow-[0_30px_60px_var(--shadow-strong)]"
+        className="flex w-full max-w-[420px] flex-col gap-5 rounded-[18px] border border-[rgba(37,99,235,0.32)] bg-[linear-gradient(160deg,var(--surface-1),var(--surface-2))] p-7 shadow-[0_30px_60px_var(--shadow-strong)] max-[640px]:rounded-b-none max-[640px]:p-5 max-[640px]:pb-[max(1.25rem,env(safe-area-inset-bottom))]"
         onClick={(e) => e.stopPropagation()}
       >
         <div>

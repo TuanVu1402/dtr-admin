@@ -4,7 +4,8 @@ import { useAuth } from '../../context/AuthContext'
 import { useAudit } from '../../context/AuditContext'
 import { useNotifications } from '../../context/NotificationsContext'
 import type { AdminSubmission, SubmissionStatus } from '../../types/dtr'
-import { formatPoints, getInitials, parseVNDate } from '../../utils/format'
+import { formatPoints, parseVNDate } from '../../utils/format'
+import UserAvatar from '../../components/ui/UserAvatar'
 import { parseCsvText, parseStatusLabel, readFileAsText } from '../../utils/parseCsv'
 import EvidenceModal from '../../components/modal/EvidenceModal'
 import HoverPreview from '../../components/ui/HoverPreview'
@@ -301,11 +302,7 @@ export default function ManagerPanel() {
             <div className={`${sRowGridClass} border-t border-(--hairline)`} key={s.id}>
               <div className="flex items-center gap-2.5">
                 <span className="flex h-8 w-8 shrink-0 items-center justify-center overflow-hidden rounded-full bg-[linear-gradient(135deg,var(--gold),var(--gold-deep))] text-[11px] font-bold text-(--on-gold)">
-                  {submitter?.avatarUrl ? (
-                    <img className="h-full w-full object-cover" src={submitter.avatarUrl} alt={s.userName} />
-                  ) : (
-                    getInitials(s.userName)
-                  )}
+                  <UserAvatar id={submitter?.id} name={s.userName} avatarUrl={submitter?.avatarUrl} />
                 </span>
                 <HoverPreview
                   text={userTooltip}

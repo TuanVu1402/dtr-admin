@@ -4,7 +4,8 @@ import { useAuth } from '../../context/AuthContext'
 import { useAudit } from '../../context/AuditContext'
 import { useNotifications } from '../../context/NotificationsContext'
 import { roleLabels, type AdminUser, type Role } from '../../types/dtr'
-import { formatPoints, getInitials } from '../../utils/format'
+import { formatPoints } from '../../utils/format'
+import UserAvatar from '../../components/ui/UserAvatar'
 import { exportCsv } from '../../utils/exportCsv'
 import { parseCsvText, parseRoleLabel, readFileAsText } from '../../utils/parseCsv'
 import { assignableRoles, generateTempPassword } from '../../utils/roles'
@@ -360,7 +361,7 @@ export default function AdminUsersPanel() {
                   onClick={() => setViewingUser(user)}
                 >
                   <span className="flex h-8 w-8 shrink-0 items-center justify-center overflow-hidden rounded-full bg-[linear-gradient(135deg,var(--gold),var(--gold-deep))] text-[11px] font-bold text-(--on-gold)">
-                    {user.avatarUrl ? <img className="h-full w-full object-cover" src={user.avatarUrl} alt={user.name} /> : getInitials(user.name)}
+                    <UserAvatar id={user.id} name={user.name} avatarUrl={user.avatarUrl} />
                   </span>
                   <span>
                     <span className="block text-sm font-bold text-(--text-primary) underline decoration-[rgba(37,99,235,0.4)] decoration-dotted underline-offset-[3px]">

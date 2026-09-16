@@ -40,7 +40,7 @@ const USERS_KEY = 'dtr-users'
 // Tăng số này mỗi khi sửa dữ liệu mẫu (adminData.ts) — dữ liệu cũ trong localStorage của
 // trình duyệt sẽ tự bị bỏ qua và nạp lại dữ liệu mẫu mới nhất, khỏi cần người dùng tự xóa
 // localStorage thủ công mỗi lần demo có cập nhật.
-const DATA_VERSION = '12'
+const DATA_VERSION = '13'
 const VERSION_KEY = 'dtr-data-version'
 
 function loadFromStorage<T>(key: string, fallback: T): T {
@@ -61,6 +61,13 @@ function hydrateUserAvatars(stored: AdminUser[]): AdminUser[] {
     if (user.avatarUrl?.startsWith('data:')) return user
     const fresh = byId.get(user.id) ?? byName.get(user.name.toLowerCase())
     return fresh ? { ...user, avatarUrl: fresh } : user
+  })
+}
+
+function persistableUsers(users: AdminUser[]): AdminUser[] {
+  return users.map((user) => {
+    if (user.avatarUrl?.startsWith('data:')) return user
+    return { ...user, avatarUrl: undefined }
   })
 }
 
@@ -90,7 +97,7 @@ export function SubmissionsProvider({ children }: { children: ReactNode }) {
   )
 
   useEffect(() => saveToStorage(SUBMISSIONS_KEY, submissions), [submissions])
-  useEffect(() => saveToStorage(USERS_KEY, users), [users])
+  useEffect(() => saveToStorage(USERS_KEY, persistableUsers(users)), [users])
 
   useEffect(() => {
     function handleStorage(e: StorageEvent) {

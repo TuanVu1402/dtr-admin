@@ -9,7 +9,7 @@ import { useAuth } from '../../context/AuthContext'
 import { useAudit } from '../../context/AuditContext'
 import { useNotifications } from '../../context/NotificationsContext'
 import { exportCsv } from '../../utils/exportCsv'
-import { getInitials } from '../../utils/format'
+import UserAvatar from '../../components/ui/UserAvatar'
 
 function buildCheckinUrl(code: string) {
   const userOrigin = (import.meta.env.VITE_USER_APP_URL as string | undefined) || 'http://localhost:5173'
@@ -499,8 +499,8 @@ export default function TrainingQrSection() {
                         className="flex items-center gap-3 border-b border-(--hairline) px-3.5 py-2.5 last:border-b-0"
                         key={`${a.userName}-${a.checkedInAt}`}
                       >
-                        <span className="flex h-8 w-8 shrink-0 items-center justify-center rounded-full bg-[linear-gradient(135deg,var(--gold),var(--gold-deep))] text-[11px] font-bold text-white">
-                          {getInitials(a.userName)}
+                        <span className="flex h-8 w-8 shrink-0 items-center justify-center overflow-hidden rounded-full bg-[linear-gradient(135deg,var(--gold),var(--gold-deep))] text-[11px] font-bold text-white">
+                          <UserAvatar name={a.userName} />
                         </span>
                         <div className="min-w-0 flex-1">
                           <div className="truncate text-[13.5px] font-bold text-(--text-primary)">{a.userName}</div>

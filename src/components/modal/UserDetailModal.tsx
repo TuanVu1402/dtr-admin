@@ -1,5 +1,6 @@
 import { roleLabels, type AdminSubmission, type AdminUser } from '../../types/dtr'
-import { formatPoints, getInitials } from '../../utils/format'
+import { formatPoints } from '../../utils/format'
+import UserAvatar from '../ui/UserAvatar'
 import StatusBadge from '../ui/StatusBadge'
 
 type UserDetailModalProps = {
@@ -34,11 +35,7 @@ export default function UserDetailModal({ user, submissions, totalPoints, onClos
         <div className="flex items-start justify-between gap-4">
           <div className="flex items-center gap-3.5">
             <span className="flex h-13 w-13 shrink-0 items-center justify-center overflow-hidden rounded-full bg-[linear-gradient(135deg,var(--gold),var(--gold-deep))] text-base font-bold text-(--on-gold)">
-              {user.avatarUrl ? (
-                <img className="h-full w-full object-cover" src={user.avatarUrl} alt={user.name} />
-              ) : (
-                getInitials(user.name)
-              )}
+              <UserAvatar id={user.id} name={user.name} avatarUrl={user.avatarUrl} />
             </span>
             <div>
               <div className="font-['Open_Sans',sans-serif] text-lg leading-[1.3] font-bold text-(--text-primary)">

@@ -45,7 +45,12 @@ export default function ManualEntryForm({ onCancel, onSubmit }: ManualEntryFormP
   const [newUserName, setNewUserName] = useState('')
   const [newUserEmail, setNewUserEmail] = useState('')
   const [optionKey, setOptionKey] = useState(flatOptions[0]?.key ?? '')
-  const [date, setDate] = useState('')
+  const [date, setDate] = useState(() => {
+    const now = new Date()
+    const month = String(now.getMonth() + 1).padStart(2, '0')
+    const day = String(now.getDate()).padStart(2, '0')
+    return `${now.getFullYear()}-${month}-${day}`
+  })
   const [description, setDescription] = useState('')
   const [status, setStatus] = useState<SubmissionStatus>('approved')
   const [link, setLink] = useState('')

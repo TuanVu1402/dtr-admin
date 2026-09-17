@@ -8,22 +8,28 @@ export type AppTab = {
   roles: Role[]
 }
 
+/** Nhãn hạng mục clip mà mỗi vai trò duyệt viên được phép duyệt — phải khớp title trong dtrData.ts. */
+export const clipApprovalCategoryLabel: Partial<Record<Role, string>> = {
+  gdda: 'Sản xuất 1 clip chất lượng cho (GĐDA duyệt)',
+  dtlo: 'Sản xuất 1 clip chất lượng cho (ĐTLO duyệt)',
+}
+
 export const appTabs: AppTab[] = [
-  { to: 'manager', label: 'Chấm điểm', roles: ['manager', 'support_admin'] },
-  { to: 'admin', label: 'Người dùng', roles: ['admin', 'support_admin'] },
+  { to: 'manager', label: 'Chấm điểm', roles: ['gdda', 'dtlo', 'support_admin'] },
+  { to: 'admin', label: 'Người dùng', roles: ['admin', 'support_admin', 'manager'] },
   { to: 'categories', label: 'Hạng mục', roles: ['admin', 'support_admin'] },
   { to: 'feedback', label: 'Phản hồi', roles: ['admin', 'support_admin'] },
-  { to: 'reports', label: 'Thống kê', roles: ['manager', 'admin', 'support_admin'] },
+  { to: 'reports', label: 'Thống kê', roles: ['admin', 'support_admin'] },
   { to: 'audit', label: 'Nhật ký', roles: ['admin', 'support_admin'] },
 ]
 
 const extraPaths: Record<string, Role[]> = {
-  settings: ['manager', 'admin', 'support_admin'],
-  profile: ['manager', 'admin', 'support_admin'],
+  settings: ['manager', 'admin', 'gdda', 'dtlo', 'support_admin'],
+  profile: ['manager', 'admin', 'gdda', 'dtlo', 'support_admin'],
 }
 
 export function homePathForRole(role: Role): string {
-  if (role === 'manager') return '/manager'
+  if (role === 'gdda' || role === 'dtlo') return '/manager'
   return '/admin'
 }
 
@@ -42,8 +48,8 @@ export function canAccessPath(role: Role, path: string): boolean {
 }
 
 export function assignableRoles(actor: Role): Role[] {
-  if (actor === 'support_admin') return ['user', 'manager', 'admin', 'support_admin']
-  if (actor === 'admin') return ['user', 'manager']
+  if (actor === 'support_admin') return ['user', 'manager', 'gdda', 'dtlo', 'admin', 'support_admin']
+  if (actor === 'admin') return ['user', 'manager', 'gdda', 'dtlo']
   return []
 }
 

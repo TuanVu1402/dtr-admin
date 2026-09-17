@@ -16,6 +16,8 @@ const defaultProfiles: ProfilesMap = {
   admin: { name: 'Đỗ Thanh Hằng', email: 'hang.do@dtr.vn', password: '123456' },
   manager: { name: 'Phạm Quốc Huy', email: 'huy.pham@dtr.vn', password: '123456' },
   support_admin: { name: 'Vũ Lan Anh', email: 'lananh.vu@dtr.vn', password: '123456' },
+  gdda: { name: 'Nguyễn Minh Đức', email: 'duc.nguyen@dtr.vn', password: '123456' },
+  dtlo: { name: 'Trần Thu Trang', email: 'trang.tran@dtr.vn', password: '123456' },
   user: { name: 'Người dùng', email: '', password: '123456' },
 }
 

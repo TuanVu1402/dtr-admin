@@ -26,6 +26,8 @@ const roleChipClass: Record<Role, string> = {
   user: 'bg-[rgba(159,176,201,0.14)] text-(--text-secondary) border-[rgba(159,176,201,0.35)]',
   admin: 'bg-[rgba(37,99,235,0.12)] text-(--gold-bright) border-[rgba(37,99,235,0.4)]',
   manager: 'bg-[rgba(76,175,130,0.14)] text-(--positive) border-[rgba(76,175,130,0.4)]',
+  gdda: 'bg-[rgba(184,134,11,0.14)] text-(--gold-bright) border-[rgba(184,134,11,0.4)]',
+  dtlo: 'bg-[rgba(124,58,237,0.14)] text-(--gold-bright) border-[rgba(124,58,237,0.4)]',
   support_admin: 'bg-[rgba(217,122,108,0.14)] text-(--negative) border-[rgba(217,122,108,0.4)]',
 }
 
@@ -41,8 +43,10 @@ const roleFilters: { label: string; value: Role | 'all' }[] = [
   { label: 'Tất cả', value: 'all' },
   { label: 'Người dùng', value: 'user' },
   { label: 'Manager', value: 'manager' },
+  { label: 'GĐDA', value: 'gdda' },
+  { label: 'ĐTLO', value: 'dtlo' },
   { label: 'Admin', value: 'admin' },
-  { label: 'Support Admin', value: 'support_admin' },
+  { label: 'Suppor Admin', value: 'support_admin' },
 ]
 
 export default function AdminUsersPanel() {
@@ -51,6 +55,8 @@ export default function AdminUsersPanel() {
   const { logAudit } = useAudit()
   const { pushNotification } = useNotifications()
   const allowedRoles = assignableRoles(role ?? 'admin')
+  /** Manager chỉ được xem thông tin người dùng — không được thêm/sửa/xóa/khóa/reset. */
+  const viewOnly = role === 'manager'
   const [showImportModal, setShowImportModal] = useState(false)
   const [importMessage, setImportMessage] = useState<string | null>(null)
 
@@ -261,15 +267,19 @@ export default function AdminUsersPanel() {
           </p>
         </div>
         <div className="flex flex-wrap items-center gap-3">
-          <button type="button" className={btnSecondaryClass} onClick={() => setShowImportModal(true)}>
-            Nhập từ Excel
-          </button>
           <button type="button" className={`inline-flex items-center gap-1.5 ${btnPrimaryClass}`} onClick={handleExportUsers}>
             <DownloadIcon size={15} /> Xuất Excel
           </button>
-          <button type="button" className={btnPrimaryClass} onClick={() => setShowAddUserForm(true)}>
-            + Thêm người dùng
-          </button>
+          {!viewOnly && (
+            <>
+              <button type="button" className={btnSecondaryClass} onClick={() => setShowImportModal(true)}>
+                Nhập từ Excel
+              </button>
+              <button type="button" className={btnPrimaryClass} onClick={() => setShowAddUserForm(true)}>
+                + Thêm người dùng
+              </button>
+            </>
+          )}
         </div>
       </div>
 
@@ -282,7 +292,7 @@ export default function AdminUsersPanel() {
         </div>
       )}
 
-      {selectedIds.length > 0 && (
+      {!viewOnly && selectedIds.length > 0 && (
         <div className="flex flex-wrap items-end gap-3 rounded-xl border border-[rgba(37,99,235,0.2)] bg-(--surface-tint) p-4">
           <div className="min-w-[220px] flex-1">
             <SearchableSelect
@@ -340,7 +350,11 @@ export default function AdminUsersPanel() {
 
         <div className="overflow-hidden overflow-x-auto rounded-2xl border border-[rgba(37,99,235,0.18)]">
           <div className={`${uRowGridClass} bg-[rgba(37,99,235,0.08)] text-xs font-extrabold tracking-[0.8px] text-(--gold-bright) uppercase`}>
-            <input type="checkbox" checked={allVisibleSelected} onChange={toggleSelectVisible} aria-label="Chọn trang này" />
+            {viewOnly ? (
+              <span />
+            ) : (
+              <input type="checkbox" checked={allVisibleSelected} onChange={toggleSelectVisible} aria-label="Chọn trang này" />
+            )}
             <SortableHeaderCell label="Họ tên" sortKey="name" activeKey={userSortKey} dir={userSortDir} onSort={handleUserSort} />
             <SortableHeaderCell label="Phòng" sortKey="room" activeKey={userSortKey} dir={userSortDir} onSort={handleUserSort} />
             <SortableHeaderCell label="Email" sortKey="email" activeKey={userSortKey} dir={userSortDir} onSort={handleUserSort} />
@@ -353,7 +367,11 @@ export default function AdminUsersPanel() {
           )}
           {visibleUsers.map((user) => (
             <div className={`${uRowGridClass} border-t border-(--hairline)`} key={user.id}>
-              <input type="checkbox" checked={selectedIds.includes(user.id)} onChange={() => toggleSelect(user.id)} aria-label={`Chọn ${user.name}`} />
+              {viewOnly ? (
+                <span />
+              ) : (
+                <input type="checkbox" checked={selectedIds.includes(user.id)} onChange={() => toggleSelect(user.id)} aria-label={`Chọn ${user.name}`} />
+              )}
               <HoverPreview text={`${user.room ?? 'Chưa gán phòng'}\n${user.email}\n${roleLabels[user.role]}`}>
                 <button
                   type="button"
@@ -384,38 +402,51 @@ export default function AdminUsersPanel() {
                 {formatPoints(userTotals.get(user.name) ?? 0)}
               </div>
               <div className="flex gap-2">
-                <button
-                  type="button"
-                  className="flex h-8 w-8 cursor-pointer items-center justify-center rounded-lg border border-[rgba(37,99,235,0.25)] bg-transparent text-(--gold-bright) hover:bg-[rgba(37,99,235,0.08)]"
-                  aria-label="Sửa người dùng"
-                  onClick={() => setEditingUser(user)}
-                >
-                  <EditIcon size={14} />
-                </button>
-                <button
-                  type="button"
-                  className="flex h-8 w-8 cursor-pointer items-center justify-center rounded-lg border border-[rgba(37,99,235,0.25)] bg-transparent text-(--gold-bright) hover:bg-[rgba(37,99,235,0.08)]"
-                  aria-label={user.accountStatus === 'locked' ? 'Mở khóa' : 'Khóa tài khoản'}
-                  onClick={() => handleToggleLock(user)}
-                >
-                  <LockIcon size={14} />
-                </button>
-                <button
-                  type="button"
-                  className="flex h-8 w-8 cursor-pointer items-center justify-center rounded-lg border border-[rgba(37,99,235,0.25)] bg-transparent text-(--gold-bright) hover:bg-[rgba(37,99,235,0.08)]"
-                  aria-label="Reset mật khẩu"
-                  onClick={() => handleResetPassword(user)}
-                >
-                  <KeyIcon size={14} />
-                </button>
-                <button
-                  type="button"
-                  className="flex h-8 w-8 cursor-pointer items-center justify-center rounded-lg border border-[rgba(217,122,108,0.3)] bg-transparent text-(--negative) hover:bg-[rgba(217,122,108,0.1)]"
-                  aria-label="Xóa người dùng"
-                  onClick={() => setDeletingUser(user)}
-                >
-                  <TrashIcon size={14} />
-                </button>
+                {viewOnly ? (
+                  <button
+                    type="button"
+                    className="flex h-8 w-8 cursor-pointer items-center justify-center rounded-lg border border-[rgba(37,99,235,0.25)] bg-transparent text-(--gold-bright) hover:bg-[rgba(37,99,235,0.08)]"
+                    aria-label="Xem chi tiết"
+                    onClick={() => setViewingUser(user)}
+                  >
+                    <SearchIcon size={14} />
+                  </button>
+                ) : (
+                  <>
+                    <button
+                      type="button"
+                      className="flex h-8 w-8 cursor-pointer items-center justify-center rounded-lg border border-[rgba(37,99,235,0.25)] bg-transparent text-(--gold-bright) hover:bg-[rgba(37,99,235,0.08)]"
+                      aria-label="Sửa người dùng"
+                      onClick={() => setEditingUser(user)}
+                    >
+                      <EditIcon size={14} />
+                    </button>
+                    <button
+                      type="button"
+                      className="flex h-8 w-8 cursor-pointer items-center justify-center rounded-lg border border-[rgba(37,99,235,0.25)] bg-transparent text-(--gold-bright) hover:bg-[rgba(37,99,235,0.08)]"
+                      aria-label={user.accountStatus === 'locked' ? 'Mở khóa' : 'Khóa tài khoản'}
+                      onClick={() => handleToggleLock(user)}
+                    >
+                      <LockIcon size={14} />
+                    </button>
+                    <button
+                      type="button"
+                      className="flex h-8 w-8 cursor-pointer items-center justify-center rounded-lg border border-[rgba(37,99,235,0.25)] bg-transparent text-(--gold-bright) hover:bg-[rgba(37,99,235,0.08)]"
+                      aria-label="Reset mật khẩu"
+                      onClick={() => handleResetPassword(user)}
+                    >
+                      <KeyIcon size={14} />
+                    </button>
+                    <button
+                      type="button"
+                      className="flex h-8 w-8 cursor-pointer items-center justify-center rounded-lg border border-[rgba(217,122,108,0.3)] bg-transparent text-(--negative) hover:bg-[rgba(217,122,108,0.1)]"
+                      aria-label="Xóa người dùng"
+                      onClick={() => setDeletingUser(user)}
+                    >
+                      <TrashIcon size={14} />
+                    </button>
+                  </>
+                )}
               </div>
             </div>
           ))}
@@ -431,7 +462,7 @@ export default function AdminUsersPanel() {
         )}
       </div>
 
-      <TrainingQrSection />
+      {!viewOnly && <TrainingQrSection />}
 
       {showImportModal && (
         <ImportExcelModal
@@ -473,6 +504,7 @@ export default function AdminUsersPanel() {
             setViewingUser(null)
           }}
           onDelete={() => setDeletingUser(viewingUser)}
+          readOnly={viewOnly}
         />
       )}
 

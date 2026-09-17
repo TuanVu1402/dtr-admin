@@ -61,6 +61,7 @@ const rawAdminSubmissions: AdminSubmission[] = [
     date: '12/09/2026',
     points: 5,
     status: 'approved',
+    imageDataUrl: '/demo/checkin1.webp',
   },
   {
     id: 'CK-0891',
@@ -70,6 +71,7 @@ const rawAdminSubmissions: AdminSubmission[] = [
     date: '10/09/2026',
     points: 1,
     status: 'pending',
+    imageDataUrl: '/demo/checkin2.jpg',
   },
   {
     id: 'TR-0512',
@@ -79,6 +81,7 @@ const rawAdminSubmissions: AdminSubmission[] = [
     date: '05/09/2026',
     points: 1,
     status: 'approved',
+    imageDataUrl: '/demo/checkin3.jpg',
   },
   {
     id: 'CL-0233',
@@ -88,6 +91,7 @@ const rawAdminSubmissions: AdminSubmission[] = [
     date: '02/09/2026',
     points: 1,
     status: 'rejected',
+    rejectReason: 'Clip chưa đủ thời lượng / nội dung chưa đạt yêu cầu duyệt.',
     link: 'https://youtube.com/watch?v=example',
   },
   {
@@ -98,6 +102,18 @@ const rawAdminSubmissions: AdminSubmission[] = [
     date: '28/08/2026',
     points: 4,
     status: 'approved',
+    imageDataUrl: '/demo/checkin4.jpg',
+  },
+  {
+    id: 'VP-1188',
+    userName: 'Lai Ngọc Tuyền',
+    categoryLabel: 'VPBH đặc biệt',
+    description: 'Check-in khách hàng tại Vin Cần Giờ',
+    date: '14/09/2026',
+    points: 1,
+    status: 'rejected',
+    rejectReason: 'Ảnh không thấy rõ khách hàng / không xác định được văn phòng bán hàng.',
+    imageDataUrl: '/demo/checkin5.jpg',
   },
   // Nguyễn Công Thiện
   {
@@ -378,5 +394,5 @@ function buildPlaceholderImage(label: string): string {
 }
 
 export const adminSubmissions: AdminSubmission[] = rawAdminSubmissions.map((s) =>
-  s.link ? s : { ...s, imageDataUrl: buildPlaceholderImage(s.categoryLabel) },
+  s.imageDataUrl || s.link ? s : { ...s, imageDataUrl: buildPlaceholderImage(s.categoryLabel) },
 )

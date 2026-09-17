@@ -20,7 +20,7 @@ const fieldInputClass =
   "w-full rounded-[10px] border border-[rgba(37,99,235,0.25)] bg-(--surface-tint) px-3.5 py-[11px] font-['Open_Sans',sans-serif] text-sm text-(--text-primary) placeholder:text-(--text-muted) focus:border-(--gold) focus:outline-none"
 const fieldLabelClass = 'text-[12.5px] font-bold text-(--text-secondary)'
 
-const roleOrder: Role[] = ['user', 'manager', 'admin', 'support_admin']
+const roleOrder: Role[] = ['user', 'manager', 'gdda', 'dtlo', 'admin', 'support_admin']
 
 export default function UserFormModal({ user, allowedRoles, onCancel, onSubmit }: UserFormModalProps) {
   const isEdit = Boolean(user)

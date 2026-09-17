@@ -10,15 +10,21 @@ export type Category = {
   number: string
   title: string
   description: string
-  icon: 'booking' | 'training' | 'clip' | 'checkin' | 'office'
+  icon: 'booking' | 'deal' | 'training' | 'clip' | 'megaphone' | 'checkin' | 'office' | 'pin'
   pointOptions: PointOption[]
   /** Loại minh chứng cần nộp: ảnh/tệp đính kèm hoặc một đường link (ví dụ link clip). Mặc định 'file'. */
   evidenceType?: 'file' | 'link'
   /** Nhãn nhỏ ghi rõ hạng mục chỉ áp dụng cho nhóm sales nào, ví dụ "Dành cho Sales DTLDN". */
   audienceTag?: string
+  /** Nhãn phụ thêm dưới tiêu đề, ví dụ "DN, NT, VT 0,5". */
+  audienceTags?: string[]
   /** Danh sách tên dự án/VPBH cụ thể, mỗi cái hiện thành 1 nhãn nhỏ riêng bên dưới tiêu đề —
    * bấm vào bất kỳ nhãn nào cũng mở form nộp minh chứng cho hạng mục này. */
   locationLabels?: string[]
+  /** Nộp bằng quét mã QR thay vì form minh chứng. */
+  qrCheckin?: boolean
+  /** Khi quét QR phải bật GPS / vị trí thiết bị. */
+  requireLocation?: boolean
   /** Tắt hạng mục thì sale không nộp được, QR Training cũng ẩn nếu tắt. */
   enabled?: boolean
 }
@@ -36,6 +42,9 @@ export type HistoryEntry = {
   imageDataUrl?: string
   /** Lý do từ chối — admin nhập khi bấm "Từ chối". */
   rejectReason?: string
+  appealNote?: string
+  appealImageDataUrl?: string
+  appealedAt?: string
 }
 
 export type PointBreakdown = {
@@ -43,14 +52,16 @@ export type PointBreakdown = {
   count: number
 }
 
-/** 4 vai trò trong hệ thống. */
-export type Role = 'user' | 'admin' | 'support_admin' | 'manager'
+/** Các vai trò trong hệ thống. */
+export type Role = 'user' | 'admin' | 'support_admin' | 'manager' | 'gdda' | 'dtlo'
 
 export const roleLabels: Record<Role, string> = {
   user: 'Người dùng',
   admin: 'Admin',
-  support_admin: 'Support Admin',
+  support_admin: 'Suppor Admin',
   manager: 'Manager',
+  gdda: 'GĐDA',
+  dtlo: 'ĐTLO',
 }
 
 export type AdminUser = {
@@ -75,7 +86,7 @@ export type FeedbackType = 'bug' | 'suggestion' | 'other'
 
 export const feedbackTypeLabels: Record<FeedbackType, string> = {
   bug: 'Báo lỗi',
-  suggestion: 'Góp ý cải thiện',
+  suggestion: 'Góp ý',
   other: 'Khác',
 }
 
@@ -93,4 +104,5 @@ export type FeedbackEntry = {
   reply?: string
   repliedAt?: string
   emailSentAt?: string
+  imageDataUrl?: string
 }

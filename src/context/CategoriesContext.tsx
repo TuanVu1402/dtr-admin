@@ -3,7 +3,7 @@ import { categories as seedCategories } from '../data/dtrData'
 import type { Category } from '../types/dtr'
 import { readShared, subscribeShared, writeShared } from '../utils/sharedStore'
 
-const STORAGE_KEY = 'dtr-categories'
+const STORAGE_KEY = 'dtr-categories-v10'
 
 type CategoriesContextValue = {
   categories: Category[]

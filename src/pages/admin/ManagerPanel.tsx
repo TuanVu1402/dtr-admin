@@ -16,6 +16,7 @@ import { SearchIcon } from '../../components/ui/icons'
 import Pagination from '../../components/ui/Pagination'
 import SearchableSelect from '../../components/form/SearchableSelect'
 import SortableHeaderCell, { compareValues, nextSortState, type SortDir } from '../../components/ui/SortableHeaderCell'
+import { clipApprovalCategoryLabel } from '../../utils/roles'
 
 type SubmissionSortKey = 'user' | 'category' | 'date' | 'points'
 
@@ -78,23 +79,30 @@ export default function ManagerPanel() {
   const [sortKey, setSortKey] = useState<SubmissionSortKey | null>(null)
   const [sortDir, setSortDir] = useState<SortDir>('asc')
 
+  /** GĐDA / ĐTLO chỉ được duyệt đúng 1 hạng mục clip chất lượng của mình. */
+  const restrictedCategoryLabel = role ? clipApprovalCategoryLabel[role] : undefined
+  const scopedSubmissions = useMemo(
+    () => (restrictedCategoryLabel ? submissions.filter((s) => s.categoryLabel === restrictedCategoryLabel) : submissions),
+    [submissions, restrictedCategoryLabel],
+  )
+
   const stats = useMemo(() => {
     return {
-      pending: submissions.filter((s) => s.status === 'pending').length,
-      approved: submissions.filter((s) => s.status === 'approved').length,
-      rejected: submissions.filter((s) => s.status === 'rejected').length,
+      pending: scopedSubmissions.filter((s) => s.status === 'pending').length,
+      approved: scopedSubmissions.filter((s) => s.status === 'approved').length,
+      rejected: scopedSubmissions.filter((s) => s.status === 'rejected').length,
     }
-  }, [submissions])
+  }, [scopedSubmissions])
 
   const userByName = useMemo(() => new Map(users.map((u) => [u.name, u])), [users])
 
   const categoryOptions = useMemo(
-    () => Array.from(new Set(submissions.map((s) => s.categoryLabel))).sort(),
-    [submissions],
+    () => Array.from(new Set(scopedSubmissions.map((s) => s.categoryLabel))).sort(),
+    [scopedSubmissions],
   )
   const userOptions = useMemo(
-    () => Array.from(new Set(submissions.map((s) => s.userName))).sort(),
-    [submissions],
+    () => Array.from(new Set(scopedSubmissions.map((s) => s.userName))).sort(),
+    [scopedSubmissions],
   )
   const roomOptions = useMemo(
     () => Array.from(new Set(users.map((u) => u.room).filter((room): room is string => Boolean(room)))).sort(),
@@ -103,7 +111,7 @@ export default function ManagerPanel() {
 
   const filteredSubmissions = useMemo(() => {
     const keyword = searchTerm.trim().toLowerCase()
-    return submissions.filter((s) => {
+    return scopedSubmissions.filter((s) => {
       if (statusFilter !== 'all' && s.status !== statusFilter) return false
       if (categoryFilter !== 'all' && s.categoryLabel !== categoryFilter) return false
       if (userFilter !== 'all' && s.userName !== userFilter) return false
@@ -114,7 +122,7 @@ export default function ManagerPanel() {
       }
       return true
     })
-  }, [submissions, statusFilter, categoryFilter, userFilter, roomFilter, searchTerm, userByName])
+  }, [scopedSubmissions, statusFilter, categoryFilter, userFilter, roomFilter, searchTerm, userByName])
 
   const sortedSubmissions = useMemo(() => {
     if (!sortKey) return filteredSubmissions
@@ -158,17 +166,21 @@ export default function ManagerPanel() {
             Chấm điểm minh chứng
           </div>
           <p className="m-0 text-sm font-medium text-(--text-tertiary) max-[640px]:hidden">
-            Xem minh chứng người dùng đã nộp và duyệt / từ chối để chấm điểm.
+            {restrictedCategoryLabel
+              ? `Chỉ duyệt hạng mục: ${restrictedCategoryLabel}`
+              : 'Xem minh chứng người dùng đã nộp và duyệt / từ chối để chấm điểm.'}
           </p>
         </div>
-        <div className="flex flex-wrap items-center gap-3">
-          <button type="button" className={btnSecondaryClass} onClick={() => setShowImportModal(true)}>
-            Nhập từ Excel
-          </button>
-          <button type="button" className={btnPrimaryClass} onClick={() => setShowManualForm(true)}>
-            + Thêm minh chứng
-          </button>
-        </div>
+        {!restrictedCategoryLabel && (
+          <div className="flex flex-wrap items-center gap-3">
+            <button type="button" className={btnSecondaryClass} onClick={() => setShowImportModal(true)}>
+              Nhập từ Excel
+            </button>
+            <button type="button" className={btnPrimaryClass} onClick={() => setShowManualForm(true)}>
+              + Thêm minh chứng
+            </button>
+          </div>
+        )}
       </div>
 
       {importMessage && (
@@ -231,21 +243,23 @@ export default function ManagerPanel() {
             />
           </div>
         </div>
-        <div className="flex min-w-[200px] flex-col gap-2 max-[640px]:min-w-full">
-          <label className={fieldLabelClass} htmlFor="filter-category">
-            Hạng mục
-          </label>
-          <SearchableSelect
-            id="filter-category"
-            value={categoryFilter}
-            onChange={setCategoryFilter}
-            placeholder="Nhập tên hạng mục..."
-            options={[
-              { value: 'all', label: 'Tất cả hạng mục' },
-              ...categoryOptions.map((label) => ({ value: label, label })),
-            ]}
-          />
-        </div>
+        {!restrictedCategoryLabel && (
+          <div className="flex min-w-[200px] flex-col gap-2 max-[640px]:min-w-full">
+            <label className={fieldLabelClass} htmlFor="filter-category">
+              Hạng mục
+            </label>
+            <SearchableSelect
+              id="filter-category"
+              value={categoryFilter}
+              onChange={setCategoryFilter}
+              placeholder="Nhập tên hạng mục..."
+              options={[
+                { value: 'all', label: 'Tất cả hạng mục' },
+                ...categoryOptions.map((label) => ({ value: label, label })),
+              ]}
+            />
+          </div>
+        )}
         <div className="flex min-w-[200px] flex-col gap-2 max-[640px]:min-w-full">
           <label className={fieldLabelClass} htmlFor="filter-user">
             Người nộp
@@ -318,7 +332,7 @@ export default function ManagerPanel() {
                     <button
                       type="button"
                       className="cursor-pointer border-none bg-none p-0 text-left font-inherit text-[13.5px] text-(--text-tertiary) underline decoration-dotted underline-offset-[3px] hover:text-(--gold-bright)"
-                      aria-label="Hover để xem ảnh minh chứng"
+                      aria-label="Xem ảnh minh chứng"
                       onClick={() => setSelectedSubmission(s)}
                     >
                       {s.description}

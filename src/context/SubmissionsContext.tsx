@@ -40,7 +40,7 @@ const USERS_KEY = 'dtr-users'
 // Tăng số này mỗi khi sửa dữ liệu mẫu (adminData.ts) — dữ liệu cũ trong localStorage của
 // trình duyệt sẽ tự bị bỏ qua và nạp lại dữ liệu mẫu mới nhất, khỏi cần người dùng tự xóa
 // localStorage thủ công mỗi lần demo có cập nhật.
-const DATA_VERSION = '13'
+const DATA_VERSION = '14'
 const VERSION_KEY = 'dtr-data-version'
 
 function loadFromStorage<T>(key: string, fallback: T): T {

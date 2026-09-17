@@ -10,17 +10,20 @@ type UserDetailModalProps = {
   onClose: () => void
   onEdit: () => void
   onDelete: () => void
+  readOnly?: boolean
 }
 
 const roleChipClass: Record<AdminUser['role'], string> = {
   user: 'bg-[rgba(159,176,201,0.14)] text-(--text-secondary) border-[rgba(159,176,201,0.35)]',
   admin: 'bg-[rgba(37,99,235,0.12)] text-(--gold-bright) border-[rgba(37,99,235,0.4)]',
   manager: 'bg-[rgba(76,175,130,0.14)] text-(--positive) border-[rgba(76,175,130,0.4)]',
+  gdda: 'bg-[rgba(184,134,11,0.14)] text-(--gold-bright) border-[rgba(184,134,11,0.4)]',
+  dtlo: 'bg-[rgba(124,58,237,0.14)] text-(--gold-bright) border-[rgba(124,58,237,0.4)]',
   support_admin: 'bg-[rgba(217,122,108,0.14)] text-(--negative) border-[rgba(217,122,108,0.4)]',
 }
 
 /** Xem đầy đủ thông tin của một người dùng — mở khi bấm vào tên/dòng trong bảng. */
-export default function UserDetailModal({ user, submissions, totalPoints, onClose, onEdit, onDelete }: UserDetailModalProps) {
+export default function UserDetailModal({ user, submissions, totalPoints, onClose, onEdit, onDelete, readOnly }: UserDetailModalProps) {
   const recent = submissions.slice(0, 6)
 
   return (
@@ -100,22 +103,24 @@ export default function UserDetailModal({ user, submissions, totalPoints, onClos
           )}
         </div>
 
-        <div className="mt-1 flex justify-end gap-3">
-          <button
-            type="button"
-            className="min-h-11 cursor-pointer rounded-[10px] border border-[rgba(217,122,108,0.4)] bg-[rgba(217,122,108,0.1)] px-5 py-[11px] font-['Open_Sans',sans-serif] text-[13.5px] font-bold text-(--negative)"
-            onClick={onDelete}
-          >
-            Xóa người dùng
-          </button>
-          <button
-            type="button"
-            className="min-h-11 cursor-pointer rounded-[10px] border-none bg-[linear-gradient(90deg,var(--gold-deep),var(--gold))] px-5 py-[11px] font-['Open_Sans',sans-serif] text-[13.5px] font-bold text-(--on-gold)"
-            onClick={onEdit}
-          >
-            Sửa thông tin
-          </button>
-        </div>
+        {!readOnly && (
+          <div className="mt-1 flex justify-end gap-3">
+            <button
+              type="button"
+              className="min-h-11 cursor-pointer rounded-[10px] border border-[rgba(217,122,108,0.4)] bg-[rgba(217,122,108,0.1)] px-5 py-[11px] font-['Open_Sans',sans-serif] text-[13.5px] font-bold text-(--negative)"
+              onClick={onDelete}
+            >
+              Xóa người dùng
+            </button>
+            <button
+              type="button"
+              className="min-h-11 cursor-pointer rounded-[10px] border-none bg-[linear-gradient(90deg,var(--gold-deep),var(--gold))] px-5 py-[11px] font-['Open_Sans',sans-serif] text-[13.5px] font-bold text-(--on-gold)"
+              onClick={onEdit}
+            >
+              Sửa thông tin
+            </button>
+          </div>
+        )}
       </div>
     </div>
   )

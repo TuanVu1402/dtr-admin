@@ -68,9 +68,11 @@ export default function AdminLayout() {
         </div>
         <p className="mt-1 max-w-[780px] text-[13px] leading-[1.6] text-(--text-tertiary) max-[640px]:hidden">
           Đăng nhập với vai trò nào thì chỉ thấy mục của vai trò đó.{' '}
-          <b className="text-(--gold-bright)">Manager</b> chấm điểm.{' '}
+          <b className="text-(--gold-bright)">Manager</b> chỉ xem thông tin người dùng.{' '}
+          <b className="text-(--gold-bright)">GĐDA</b> duyệt clip (GĐDA duyệt).{' '}
+          <b className="text-(--gold-bright)">ĐTLO</b> duyệt clip (ĐTLO duyệt).{' '}
           <b className="text-(--gold-bright)">Admin</b> quản lý user, QR, hạng mục.{' '}
-          <b className="text-(--gold-bright)">Support Admin</b> thấy toàn bộ menu.
+          <b className="text-(--gold-bright)">Suppor Admin</b> thấy toàn bộ menu.
         </p>
       </section>
 

@@ -161,6 +161,9 @@ export default function FeedbackPanel() {
             <div className="text-[13.5px] font-bold text-(--gold-bright)">{feedbackTypeLabels[f.type]}</div>
             <div className="text-[13.5px] leading-[1.5] text-(--text-primary)">
               {f.content}
+              {f.imageDataUrl ? (
+                <img src={f.imageDataUrl} alt="" className="mt-1.5 h-12 w-12 rounded-md object-cover" />
+              ) : null}
               {f.reply && <div className="mt-1 text-[12px] text-(--text-tertiary)">Trả lời: {f.reply}</div>}
             </div>
             <div className="text-[13.5px] text-(--text-tertiary)">{f.email ?? '—'}</div>
@@ -212,6 +215,9 @@ export default function FeedbackPanel() {
           >
             <div className="font-['Open_Sans',sans-serif] text-lg font-bold text-(--text-primary)">Xử lý phản hồi</div>
             <p className="m-0 text-[13.5px] text-(--text-secondary)">{working.content}</p>
+            {working.imageDataUrl ? (
+              <img src={working.imageDataUrl} alt="Ảnh đính kèm" className="max-h-40 w-full rounded-lg object-contain" />
+            ) : null}
             <SearchableSelect
               options={staff.map((u) => ({ value: u.name, label: u.name }))}
               value={assignee}

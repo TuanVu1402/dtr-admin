@@ -3,12 +3,14 @@ import { useSubmissions } from '../../context/SubmissionsContext'
 import { useAuth } from '../../context/AuthContext'
 import { useAudit } from '../../context/AuditContext'
 import { useNotifications } from '../../context/NotificationsContext'
-import { roleLabels, type AdminUser, type Role } from '../../types/dtr'
+import type { AdminUser, Role } from '../../types/dtr'
 import { formatPoints } from '../../utils/format'
 import UserAvatar from '../../components/ui/UserAvatar'
 import { exportCsv } from '../../utils/exportCsv'
 import { parseCsvText, parseRoleLabel, readFileAsText } from '../../utils/parseCsv'
-import { assignableRoles, generateTempPassword } from '../../utils/roles'
+import { generateTempPassword } from '../../utils/roles'
+import { usePermissions } from '../../utils/usePermissions'
+import { useRoles } from '../../context/RolesContext'
 import ImportExcelModal from '../../components/modal/ImportExcelModal'
 import HoverPreview from '../../components/ui/HoverPreview'
 import Pagination from '../../components/ui/Pagination'
@@ -22,14 +24,7 @@ import TrainingQrSection from './TrainingQrSection'
 
 type UserSortKey = 'name' | 'room' | 'email' | 'role' | 'points'
 
-const roleChipClass: Record<Role, string> = {
-  user: 'bg-[rgba(159,176,201,0.14)] text-(--text-secondary) border-[rgba(159,176,201,0.35)]',
-  admin: 'bg-[rgba(37,99,235,0.12)] text-(--gold-bright) border-[rgba(37,99,235,0.4)]',
-  manager: 'bg-[rgba(76,175,130,0.14)] text-(--positive) border-[rgba(76,175,130,0.4)]',
-  gdda: 'bg-[rgba(184,134,11,0.14)] text-(--gold-bright) border-[rgba(184,134,11,0.4)]',
-  dtlo: 'bg-[rgba(124,58,237,0.14)] text-(--gold-bright) border-[rgba(124,58,237,0.4)]',
-  support_admin: 'bg-[rgba(217,122,108,0.14)] text-(--negative) border-[rgba(217,122,108,0.4)]',
-}
+import { roleChipClass } from '../../utils/roleChip'
 
 const btnSecondaryClass =
   "min-h-11 cursor-pointer rounded-[10px] border border-[rgba(37,99,235,0.3)] bg-transparent px-5 py-[11px] font-['Open_Sans',sans-serif] text-[13.5px] font-bold text-(--text-secondary)"
@@ -39,24 +34,28 @@ const uRowGridClass = 'grid min-w-[980px] grid-cols-[32px_1.3fr_1fr_1.5fr_0.9fr_
 
 const USERS_PAGE_SIZE = 10
 
-const roleFilters: { label: string; value: Role | 'all' }[] = [
-  { label: 'Tất cả', value: 'all' },
-  { label: 'Người dùng', value: 'user' },
-  { label: 'Manager', value: 'manager' },
-  { label: 'GĐDA', value: 'gdda' },
-  { label: 'ĐTLO', value: 'dtlo' },
-  { label: 'Admin', value: 'admin' },
-  { label: 'Suppor Admin', value: 'support_admin' },
-]
-
 export default function AdminUsersPanel() {
   const { submissions, users, addUser, addUsers, updateUser, deleteUser } = useSubmissions()
   const { role, profile } = useAuth()
+  const { roles, roleName } = useRoles()
   const { logAudit } = useAudit()
   const { pushNotification } = useNotifications()
-  const allowedRoles = assignableRoles(role ?? 'admin')
-  /** Manager chỉ được xem thông tin người dùng — không được thêm/sửa/xóa/khóa/reset. */
-  const viewOnly = role === 'manager'
+  const { can } = usePermissions()
+
+  const canCreate = can('users.create')
+  const canEdit = can('users.edit')
+  const canDelete = can('users.delete')
+  const canLock = can('users.lock')
+  const canResetPassword = can('users.resetPassword')
+  const canAssignRoom = can('users.assignRoom')
+  const canImport = can('users.import')
+  const canExport = can('users.export')
+  const canUseQr = can('qr.view')
+  /** Đổi vai trò người khác là quyền của module Phân quyền, không phải quản lý user. */
+  const canChangeRole = can('roles.assign')
+  const allowedRoles = canChangeRole ? roles.map((r) => r.id) : ['user']
+
+  const roleFilters = [{ label: 'Tất cả', value: 'all' }, ...roles.map((r) => ({ label: r.name, value: r.id }))]
   const [showImportModal, setShowImportModal] = useState(false)
   const [importMessage, setImportMessage] = useState<string | null>(null)
 
@@ -87,14 +86,20 @@ export default function AdminUsersPanel() {
     return Array.from(new Set(users.map((u) => u.room).filter((room): room is string => Boolean(room)))).sort()
   }, [users])
 
+  // Chỉ Super Admin mới thấy được tài khoản Super Admin — Admin không biết ai là quyền cao nhất.
+  const visibleAccounts = useMemo(
+    () => (canChangeRole ? users : users.filter((u) => u.role !== 'support_admin')),
+    [users, canChangeRole],
+  )
+
   const filteredUsers = useMemo(() => {
     const keyword = userSearch.trim().toLowerCase()
-    return users.filter((u) => {
+    return visibleAccounts.filter((u) => {
       if (roleFilter !== 'all' && u.role !== roleFilter) return false
       if (!keyword) return true
       return u.name.toLowerCase().includes(keyword) || u.email.toLowerCase().includes(keyword)
     })
-  }, [users, userSearch, roleFilter])
+  }, [visibleAccounts, userSearch, roleFilter])
 
   const sortedUsers = useMemo(() => {
     if (!userSortKey) return filteredUsers
@@ -107,13 +112,13 @@ export default function AdminUsersPanel() {
         case 'email':
           return u.email
         case 'role':
-          return roleLabels[u.role]
+          return roleName(u.role)
         case 'points':
           return userTotals.get(u.name) ?? 0
       }
     }
     return [...filteredUsers].sort((a, b) => compareValues(getValue(a), getValue(b), userSortDir))
-  }, [filteredUsers, userSortKey, userSortDir, userTotals])
+  }, [filteredUsers, userSortKey, userSortDir, userTotals, roleName])
 
   const userTotalPages = Math.max(1, Math.ceil(sortedUsers.length / USERS_PAGE_SIZE))
 
@@ -150,7 +155,7 @@ export default function AdminUsersPanel() {
 
   function handleEditUser(values: UserFormValues) {
     if (!editingUser) return
-    const nextRole = allowedRoles.includes(values.role) ? values.role : editingUser.role
+    const nextRole = canChangeRole && allowedRoles.includes(values.role) ? values.role : editingUser.role
     updateUser(editingUser.id, { name: values.name, email: values.email, role: nextRole, room: values.room || undefined })
     setEditingUser(null)
   }
@@ -244,11 +249,11 @@ export default function AdminUsersPanel() {
     exportCsv(
       `danh-sach-nguoi-dung-dtr-${new Date().toISOString().slice(0, 10)}.csv`,
       ['Họ tên', 'Phòng', 'Email', 'Vai trò', 'Trạng thái', 'Tổng điểm'],
-      users.map((u) => [
+      visibleAccounts.map((u) => [
         u.name,
         u.room ?? '—',
         u.email,
-        roleLabels[u.role],
+        roleName(u.role),
         u.accountStatus === 'locked' ? 'Khóa' : 'Hoạt động',
         formatPoints(userTotals.get(u.name) ?? 0),
       ]),
@@ -260,25 +265,29 @@ export default function AdminUsersPanel() {
       <div className="flex flex-wrap items-start justify-between gap-4">
         <div>
           <div className="m-0 font-['Open_Sans',sans-serif] text-[30px] font-extrabold max-[640px]:text-[22px] tracking-[0.5px] text-(--text-primary)">
-            Quản lý người dùng
+            Người dùng
           </div>
           <p className="m-0 text-sm font-medium text-(--text-tertiary) max-[640px]:hidden">
-            Khóa tài khoản, reset mật khẩu, gán phòng hàng loạt. Admin không tự nâng thành Support.
+            {canEdit
+              ? 'Khóa tài khoản, reset mật khẩu, gán phòng hàng loạt, tạo và quản lý mã QR.'
+              : 'Xem thông tin và điểm của từng người dùng. Bấm vào tên để xem chi tiết minh chứng.'}
           </p>
         </div>
         <div className="flex flex-wrap items-center gap-3">
-          <button type="button" className={`inline-flex items-center gap-1.5 ${btnPrimaryClass}`} onClick={handleExportUsers}>
-            <DownloadIcon size={15} /> Xuất Excel
-          </button>
-          {!viewOnly && (
-            <>
-              <button type="button" className={btnSecondaryClass} onClick={() => setShowImportModal(true)}>
-                Nhập từ Excel
-              </button>
-              <button type="button" className={btnPrimaryClass} onClick={() => setShowAddUserForm(true)}>
-                + Thêm người dùng
-              </button>
-            </>
+          {canExport && (
+            <button type="button" className={`inline-flex items-center gap-1.5 ${btnPrimaryClass}`} onClick={handleExportUsers}>
+              <DownloadIcon size={15} /> Xuất Excel
+            </button>
+          )}
+          {canImport && (
+            <button type="button" className={btnSecondaryClass} onClick={() => setShowImportModal(true)}>
+              Nhập từ Excel
+            </button>
+          )}
+          {canCreate && (
+            <button type="button" className={btnPrimaryClass} onClick={() => setShowAddUserForm(true)}>
+              + Thêm người dùng
+            </button>
           )}
         </div>
       </div>
@@ -292,7 +301,7 @@ export default function AdminUsersPanel() {
         </div>
       )}
 
-      {!viewOnly && selectedIds.length > 0 && (
+      {canAssignRoom && selectedIds.length > 0 && (
         <div className="flex flex-wrap items-end gap-3 rounded-xl border border-[rgba(37,99,235,0.2)] bg-(--surface-tint) p-4">
           <div className="min-w-[220px] flex-1">
             <SearchableSelect
@@ -329,31 +338,33 @@ export default function AdminUsersPanel() {
         </div>
 
         <div className="flex flex-wrap gap-2.5">
-          {roleFilters.map((filter) => (
-            <button
-              key={filter.value}
-              type="button"
-              className={`cursor-pointer rounded-full border px-4.5 py-2.5 font-inherit text-[13px] font-bold max-[640px]:px-3 max-[640px]:py-1.5 max-[640px]:text-[12.5px] ${
-                filter.value === roleFilter
-                  ? 'border-(--gold) bg-(--gold) text-(--on-gold)'
-                  : 'border-[rgba(37,99,235,0.25)] bg-transparent text-(--text-secondary)'
-              }`}
-              onClick={() => {
-                setRoleFilter(filter.value)
-                setUserPage(1)
-              }}
-            >
-              {filter.label}
-            </button>
-          ))}
+          {roleFilters
+            .filter((filter) => canChangeRole || filter.value !== 'support_admin')
+            .map((filter) => (
+              <button
+                key={filter.value}
+                type="button"
+                className={`cursor-pointer rounded-full border px-4.5 py-2.5 font-inherit text-[13px] font-bold max-[640px]:px-3 max-[640px]:py-1.5 max-[640px]:text-[12.5px] ${
+                  filter.value === roleFilter
+                    ? 'border-(--gold) bg-(--gold) text-(--on-gold)'
+                    : 'border-[rgba(37,99,235,0.25)] bg-transparent text-(--text-secondary)'
+                }`}
+                onClick={() => {
+                  setRoleFilter(filter.value)
+                  setUserPage(1)
+                }}
+              >
+                {filter.label}
+              </button>
+            ))}
         </div>
 
         <div className="overflow-hidden overflow-x-auto rounded-2xl border border-[rgba(37,99,235,0.18)]">
           <div className={`${uRowGridClass} bg-[rgba(37,99,235,0.08)] text-xs font-extrabold tracking-[0.8px] text-(--gold-bright) uppercase`}>
-            {viewOnly ? (
-              <span />
-            ) : (
+            {canAssignRoom ? (
               <input type="checkbox" checked={allVisibleSelected} onChange={toggleSelectVisible} aria-label="Chọn trang này" />
+            ) : (
+              <span />
             )}
             <SortableHeaderCell label="Họ tên" sortKey="name" activeKey={userSortKey} dir={userSortDir} onSort={handleUserSort} />
             <SortableHeaderCell label="Phòng" sortKey="room" activeKey={userSortKey} dir={userSortDir} onSort={handleUserSort} />
@@ -367,12 +378,12 @@ export default function AdminUsersPanel() {
           )}
           {visibleUsers.map((user) => (
             <div className={`${uRowGridClass} border-t border-(--hairline)`} key={user.id}>
-              {viewOnly ? (
-                <span />
-              ) : (
+              {canAssignRoom ? (
                 <input type="checkbox" checked={selectedIds.includes(user.id)} onChange={() => toggleSelect(user.id)} aria-label={`Chọn ${user.name}`} />
+              ) : (
+                <span />
               )}
-              <HoverPreview text={`${user.room ?? 'Chưa gán phòng'}\n${user.email}\n${roleLabels[user.role]}`}>
+              <HoverPreview text={`${user.room ?? 'Chưa gán phòng'}\n${user.email}\n${roleName(user.role)}`}>
                 <button
                   type="button"
                   className="flex cursor-pointer items-center gap-2.5 border-none bg-none p-0 text-left font-inherit hover:text-(--gold-bright)"
@@ -394,58 +405,56 @@ export default function AdminUsersPanel() {
               <div className="text-[13.5px] font-semibold text-(--text-secondary)">{user.room ?? '—'}</div>
               <div className="text-[13.5px] text-(--text-tertiary)">{user.email}</div>
               <div>
-                <span className={`inline-flex w-fit rounded-full border px-[13px] py-[7px] text-xs font-bold ${roleChipClass[user.role]}`}>
-                  {roleLabels[user.role]}
+                <span className={`inline-flex w-fit rounded-full border px-[13px] py-[7px] text-xs font-bold ${roleChipClass(user.role)}`}>
+                  {roleName(user.role)}
                 </span>
               </div>
               <div className="font-['Open_Sans',sans-serif] text-sm font-extrabold text-(--gold-bright)">
                 {formatPoints(userTotals.get(user.name) ?? 0)}
               </div>
               <div className="flex gap-2">
-                {viewOnly ? (
+                {canEdit && (
                   <button
                     type="button"
                     className="flex h-8 w-8 cursor-pointer items-center justify-center rounded-lg border border-[rgba(37,99,235,0.25)] bg-transparent text-(--gold-bright) hover:bg-[rgba(37,99,235,0.08)]"
-                    aria-label="Xem chi tiết"
-                    onClick={() => setViewingUser(user)}
+                    aria-label="Sửa người dùng"
+                    onClick={() => setEditingUser(user)}
                   >
-                    <SearchIcon size={14} />
+                    <EditIcon size={14} />
                   </button>
-                ) : (
-                  <>
-                    <button
-                      type="button"
-                      className="flex h-8 w-8 cursor-pointer items-center justify-center rounded-lg border border-[rgba(37,99,235,0.25)] bg-transparent text-(--gold-bright) hover:bg-[rgba(37,99,235,0.08)]"
-                      aria-label="Sửa người dùng"
-                      onClick={() => setEditingUser(user)}
-                    >
-                      <EditIcon size={14} />
-                    </button>
-                    <button
-                      type="button"
-                      className="flex h-8 w-8 cursor-pointer items-center justify-center rounded-lg border border-[rgba(37,99,235,0.25)] bg-transparent text-(--gold-bright) hover:bg-[rgba(37,99,235,0.08)]"
-                      aria-label={user.accountStatus === 'locked' ? 'Mở khóa' : 'Khóa tài khoản'}
-                      onClick={() => handleToggleLock(user)}
-                    >
-                      <LockIcon size={14} />
-                    </button>
-                    <button
-                      type="button"
-                      className="flex h-8 w-8 cursor-pointer items-center justify-center rounded-lg border border-[rgba(37,99,235,0.25)] bg-transparent text-(--gold-bright) hover:bg-[rgba(37,99,235,0.08)]"
-                      aria-label="Reset mật khẩu"
-                      onClick={() => handleResetPassword(user)}
-                    >
-                      <KeyIcon size={14} />
-                    </button>
-                    <button
-                      type="button"
-                      className="flex h-8 w-8 cursor-pointer items-center justify-center rounded-lg border border-[rgba(217,122,108,0.3)] bg-transparent text-(--negative) hover:bg-[rgba(217,122,108,0.1)]"
-                      aria-label="Xóa người dùng"
-                      onClick={() => setDeletingUser(user)}
-                    >
-                      <TrashIcon size={14} />
-                    </button>
-                  </>
+                )}
+                {canLock && (
+                  <button
+                    type="button"
+                    className="flex h-8 w-8 cursor-pointer items-center justify-center rounded-lg border border-[rgba(37,99,235,0.25)] bg-transparent text-(--gold-bright) hover:bg-[rgba(37,99,235,0.08)]"
+                    aria-label={user.accountStatus === 'locked' ? 'Mở khóa' : 'Khóa tài khoản'}
+                    onClick={() => handleToggleLock(user)}
+                  >
+                    <LockIcon size={14} />
+                  </button>
+                )}
+                {canResetPassword && (
+                  <button
+                    type="button"
+                    className="flex h-8 w-8 cursor-pointer items-center justify-center rounded-lg border border-[rgba(37,99,235,0.25)] bg-transparent text-(--gold-bright) hover:bg-[rgba(37,99,235,0.08)]"
+                    aria-label="Reset mật khẩu"
+                    onClick={() => handleResetPassword(user)}
+                  >
+                    <KeyIcon size={14} />
+                  </button>
+                )}
+                {canDelete && (
+                  <button
+                    type="button"
+                    className="flex h-8 w-8 cursor-pointer items-center justify-center rounded-lg border border-[rgba(217,122,108,0.3)] bg-transparent text-(--negative) hover:bg-[rgba(217,122,108,0.1)]"
+                    aria-label="Xóa người dùng"
+                    onClick={() => setDeletingUser(user)}
+                  >
+                    <TrashIcon size={14} />
+                  </button>
+                )}
+                {!canEdit && !canLock && !canResetPassword && !canDelete && (
+                  <span className="text-[12.5px] text-(--text-muted)">Chỉ xem</span>
                 )}
               </div>
             </div>
@@ -462,7 +471,7 @@ export default function AdminUsersPanel() {
         )}
       </div>
 
-      {!viewOnly && <TrainingQrSection />}
+      {canUseQr && <TrainingQrSection />}
 
       {showImportModal && (
         <ImportExcelModal
@@ -481,13 +490,19 @@ export default function AdminUsersPanel() {
       )}
 
       {showAddUserForm && (
-        <UserFormModal allowedRoles={allowedRoles} onCancel={() => setShowAddUserForm(false)} onSubmit={handleAddUser} />
+        <UserFormModal
+          allowedRoles={allowedRoles}
+          roleLocked={!canChangeRole}
+          onCancel={() => setShowAddUserForm(false)}
+          onSubmit={handleAddUser}
+        />
       )}
 
       {editingUser && (
         <UserFormModal
           user={editingUser}
           allowedRoles={allowedRoles.includes(editingUser.role) ? allowedRoles : [...allowedRoles, editingUser.role]}
+          roleLocked={!canChangeRole}
           onCancel={() => setEditingUser(null)}
           onSubmit={handleEditUser}
         />
@@ -504,7 +519,7 @@ export default function AdminUsersPanel() {
             setViewingUser(null)
           }}
           onDelete={() => setDeletingUser(viewingUser)}
-          readOnly={viewOnly}
+          readOnly={!canEdit && !canDelete}
         />
       )}
 

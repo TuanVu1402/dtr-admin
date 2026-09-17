@@ -1,5 +1,6 @@
 import { useState, type FormEvent } from 'react'
-import { roleLabels, type AdminUser, type Role } from '../../types/dtr'
+import type { AdminUser, Role } from '../../types/dtr'
+import { useRoles } from '../../context/RolesContext'
 
 export type UserFormValues = {
   name: string
@@ -12,6 +13,8 @@ type UserFormModalProps = {
   /** Có user nghĩa là đang sửa, không có nghĩa là đang thêm mới. */
   user?: AdminUser
   allowedRoles: Role[]
+  /** Không có quyền "Quản lý role" thì chỉ xem được vai trò, không đổi được. */
+  roleLocked?: boolean
   onCancel: () => void
   onSubmit: (values: UserFormValues) => void
 }
@@ -20,9 +23,8 @@ const fieldInputClass =
   "w-full rounded-[10px] border border-[rgba(37,99,235,0.25)] bg-(--surface-tint) px-3.5 py-[11px] font-['Open_Sans',sans-serif] text-sm text-(--text-primary) placeholder:text-(--text-muted) focus:border-(--gold) focus:outline-none"
 const fieldLabelClass = 'text-[12.5px] font-bold text-(--text-secondary)'
 
-const roleOrder: Role[] = ['user', 'manager', 'gdda', 'dtlo', 'admin', 'support_admin']
-
-export default function UserFormModal({ user, allowedRoles, onCancel, onSubmit }: UserFormModalProps) {
+export default function UserFormModal({ user, allowedRoles, roleLocked, onCancel, onSubmit }: UserFormModalProps) {
+  const { roles, roleName } = useRoles()
   const isEdit = Boolean(user)
   const [name, setName] = useState(user?.name ?? '')
   const [email, setEmail] = useState(user?.email ?? '')
@@ -127,16 +129,20 @@ export default function UserFormModal({ user, allowedRoles, onCancel, onSubmit }
             </label>
             <select
               id="user-form-role"
-              className={`cursor-pointer ${fieldInputClass}`}
+              className={`${roleLocked ? 'cursor-not-allowed opacity-60' : 'cursor-pointer'} ${fieldInputClass}`}
               value={role}
+              disabled={roleLocked}
               onChange={(e) => setRole(e.target.value as Role)}
             >
-              {roleOrder.filter((r) => allowedRoles.includes(r)).map((r) => (
+              {roles.filter((r) => allowedRoles.includes(r.id)).map(({ id: r }) => (
                 <option key={r} value={r} className="bg-[#fdf8ec] text-[#0d1f3d]">
-                  {roleLabels[r]}
+                  {roleName(r)}
                 </option>
               ))}
             </select>
+            {roleLocked && (
+              <span className="text-[12px] text-(--text-tertiary)">Chỉ Super Admin đổi được vai trò.</span>
+            )}
           </div>
         </div>
 

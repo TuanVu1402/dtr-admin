@@ -1,6 +1,10 @@
 import { createContext, useContext, useEffect, useState, type ReactNode } from 'react'
 import { adminSubmissions, adminUsers } from '../data/adminData'
 import type { AdminSubmission, AdminUser, Role, SubmissionStatus } from '../types/dtr'
+import type { PermissionKey } from '../types/permission'
+import { roleCan } from '../utils/permissions'
+import { useAuth } from './AuthContext'
+import { useRoles } from './RolesContext'
 
 export type NewSubmissionInput = {
   userName: string
@@ -40,7 +44,7 @@ const USERS_KEY = 'dtr-users'
 // Tăng số này mỗi khi sửa dữ liệu mẫu (adminData.ts) — dữ liệu cũ trong localStorage của
 // trình duyệt sẽ tự bị bỏ qua và nạp lại dữ liệu mẫu mới nhất, khỏi cần người dùng tự xóa
 // localStorage thủ công mỗi lần demo có cập nhật.
-const DATA_VERSION = '14'
+const DATA_VERSION = '17'
 const VERSION_KEY = 'dtr-data-version'
 
 function loadFromStorage<T>(key: string, fallback: T): T {
@@ -89,6 +93,14 @@ function generateUserId() {
 }
 
 export function SubmissionsProvider({ children }: { children: ReactNode }) {
+  // Chốt chặn cuối ở tầng dữ liệu: ẩn nút trên giao diện là chưa đủ, ai gọi thẳng hàm
+  // qua DevTools vẫn phải bị chặn. Kiểm tra theo QUYỀN (module.action); PHẠM VI dữ liệu
+  // kiểm ở nơi gọi vì chỉ ở đó mới biết bản ghi thuộc hạng mục / phòng nào.
+  const { role } = useAuth()
+  const { roleById } = useRoles()
+  const actor = role ? roleById(role) : undefined
+  const guard = (key: PermissionKey) => roleCan(actor, key)
+
   const [submissions, setSubmissions] = useState<AdminSubmission[]>(() =>
     loadFromStorage(SUBMISSIONS_KEY, adminSubmissions),
   )
@@ -109,12 +121,14 @@ export function SubmissionsProvider({ children }: { children: ReactNode }) {
   }, [])
 
   function setStatus(id: string, status: SubmissionStatus) {
+    if (!guard('evidence.approve')) return
     setSubmissions((prev) =>
       prev.map((s) => (s.id === id ? { ...s, status, rejectReason: undefined } : s)),
     )
   }
 
   function rejectSubmission(id: string, reason: string) {
+    if (!guard('evidence.reject')) return
     setSubmissions((prev) =>
       prev.map((s) => (s.id === id ? { ...s, status: 'rejected', rejectReason: reason } : s)),
     )
@@ -127,6 +141,7 @@ export function SubmissionsProvider({ children }: { children: ReactNode }) {
   }
 
   function addSubmissions(inputs: NewSubmissionInput[]): number {
+    if (!guard('evidence.import')) return 0
     if (inputs.length === 0) return 0
     const rows = inputs.map((input) => ({ id: generateSubmissionId(), ...input }))
     setSubmissions((prev) => [...rows, ...prev])
@@ -140,6 +155,7 @@ export function SubmissionsProvider({ children }: { children: ReactNode }) {
   }
 
   function addUsers(inputs: { name: string; email: string; role?: Role; room?: string }[]): number {
+    if (!guard('users.import')) return 0
     const existingEmails = new Set(users.map((u) => u.email.toLowerCase()))
     const existingNames = new Set(users.map((u) => u.name.toLowerCase()))
     const fresh: AdminUser[] = []
@@ -168,6 +184,7 @@ export function SubmissionsProvider({ children }: { children: ReactNode }) {
   }
 
   function deleteUser(id: string) {
+    if (!guard('users.delete')) return
     setUsers((prev) => prev.filter((u) => u.id !== id))
   }
 

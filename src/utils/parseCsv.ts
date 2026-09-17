@@ -36,8 +36,9 @@ export function parseCsvText(text: string): string[][] {
 
 export function parseRoleLabel(text: string): Role {
   const n = text.trim().toLowerCase()
-  if (n.includes('support') || n.includes('suppor')) return 'support_admin'
-  if ((n === 'admin' || n.includes('quản trị')) && !n.includes('support') && !n.includes('suppor')) return 'admin'
+  const isSuper = n.includes('super') || n.includes('support') || n.includes('suppor')
+  if (isSuper) return 'support_admin'
+  if ((n === 'admin' || n.includes('quản trị')) && !isSuper) return 'admin'
   if (n.includes('gdda') || n.includes('gđda')) return 'gdda'
   if (n.includes('dtlo') || n.includes('đtlo')) return 'dtlo'
   if (n.includes('manager') || n.includes('quản lý')) return 'manager'

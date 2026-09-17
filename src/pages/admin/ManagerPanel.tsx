@@ -16,7 +16,9 @@ import { SearchIcon } from '../../components/ui/icons'
 import Pagination from '../../components/ui/Pagination'
 import SearchableSelect from '../../components/form/SearchableSelect'
 import SortableHeaderCell, { compareValues, nextSortState, type SortDir } from '../../components/ui/SortableHeaderCell'
-import { clipApprovalCategoryLabel } from '../../utils/roles'
+import { useCategories } from '../../context/CategoriesContext'
+import { approvalScopeNote, canDecideSubmission } from '../../utils/permissions'
+import { usePermissions } from '../../utils/usePermissions'
 
 type SubmissionSortKey = 'user' | 'category' | 'date' | 'points'
 
@@ -62,6 +64,7 @@ function actionBtnClass(kind: 'approve' | 'reject', state: 'active' | 'muted' | 
 
 export default function ManagerPanel() {
   const { submissions, users, setStatus, rejectSubmission, addSubmission, addSubmissions } = useSubmissions()
+  const { categories } = useCategories()
   const { role, profile } = useAuth()
   const { logAudit } = useAudit()
   const { pushNotification } = useNotifications()
@@ -79,30 +82,34 @@ export default function ManagerPanel() {
   const [sortKey, setSortKey] = useState<SubmissionSortKey | null>(null)
   const [sortDir, setSortDir] = useState<SortDir>('asc')
 
-  /** GĐDA / ĐTLO chỉ được duyệt đúng 1 hạng mục clip chất lượng của mình. */
-  const restrictedCategoryLabel = role ? clipApprovalCategoryLabel[role] : undefined
-  const scopedSubmissions = useMemo(
-    () => (restrictedCategoryLabel ? submissions.filter((s) => s.categoryLabel === restrictedCategoryLabel) : submissions),
-    [submissions, restrictedCategoryLabel],
+  // Ai có quyền "Xem minh chứng" đều thấy toàn bộ minh chứng; nút Duyệt / Từ chối mới bị giới hạn
+  // theo PHẠM VI DỮ LIỆU (hạng mục / phòng) mà vai trò được giao ở trang Phân quyền.
+  const { role: roleDef, can, inScope } = usePermissions()
+  const canCreate = can('evidence.create')
+  const canImport = can('evidence.import')
+
+  const approvableSubmissions = useMemo(
+    () => submissions.filter((s) => canDecideSubmission(roleDef, 'approve', s.categoryLabel, categories)),
+    [submissions, roleDef, categories],
   )
 
   const stats = useMemo(() => {
     return {
-      pending: scopedSubmissions.filter((s) => s.status === 'pending').length,
-      approved: scopedSubmissions.filter((s) => s.status === 'approved').length,
-      rejected: scopedSubmissions.filter((s) => s.status === 'rejected').length,
+      pending: approvableSubmissions.filter((s) => s.status === 'pending').length,
+      approved: approvableSubmissions.filter((s) => s.status === 'approved').length,
+      rejected: approvableSubmissions.filter((s) => s.status === 'rejected').length,
     }
-  }, [scopedSubmissions])
+  }, [approvableSubmissions])
 
   const userByName = useMemo(() => new Map(users.map((u) => [u.name, u])), [users])
 
   const categoryOptions = useMemo(
-    () => Array.from(new Set(scopedSubmissions.map((s) => s.categoryLabel))).sort(),
-    [scopedSubmissions],
+    () => Array.from(new Set(submissions.map((s) => s.categoryLabel))).sort(),
+    [submissions],
   )
   const userOptions = useMemo(
-    () => Array.from(new Set(scopedSubmissions.map((s) => s.userName))).sort(),
-    [scopedSubmissions],
+    () => Array.from(new Set(submissions.map((s) => s.userName))).sort(),
+    [submissions],
   )
   const roomOptions = useMemo(
     () => Array.from(new Set(users.map((u) => u.room).filter((room): room is string => Boolean(room)))).sort(),
@@ -111,7 +118,9 @@ export default function ManagerPanel() {
 
   const filteredSubmissions = useMemo(() => {
     const keyword = searchTerm.trim().toLowerCase()
-    return scopedSubmissions.filter((s) => {
+    return submissions.filter((s) => {
+      // Phạm vi phòng: vai trò chỉ được giao vài phòng thì không thấy minh chứng phòng khác.
+      if (!inScope('room', userByName.get(s.userName)?.room)) return false
       if (statusFilter !== 'all' && s.status !== statusFilter) return false
       if (categoryFilter !== 'all' && s.categoryLabel !== categoryFilter) return false
       if (userFilter !== 'all' && s.userName !== userFilter) return false
@@ -122,7 +131,7 @@ export default function ManagerPanel() {
       }
       return true
     })
-  }, [scopedSubmissions, statusFilter, categoryFilter, userFilter, roomFilter, searchTerm, userByName])
+  }, [submissions, statusFilter, categoryFilter, userFilter, roomFilter, searchTerm, userByName, inScope])
 
   const sortedSubmissions = useMemo(() => {
     if (!sortKey) return filteredSubmissions
@@ -166,12 +175,13 @@ export default function ManagerPanel() {
             Chấm điểm minh chứng
           </div>
           <p className="m-0 text-sm font-medium text-(--text-tertiary) max-[640px]:hidden">
-            {restrictedCategoryLabel
-              ? `Chỉ duyệt hạng mục: ${restrictedCategoryLabel}`
-              : 'Xem minh chứng người dùng đã nộp và duyệt / từ chối để chấm điểm.'}
+            Xem minh chứng người dùng đã nộp và duyệt / từ chối để chấm điểm.
+          </p>
+          <p className="m-0 mt-0.5 text-[13px] font-semibold text-(--gold-bright) max-[640px]:hidden">
+            {approvalScopeNote(roleDef, categories)}
           </p>
         </div>
-        {!restrictedCategoryLabel && (
+        {(canCreate || canImport) && (
           <div className="flex flex-wrap items-center gap-3">
             <button type="button" className={btnSecondaryClass} onClick={() => setShowImportModal(true)}>
               Nhập từ Excel
@@ -243,23 +253,21 @@ export default function ManagerPanel() {
             />
           </div>
         </div>
-        {!restrictedCategoryLabel && (
-          <div className="flex min-w-[200px] flex-col gap-2 max-[640px]:min-w-full">
-            <label className={fieldLabelClass} htmlFor="filter-category">
-              Hạng mục
-            </label>
-            <SearchableSelect
-              id="filter-category"
-              value={categoryFilter}
-              onChange={setCategoryFilter}
-              placeholder="Nhập tên hạng mục..."
-              options={[
-                { value: 'all', label: 'Tất cả hạng mục' },
-                ...categoryOptions.map((label) => ({ value: label, label })),
-              ]}
-            />
-          </div>
-        )}
+        <div className="flex min-w-[200px] flex-col gap-2 max-[640px]:min-w-full">
+          <label className={fieldLabelClass} htmlFor="filter-category">
+            Hạng mục
+          </label>
+          <SearchableSelect
+            id="filter-category"
+            value={categoryFilter}
+            onChange={setCategoryFilter}
+            placeholder="Nhập tên hạng mục..."
+            options={[
+              { value: 'all', label: 'Tất cả hạng mục' },
+              ...categoryOptions.map((label) => ({ value: label, label })),
+            ]}
+          />
+        </div>
         <div className="flex min-w-[200px] flex-col gap-2 max-[640px]:min-w-full">
           <label className={fieldLabelClass} htmlFor="filter-user">
             Người nộp
@@ -312,6 +320,8 @@ export default function ManagerPanel() {
             ? `${submitter.room ?? 'Chưa gán phòng'}\n${submitter.email}`
             : 'Chưa rõ thông tin người dùng'
           const descTooltip = `${s.description}\n\nNgày nộp: ${s.date} • Điểm: ${formatPoints(s.points)}`
+          const canDecideApprove = canDecideSubmission(roleDef, 'approve', s.categoryLabel, categories)
+          const canDecideReject = canDecideSubmission(roleDef, 'reject', s.categoryLabel, categories)
           return (
             <div className={`${sRowGridClass} border-t border-(--hairline)`} key={s.id}>
               <div className="flex items-center gap-2.5">
@@ -367,33 +377,40 @@ export default function ManagerPanel() {
               <div className="font-['Open_Sans',sans-serif] text-sm font-extrabold text-(--gold-bright)">
                 +{formatPoints(s.points)}
               </div>
-              <div className="flex gap-2">
-                <button
-                  type="button"
-                  className={actionBtnClass(
-                    'approve',
-                    s.status === 'approved' ? 'active' : s.status === 'rejected' ? 'muted' : '',
-                  )}
-                  onClick={() => {
-                    setStatus(s.id, 'approved')
-                    if (role) {
-                      logAudit({ actor: profile.name, actorRole: role, action: 'approve', target: s.userName, detail: s.categoryLabel })
-                      pushNotification({ kind: 'success', title: 'Đã duyệt minh chứng', description: `${s.userName} — ${s.categoryLabel}` })
-                    }
-                  }}
-                >
-                  Duyệt
-                </button>
-                <button
-                  type="button"
-                  className={actionBtnClass(
-                    'reject',
-                    s.status === 'rejected' ? 'active' : s.status === 'approved' ? 'muted' : '',
-                  )}
-                  onClick={() => setRejectingSubmission(s)}
-                >
-                  Từ chối
-                </button>
+              <div className="flex items-center gap-2">
+                {canDecideApprove && (
+                  <button
+                    type="button"
+                    className={actionBtnClass(
+                      'approve',
+                      s.status === 'approved' ? 'active' : s.status === 'rejected' ? 'muted' : '',
+                    )}
+                    onClick={() => {
+                      setStatus(s.id, 'approved')
+                      if (role) {
+                        logAudit({ actor: profile.name, actorRole: role, action: 'approve', target: s.userName, detail: s.categoryLabel })
+                        pushNotification({ kind: 'success', title: 'Đã duyệt minh chứng', description: `${s.userName} — ${s.categoryLabel}` })
+                      }
+                    }}
+                  >
+                    Duyệt
+                  </button>
+                )}
+                {canDecideReject && (
+                  <button
+                    type="button"
+                    className={actionBtnClass(
+                      'reject',
+                      s.status === 'rejected' ? 'active' : s.status === 'approved' ? 'muted' : '',
+                    )}
+                    onClick={() => setRejectingSubmission(s)}
+                  >
+                    Từ chối
+                  </button>
+                )}
+                {!canDecideApprove && !canDecideReject && (
+                  <span className="text-[12.5px] font-semibold text-(--text-muted)">Ngoài quyền duyệt của bạn</span>
+                )}
               </div>
             </div>
           )

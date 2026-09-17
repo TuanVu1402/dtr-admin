@@ -3,6 +3,7 @@ import { BrowserRouter, Navigate, Route, Routes, useLocation, useNavigate } from
 import AuthPage from './pages/AuthPage'
 import AdminLayout from './pages/admin/AdminLayout'
 import ManagerPanel from './pages/admin/ManagerPanel'
+import RolesPanel from './pages/admin/RolesPanel'
 import AdminUsersPanel from './pages/admin/AdminUsersPanel'
 import FeedbackPanel from './pages/admin/FeedbackPanel'
 import ReportsPanel from './pages/admin/ReportsPanel'
@@ -12,6 +13,7 @@ import CategoriesPanel from './pages/admin/CategoriesPanel'
 import AuditPanel from './pages/admin/AuditPanel'
 import RequireRole from './components/RequireRole'
 import { AuthProvider, useAuth } from './context/AuthContext'
+import { RolesProvider, useRoles } from './context/RolesContext'
 import { ThemeProvider } from './context/ThemeContext'
 import { TrainingSessionsProvider } from './context/TrainingSessionsContext'
 import { FeedbackProvider } from './context/FeedbackContext'
@@ -24,8 +26,10 @@ import type { Role } from './types/dtr'
 
 function AppShell() {
   const { role, login } = useAuth()
+  const { roleById } = useRoles()
   const navigate = useNavigate()
   const location = useLocation()
+  const roleDef = role ? roleById(role) : undefined
 
   useEffect(() => {
     if (!role && location.pathname !== '/') {
@@ -35,7 +39,7 @@ function AppShell() {
 
   function handleAuthenticated(nextRole: Role) {
     login(nextRole)
-    navigate(homePathForRole(nextRole))
+    navigate(homePathForRole(roleById(nextRole)))
   }
 
   if (!role) {
@@ -43,15 +47,15 @@ function AppShell() {
   }
 
   return (
-    <SubmissionsProvider>
-      <TrainingSessionsProvider>
-        <FeedbackProvider>
-          <CategoriesProvider>
+    <CategoriesProvider>
+      <SubmissionsProvider>
+        <TrainingSessionsProvider>
+          <FeedbackProvider>
             <NotificationsProvider>
               <AuditProvider>
                 <Routes>
                   <Route path="/" element={<AdminLayout />}>
-                    <Route index element={<Navigate to={homePathForRole(role).slice(1)} replace />} />
+                    <Route index element={<Navigate to={homePathForRole(roleDef).slice(1)} replace />} />
                     <Route
                       path="manager"
                       element={
@@ -102,6 +106,14 @@ function AppShell() {
                       }
                     />
                     <Route
+                      path="roles"
+                      element={
+                        <RequireRole>
+                          <RolesPanel />
+                        </RequireRole>
+                      }
+                    />
+                    <Route
                       path="settings"
                       element={
                         <RequireRole>
@@ -117,16 +129,16 @@ function AppShell() {
                         </RequireRole>
                       }
                     />
-                    <Route path="support" element={<Navigate to={homePathForRole(role)} replace />} />
+                    <Route path="support" element={<Navigate to={homePathForRole(roleDef)} replace />} />
                   </Route>
                   <Route path="*" element={<Navigate to="/" replace />} />
                 </Routes>
               </AuditProvider>
             </NotificationsProvider>
-          </CategoriesProvider>
-        </FeedbackProvider>
-      </TrainingSessionsProvider>
-    </SubmissionsProvider>
+          </FeedbackProvider>
+        </TrainingSessionsProvider>
+      </SubmissionsProvider>
+    </CategoriesProvider>
   )
 }
 
@@ -135,7 +147,9 @@ export default function App() {
     <ThemeProvider>
       <BrowserRouter>
         <AuthProvider>
-          <AppShell />
+          <RolesProvider>
+            <AppShell />
+          </RolesProvider>
         </AuthProvider>
       </BrowserRouter>
     </ThemeProvider>

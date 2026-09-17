@@ -3,7 +3,7 @@ import { categories as seedCategories } from '../data/dtrData'
 import type { Category } from '../types/dtr'
 import { readShared, subscribeShared, writeShared } from '../utils/sharedStore'
 
-const STORAGE_KEY = 'dtr-categories-v10'
+const STORAGE_KEY = 'dtr-categories-v11'
 
 type CategoriesContextValue = {
   categories: Category[]
@@ -13,14 +13,13 @@ type CategoriesContextValue = {
 
 const CategoriesContext = createContext<CategoriesContextValue | null>(null)
 
+function withDefaults(c: Category): Category {
+  return { ...c, enabled: c.enabled !== false }
+}
+
 function normalize(raw: unknown): Category[] {
-  if (!Array.isArray(raw) || raw.length === 0) {
-    return seedCategories.map((c) => ({ ...c, enabled: c.enabled !== false }))
-  }
-  return raw.map((item) => {
-    const c = item as Category
-    return { ...c, enabled: c.enabled !== false }
-  })
+  if (!Array.isArray(raw) || raw.length === 0) return seedCategories.map(withDefaults)
+  return raw.map((item) => withDefaults(item as Category))
 }
 
 export function CategoriesProvider({ children }: { children: ReactNode }) {
@@ -42,7 +41,7 @@ export function CategoriesProvider({ children }: { children: ReactNode }) {
   }
 
   function resetCategories() {
-    setCategories(seedCategories.map((c) => ({ ...c, enabled: true })))
+    setCategories(seedCategories.map((c) => withDefaults({ ...c, enabled: true })))
   }
 
   return (

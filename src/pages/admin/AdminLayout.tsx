@@ -4,15 +4,17 @@ import BrandLogo from '../../components/ui/BrandLogo'
 import NotificationsMenu from '../../components/layout/NotificationsMenu'
 import UserMenu from '../../components/layout/UserMenu'
 import { useAuth } from '../../context/AuthContext'
+import { useRoles } from '../../context/RolesContext'
 import { useTheme } from '../../context/ThemeContext'
 import { getInitials } from '../../utils/format'
-import { appTabs } from '../../utils/roles'
+import { tabsForRole } from '../../utils/roles'
 
 export default function AdminLayout() {
   const { logout, profile, role } = useAuth()
+  const { roleById, roleName } = useRoles()
   const { theme, toggleTheme } = useTheme()
   const navigate = useNavigate()
-  const visibleTabs = appTabs.filter((tab) => role && tab.roles.includes(role))
+  const visibleTabs = tabsForRole(role ? roleById(role) : undefined)
 
   function handleLogout() {
     logout()
@@ -66,13 +68,10 @@ export default function AdminLayout() {
             </NavLink>
           ))}
         </div>
-        <p className="mt-1 max-w-[780px] text-[13px] leading-[1.6] text-(--text-tertiary) max-[640px]:hidden">
-          Đăng nhập với vai trò nào thì chỉ thấy mục của vai trò đó.{' '}
-          <b className="text-(--gold-bright)">Manager</b> chỉ xem thông tin người dùng.{' '}
-          <b className="text-(--gold-bright)">GĐDA</b> duyệt clip (GĐDA duyệt).{' '}
-          <b className="text-(--gold-bright)">ĐTLO</b> duyệt clip (ĐTLO duyệt).{' '}
-          <b className="text-(--gold-bright)">Admin</b> quản lý user, QR, hạng mục.{' '}
-          <b className="text-(--gold-bright)">Suppor Admin</b> thấy toàn bộ menu.
+        <p className="mt-1 max-w-[860px] text-[13px] leading-[1.6] text-(--text-tertiary) max-[640px]:hidden">
+          Đang đăng nhập với vai trò <b className="text-(--gold-bright)">{role ? roleName(role) : '—'}</b>. Menu và các
+          nút thao tác hiện theo đúng quyền của vai trò này — chỉnh ở trang{' '}
+          <b className="text-(--gold-bright)">Phân quyền</b>.
         </p>
       </section>
 

@@ -38,7 +38,7 @@ export default function ManualEntryForm({ onCancel, onSubmit }: ManualEntryFormP
     [categories],
   )
   // Chỉ những tài khoản vai trò "Người dùng" (sales) mới là người nộp minh chứng —
-  // Admin / Manager / GĐDA / ĐTLO / Suppor Admin là nhân sự vận hành, không nộp minh chứng.
+  // Admin / Manager / GĐDA / ĐTLO / Super Admin là nhân sự vận hành, không nộp minh chứng.
   const submitterUsers = users.filter((user) => user.role === 'user')
 
   const [selectedUser, setSelectedUser] = useState(submitterUsers[0]?.name ?? NEW_USER_VALUE)

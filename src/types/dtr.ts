@@ -52,17 +52,12 @@ export type PointBreakdown = {
   count: number
 }
 
-/** Các vai trò trong hệ thống. */
-export type Role = 'user' | 'admin' | 'support_admin' | 'manager' | 'gdda' | 'dtlo'
-
-export const roleLabels: Record<Role, string> = {
-  user: 'Người dùng',
-  admin: 'Admin',
-  support_admin: 'Suppor Admin',
-  manager: 'Manager',
-  gdda: 'GĐDA',
-  dtlo: 'ĐTLO',
-}
+/**
+ * Vai trò giờ là DỮ LIỆU (xem types/permission.ts + context/RolesContext.tsx), tạo mới được
+ * từ trang Phân quyền, nên đây chỉ là mã vai trò dạng chuỗi chứ không còn là union cố định.
+ * Lấy tên hiển thị bằng `useRoles().roleName(id)` — đừng tra bảng cứng.
+ */
+export type Role = string
 
 export type AdminUser = {
   id: string

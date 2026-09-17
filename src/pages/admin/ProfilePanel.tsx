@@ -1,6 +1,6 @@
 import { useState, type ChangeEvent, type FormEvent } from 'react'
 import { useAuth } from '../../context/AuthContext'
-import { roleLabels } from '../../types/dtr'
+import { useRoles } from '../../context/RolesContext'
 import { getInitials } from '../../utils/format'
 
 const fieldInputClass =
@@ -11,6 +11,7 @@ const btnPrimaryClass =
 
 export default function ProfilePanel() {
   const { role, profile, updateProfile } = useAuth()
+  const { roleName } = useRoles()
   const [name, setName] = useState(profile.name)
   const [email, setEmail] = useState(profile.email)
   const [avatarUrl, setAvatarUrl] = useState(profile.avatarUrl)
@@ -44,7 +45,7 @@ export default function ProfilePanel() {
           Hồ sơ cá nhân
         </div>
         <p className="m-0 text-sm font-medium text-(--text-tertiary) max-[640px]:hidden">
-          Thông tin tài khoản đang đăng nhập theo vai trò {roleLabels[role]}.
+          Thông tin tài khoản đang đăng nhập theo vai trò {roleName(role)}.
         </p>
       </div>
 
@@ -117,7 +118,7 @@ export default function ProfilePanel() {
         <div className="flex flex-col gap-2">
           <label className={fieldLabelClass}>Vai trò</label>
           <div className="w-fit rounded-full border border-[rgba(37,99,235,0.3)] bg-[rgba(37,99,235,0.08)] px-4 py-2 text-[13px] font-bold text-(--gold-bright)">
-            {roleLabels[role]}
+            {roleName(role)}
           </div>
           <p className="m-0 text-[12px] text-(--text-tertiary)">
             Vai trò do quản trị hệ thống gán, không tự đổi được ở đây.

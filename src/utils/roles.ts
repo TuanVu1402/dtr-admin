@@ -1,56 +1,49 @@
-import type { Role } from '../types/dtr'
+import { moduleRegistry, type ModuleKey, type RoleDefinition } from '../types/permission'
+import { roleCanUseModule } from './permissions'
 
 export const DEFAULT_DEMO_PASSWORD = '123456'
 
 export type AppTab = {
   to: string
   label: string
-  roles: Role[]
+  moduleKey: ModuleKey
 }
 
-/** Nhãn hạng mục clip mà mỗi vai trò duyệt viên được phép duyệt — phải khớp title trong dtrData.ts. */
-export const clipApprovalCategoryLabel: Partial<Record<Role, string>> = {
-  gdda: 'Sản xuất 1 clip chất lượng cho (GĐDA duyệt)',
-  dtlo: 'Sản xuất 1 clip chất lượng cho (ĐTLO duyệt)',
+/** Nhãn hiển thị trên menu — ngắn hơn tên module trong modal phân quyền. */
+const tabLabels: Partial<Record<ModuleKey, string>> = {
+  evidence: 'Chấm điểm',
+  users: 'Người dùng',
+  categories: 'Hạng mục',
+  feedback: 'Phản hồi',
+  reports: 'Báo cáo',
+  audit: 'Nhật ký',
+  roles: 'Phân quyền',
 }
 
-export const appTabs: AppTab[] = [
-  { to: 'manager', label: 'Chấm điểm', roles: ['gdda', 'dtlo', 'support_admin'] },
-  { to: 'admin', label: 'Người dùng', roles: ['admin', 'support_admin', 'manager'] },
-  { to: 'categories', label: 'Hạng mục', roles: ['admin', 'support_admin'] },
-  { to: 'feedback', label: 'Phản hồi', roles: ['admin', 'support_admin'] },
-  { to: 'reports', label: 'Thống kê', roles: ['admin', 'support_admin'] },
-  { to: 'audit', label: 'Nhật ký', roles: ['admin', 'support_admin'] },
-]
+/** Menu sinh thẳng từ registry — thêm module mới là tự có tab, không sửa chỗ nào khác. */
+export const appTabs: AppTab[] = moduleRegistry
+  .filter((m) => Boolean(m.path))
+  .map((m) => ({ to: m.path as string, label: tabLabels[m.key] ?? m.label, moduleKey: m.key }))
 
-const extraPaths: Record<string, Role[]> = {
-  settings: ['manager', 'admin', 'gdda', 'dtlo', 'support_admin'],
-  profile: ['manager', 'admin', 'gdda', 'dtlo', 'support_admin'],
+/** Trang cá nhân ai đăng nhập cũng vào được — không gắn với quyền nghiệp vụ nào. */
+const selfServicePaths = ['settings', 'profile']
+
+export function tabsForRole(role: RoleDefinition | undefined): AppTab[] {
+  return appTabs.filter((tab) => roleCanUseModule(role, tab.moduleKey))
 }
 
-export function homePathForRole(role: Role): string {
-  if (role === 'gdda' || role === 'dtlo') return '/manager'
-  return '/admin'
+export function homePathForRole(role: RoleDefinition | undefined): string {
+  const first = tabsForRole(role)[0]
+  return first ? `/${first.to}` : '/profile'
 }
 
-export function rolesForPath(path: string): Role[] | null {
+export function canAccessPath(role: RoleDefinition | undefined, path: string): boolean {
   const slug = path.replace(/^\//, '').split('/')[0] || ''
+  if (selfServicePaths.includes(slug)) return true
   const tab = appTabs.find((t) => t.to === slug)
-  if (tab) return tab.roles
-  if (extraPaths[slug]) return extraPaths[slug]
-  return null
-}
-
-export function canAccessPath(role: Role, path: string): boolean {
-  const allowed = rolesForPath(path)
-  if (!allowed) return true
-  return allowed.includes(role)
-}
-
-export function assignableRoles(actor: Role): Role[] {
-  if (actor === 'support_admin') return ['user', 'manager', 'gdda', 'dtlo', 'admin', 'support_admin']
-  if (actor === 'admin') return ['user', 'manager', 'gdda', 'dtlo']
-  return []
+  // Không tìm thấy tab tương ứng thì chặn — an toàn hơn là mở.
+  if (!tab) return false
+  return roleCanUseModule(role, tab.moduleKey)
 }
 
 export function generateTempPassword() {

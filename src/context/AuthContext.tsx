@@ -8,9 +8,11 @@ export type UserProfile = {
   password?: string
 }
 
-type ProfilesMap = Record<Role, UserProfile>
+/** Khóa theo mã vai trò dạng chuỗi — vai trò tạo mới từ UI cũng có hồ sơ demo riêng. */
+type ProfilesMap = Record<string, UserProfile>
 
 const STORAGE_KEY = 'dtr-admin-profiles-v1'
+const DEFAULT_PROFILE_PASSWORD = '123456'
 
 const defaultProfiles: ProfilesMap = {
   admin: { name: 'Đỗ Thanh Hằng', email: 'hang.do@dtr.vn', password: '123456' },
@@ -25,7 +27,7 @@ function loadProfiles(): ProfilesMap {
   try {
     const raw = localStorage.getItem(STORAGE_KEY)
     if (!raw) return defaultProfiles
-    return { ...defaultProfiles, ...(JSON.parse(raw) as Partial<ProfilesMap>) }
+    return { ...defaultProfiles, ...(JSON.parse(raw) as ProfilesMap) }
   } catch {
     return defaultProfiles
   }
@@ -63,7 +65,12 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     })
   }
 
-  const profile = role ? profiles[role] : defaultProfiles.user
+  // Vai trò mới tạo chưa có hồ sơ demo — fallback theo mã vai trò thay vì undefined.
+  const profile = (role ? profiles[role] : undefined) ?? {
+    name: role ?? 'Người dùng',
+    email: '',
+    password: DEFAULT_PROFILE_PASSWORD,
+  }
 
   return (
     <AuthContext.Provider value={{ role, profile, login: setRole, logout: () => setRole(null), updateProfile }}>

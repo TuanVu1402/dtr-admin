@@ -45,6 +45,8 @@ export const adminUsers: AdminUser[] = [
   { id: 'u4', name: 'Phạm Quốc Huy', email: 'huy.pham@dtr.vn', role: 'manager', room: 'Phòng Quản lý' },
   { id: 'u5', name: 'Đỗ Thanh Hằng', email: 'hang.do@dtr.vn', role: 'admin', room: 'Phòng Vận hành' },
   { id: 'u6', name: 'Vũ Lan Anh', email: 'lananh.vu@dtr.vn', role: 'support_admin', room: 'Phòng Hỗ trợ' },
+  { id: 'u7', name: 'Nguyễn Minh Đức', email: 'duc.nguyen@dtr.vn', role: 'gdda', room: 'Phòng Dự án' },
+  { id: 'u8', name: 'Trần Thu Trang', email: 'trang.tran@dtr.vn', role: 'dtlo', room: 'Phòng Truyền thông' },
 ]
 
 /**
@@ -84,6 +86,16 @@ const rawAdminSubmissions: AdminSubmission[] = [
     imageDataUrl: '/demo/checkin3.jpg',
   },
   {
+    id: 'CL-0234',
+    userName: 'Lai Ngọc Tuyền',
+    categoryLabel: 'Clip GĐDA',
+    description: 'Clip review căn hộ mẫu The Marq',
+    date: '09/09/2026',
+    points: 1,
+    status: 'pending',
+    link: 'https://youtube.com/watch?v=example4',
+  },
+  {
     id: 'CL-0233',
     userName: 'Lai Ngọc Tuyền',
     categoryLabel: 'Clip DTLO',
@@ -107,7 +119,7 @@ const rawAdminSubmissions: AdminSubmission[] = [
   {
     id: 'VP-1188',
     userName: 'Lai Ngọc Tuyền',
-    categoryLabel: 'VPBH đặc biệt',
+    categoryLabel: 'Check-in với KH tại VPBH Vin Cần Giờ',
     description: 'Check-in khách hàng tại Vin Cần Giờ',
     date: '14/09/2026',
     points: 1,
@@ -153,6 +165,16 @@ const rawAdminSubmissions: AdminSubmission[] = [
     points: 1,
     status: 'approved',
     link: 'https://youtube.com/watch?v=example2',
+  },
+  {
+    id: 'CL-0251',
+    userName: 'Nguyễn Hoàng Long',
+    categoryLabel: 'Clip GĐDA',
+    description: 'Clip tiến độ thi công dự án Lumi Hà Nội',
+    date: '08/09/2026',
+    points: 1,
+    status: 'pending',
+    link: 'https://youtube.com/watch?v=example3',
   },
   // Nguyễn Hữu Thái
   {

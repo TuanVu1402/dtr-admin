@@ -1,11 +1,12 @@
 /** Nhật ký thao tác FE — duyệt, QR, khóa tài khoản. */
 import { useMemo, useState } from 'react'
 import { useAudit, auditActionLabels } from '../../context/AuditContext'
-import { roleLabels } from '../../types/dtr'
+import { useRoles } from '../../context/RolesContext'
 import { exportCsv } from '../../utils/exportCsv'
 
 export default function AuditPanel() {
   const { events } = useAudit()
+  const { roleName } = useRoles()
   const [keyword, setKeyword] = useState('')
 
   const filtered = useMemo(() => {
@@ -39,7 +40,7 @@ export default function AuditPanel() {
             exportCsv(
               `nhat-ky-dtr-${new Date().toISOString().slice(0, 10)}.csv`,
               ['Thời gian', 'Người thao tác', 'Vai trò', 'Hành động', 'Đối tượng', 'Chi tiết'],
-              filtered.map((e) => [e.at, e.actor, roleLabels[e.actorRole], auditActionLabels[e.action], e.target, e.detail ?? '']),
+              filtered.map((e) => [e.at, e.actor, roleName(e.actorRole), auditActionLabels[e.action], e.target, e.detail ?? '']),
             )
           }
         >
@@ -73,7 +74,7 @@ export default function AuditPanel() {
             <div className="text-[12.5px] text-(--text-secondary)">{e.at}</div>
             <div>
               <div className="text-[13px] font-bold text-(--text-primary)">{e.actor}</div>
-              <div className="text-[11.5px] text-(--text-muted)">{roleLabels[e.actorRole]}</div>
+              <div className="text-[11.5px] text-(--text-muted)">{roleName(e.actorRole)}</div>
             </div>
             <div className="text-[13px] font-bold text-(--gold-bright)">{auditActionLabels[e.action]}</div>
             <div className="text-[13px] text-(--text-primary)">{e.target}</div>

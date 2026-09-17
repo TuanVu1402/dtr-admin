@@ -1,8 +1,9 @@
 import { useState, type FormEvent } from 'react'
-import { BriefcaseIcon, ClipIcon, CrownIcon, MoonIcon, ShieldIcon, SunIcon } from '../components/ui/icons'
+import { BriefcaseIcon, ClipIcon, CrownIcon, MoonIcon, PersonIcon, ShieldIcon, SunIcon } from '../components/ui/icons'
 import BrandLogo from '../components/ui/BrandLogo'
 import { useTheme } from '../context/ThemeContext'
-import { roleLabels, type Role } from '../types/dtr'
+import { useRoles } from '../context/RolesContext'
+import type { Role } from '../types/dtr'
 
 type AuthTab = 'login' | 'forgot'
 
@@ -10,13 +11,14 @@ type AuthPageProps = {
   onAuthenticated: (role: Role) => void
 }
 
-const quickRoles: { role: Role; icon: typeof ShieldIcon }[] = [
-  { role: 'manager', icon: BriefcaseIcon },
-  { role: 'admin', icon: ShieldIcon },
-  { role: 'gdda', icon: ClipIcon },
-  { role: 'dtlo', icon: ClipIcon },
-  { role: 'support_admin', icon: CrownIcon },
-]
+/** Biểu tượng theo mã vai trò hệ thống; vai trò tự tạo dùng biểu tượng mặc định. */
+const roleIcons: Record<string, typeof ShieldIcon> = {
+  manager: BriefcaseIcon,
+  admin: ShieldIcon,
+  gdda: ClipIcon,
+  dtlo: ClipIcon,
+  support_admin: CrownIcon,
+}
 
 const fieldInputClass =
   "w-full rounded-[10px] border border-[rgba(37,99,235,0.25)] bg-(--surface-tint) px-3.5 py-[11px] font-['Open_Sans',sans-serif] text-sm text-(--text-primary) placeholder:text-(--text-muted) focus:border-(--gold) focus:outline-none"
@@ -31,6 +33,9 @@ export default function AuthPage({ onAuthenticated }: AuthPageProps) {
   const [resetEmail, setResetEmail] = useState('')
   const [resetSent, setResetSent] = useState(false)
   const { theme, toggleTheme } = useTheme()
+  const { roles } = useRoles()
+  // Vai trò 'user' là sales bên app User, không đăng nhập trang Admin.
+  const quickRoles = roles.filter((r) => r.id !== 'user')
 
   function handleLogin(e: FormEvent) {
     e.preventDefault()
@@ -90,17 +95,20 @@ export default function AuthPage({ onAuthenticated }: AuthPageProps) {
           {tab === 'login' ? (
             <>
               <div className="grid grid-cols-2 gap-2.5 max-[480px]:grid-cols-1">
-                {quickRoles.map(({ role, icon: Icon }) => (
-                  <button
-                    key={role}
-                    type="button"
-                    className="flex min-h-11 items-center gap-2 rounded-[10px] border border-[rgba(37,99,235,0.28)] bg-(--surface-tint) px-3 py-[11px] text-left font-['Open_Sans',sans-serif] text-[12.5px] font-bold text-(--text-primary) hover:border-(--gold) hover:bg-[rgba(37,99,235,0.12)]"
-                    onClick={() => onAuthenticated(role)}
-                  >
-                    <Icon size={18} />
-                    Vào với tài khoản {roleLabels[role]}
-                  </button>
-                ))}
+                {quickRoles.map((role) => {
+                  const Icon = roleIcons[role.id] ?? PersonIcon
+                  return (
+                    <button
+                      key={role.id}
+                      type="button"
+                      className="flex min-h-11 items-center gap-2 rounded-[10px] border border-[rgba(37,99,235,0.28)] bg-(--surface-tint) px-3 py-[11px] text-left font-['Open_Sans',sans-serif] text-[12.5px] font-bold text-(--text-primary) hover:border-(--gold) hover:bg-[rgba(37,99,235,0.12)]"
+                      onClick={() => onAuthenticated(role.id)}
+                    >
+                      <Icon size={18} />
+                      Vào với tài khoản {role.name}
+                    </button>
+                  )
+                })}
               </div>
 
               <div className="flex items-center gap-3 text-[11px] font-bold tracking-[1px] text-(--text-muted) before:h-px before:flex-1 before:bg-[rgba(37,99,235,0.18)] before:content-[''] after:h-px after:flex-1 after:bg-[rgba(37,99,235,0.18)] after:content-['']">

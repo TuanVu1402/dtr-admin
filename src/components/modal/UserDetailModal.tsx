@@ -1,4 +1,6 @@
-import { roleLabels, type AdminSubmission, type AdminUser } from '../../types/dtr'
+import type { AdminSubmission, AdminUser } from '../../types/dtr'
+import { useRoles } from '../../context/RolesContext'
+import { roleChipClass } from '../../utils/roleChip'
 import { formatPoints } from '../../utils/format'
 import UserAvatar from '../ui/UserAvatar'
 import StatusBadge from '../ui/StatusBadge'
@@ -8,22 +10,15 @@ type UserDetailModalProps = {
   submissions: AdminSubmission[]
   totalPoints: number
   onClose: () => void
-  onEdit: () => void
-  onDelete: () => void
+  /** Chỉ xem — ẩn nút Sửa / Xóa, dùng cho trang "Người dùng". */
   readOnly?: boolean
-}
-
-const roleChipClass: Record<AdminUser['role'], string> = {
-  user: 'bg-[rgba(159,176,201,0.14)] text-(--text-secondary) border-[rgba(159,176,201,0.35)]',
-  admin: 'bg-[rgba(37,99,235,0.12)] text-(--gold-bright) border-[rgba(37,99,235,0.4)]',
-  manager: 'bg-[rgba(76,175,130,0.14)] text-(--positive) border-[rgba(76,175,130,0.4)]',
-  gdda: 'bg-[rgba(184,134,11,0.14)] text-(--gold-bright) border-[rgba(184,134,11,0.4)]',
-  dtlo: 'bg-[rgba(124,58,237,0.14)] text-(--gold-bright) border-[rgba(124,58,237,0.4)]',
-  support_admin: 'bg-[rgba(217,122,108,0.14)] text-(--negative) border-[rgba(217,122,108,0.4)]',
+  onEdit?: () => void
+  onDelete?: () => void
 }
 
 /** Xem đầy đủ thông tin của một người dùng — mở khi bấm vào tên/dòng trong bảng. */
-export default function UserDetailModal({ user, submissions, totalPoints, onClose, onEdit, onDelete, readOnly }: UserDetailModalProps) {
+export default function UserDetailModal({ user, submissions, totalPoints, onClose, readOnly, onEdit, onDelete }: UserDetailModalProps) {
+  const { roleName } = useRoles()
   const recent = submissions.slice(0, 6)
 
   return (
@@ -45,9 +40,9 @@ export default function UserDetailModal({ user, submissions, totalPoints, onClos
                 {user.name}
               </div>
               <span
-                className={`mt-1 inline-flex w-fit rounded-full border px-[11px] py-[5px] text-[11.5px] font-bold ${roleChipClass[user.role]}`}
+                className={`mt-1 inline-flex w-fit rounded-full border px-[11px] py-[5px] text-[11.5px] font-bold ${roleChipClass(user.role)}`}
               >
-                {roleLabels[user.role]}
+                {roleName(user.role)}
               </span>
             </div>
           </div>

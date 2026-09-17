@@ -18,6 +18,10 @@ export type AuditAction =
   | 'update_category'
   | 'reply_feedback'
   | 'assign_room'
+  | 'change_role'
+  | 'create_role'
+  | 'update_role'
+  | 'delete_role'
 
 export type AuditEvent = {
   id: string
@@ -65,6 +69,10 @@ export const auditActionLabels: Record<AuditAction, string> = {
   update_category: 'Sửa hạng mục',
   reply_feedback: 'Trả lời phản hồi',
   assign_room: 'Gán phòng hàng loạt',
+  change_role: 'Đổi vai trò',
+  create_role: 'Tạo vai trò',
+  update_role: 'Sửa phân quyền',
+  delete_role: 'Xóa vai trò',
 }
 
 export function AuditProvider({ children }: { children: ReactNode }) {

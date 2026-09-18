@@ -136,8 +136,10 @@ export const moduleRegistry: ModuleDef[] = [
     scopeAxes: ['category'],
     actions: [
       { key: 'view', label: 'Xem' },
+      { key: 'create', label: 'Thêm hạng mục' },
       { key: 'edit', label: 'Sửa cấu hình điểm' },
       { key: 'toggle', label: 'Bật / Tắt hạng mục' },
+      { key: 'delete', label: 'Xóa hạng mục' },
       { key: 'reset', label: 'Khôi phục mặc định' },
     ],
   },

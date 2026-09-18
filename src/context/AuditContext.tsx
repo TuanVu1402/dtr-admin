@@ -15,7 +15,9 @@ export type AuditAction =
   | 'reset_password'
   | 'import_users'
   | 'import_submissions'
+  | 'create_category'
   | 'update_category'
+  | 'delete_category'
   | 'reply_feedback'
   | 'assign_room'
   | 'change_role'
@@ -66,7 +68,9 @@ export const auditActionLabels: Record<AuditAction, string> = {
   reset_password: 'Reset mật khẩu',
   import_users: 'Nhập user Excel',
   import_submissions: 'Nhập minh chứng Excel',
+  create_category: 'Thêm hạng mục',
   update_category: 'Sửa hạng mục',
+  delete_category: 'Xóa hạng mục',
   reply_feedback: 'Trả lời phản hồi',
   assign_room: 'Gán phòng hàng loạt',
   change_role: 'Đổi vai trò',

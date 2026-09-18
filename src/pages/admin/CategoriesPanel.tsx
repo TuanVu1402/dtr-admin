@@ -1,8 +1,10 @@
-/** Trang cấu hình hạng mục điểm (bật/tắt, sửa điểm). */
+/** Trang cấu hình hạng mục điểm (thêm, bật/tắt, sửa điểm, xóa). */
 import { useMemo, useState } from 'react'
 import { useCategories } from '../../context/CategoriesContext'
 import { useAudit } from '../../context/AuditContext'
 import { useAuth } from '../../context/AuthContext'
+import { usePermissions } from '../../utils/usePermissions'
+import ConfirmDialog from '../../components/modal/ConfirmDialog'
 import { formatPoints } from '../../utils/format'
 import type { Category } from '../../types/dtr'
 
@@ -10,16 +12,38 @@ const fieldInputClass =
   "w-full rounded-[10px] border border-[rgba(37,99,235,0.25)] bg-(--surface-tint) px-3.5 py-[11px] font-['Open_Sans',sans-serif] text-sm text-(--text-primary) focus:border-(--gold) focus:outline-none"
 const btnSecondaryClass =
   "min-h-11 cursor-pointer rounded-[10px] border border-[rgba(37,99,235,0.3)] bg-transparent px-5 py-[11px] font-['Open_Sans',sans-serif] text-[13.5px] font-bold text-(--text-secondary)"
+const btnPrimaryClass =
+  "min-h-11 cursor-pointer rounded-[10px] border-none bg-[linear-gradient(90deg,var(--gold-deep),var(--gold))] px-5 py-[11px] font-['Open_Sans',sans-serif] text-[13.5px] font-bold text-(--on-gold)"
+const btnDangerClass =
+  "min-h-11 cursor-pointer rounded-[10px] border border-[rgba(169,47,33,0.4)] bg-[rgba(169,47,33,0.08)] px-5 py-[11px] font-['Open_Sans',sans-serif] text-[13.5px] font-bold text-(--negative)"
 
 export default function CategoriesPanel() {
-  const { categories, updateCategory, resetCategories } = useCategories()
+  const { categories, addCategory, updateCategory, deleteCategory, resetCategories } = useCategories()
   const { logAudit } = useAudit()
   const { profile, role } = useAuth()
+  const { can } = usePermissions()
+  const canCreate = can('categories.create')
+  const canDelete = can('categories.delete')
   const [editingId, setEditingId] = useState<string | null>(null)
   const editing = useMemo(() => categories.find((c) => c.id === editingId) ?? null, [categories, editingId])
   const [title, setTitle] = useState('')
   const [description, setDescription] = useState('')
   const [pointsText, setPointsText] = useState('')
+  const [creating, setCreating] = useState(false)
+  const [newTitle, setNewTitle] = useState('')
+  const [newDescription, setNewDescription] = useState('')
+  const [newPointsText, setNewPointsText] = useState('')
+  const [createError, setCreateError] = useState('')
+  const [deleting, setDeleting] = useState<Category | null>(null)
+
+  function openCreate() {
+    setEditingId(null)
+    setNewTitle('')
+    setNewDescription('')
+    setNewPointsText('')
+    setCreateError('')
+    setCreating(true)
+  }
 
   function startEdit(category: Category) {
     setEditingId(category.id)
@@ -38,6 +62,43 @@ export default function CategoriesPanel() {
         const points = Number(String(pts ?? '0').replace(',', '.'))
         return { label: label || 'Điểm', points: Number.isFinite(points) ? points : 0 }
       })
+  }
+
+  function saveNew() {
+    if (!role) return
+    const name = newTitle.trim()
+    if (!name) {
+      setCreateError('Nhập tên hạng mục.')
+      return
+    }
+    const pointOptions = parsePoints(newPointsText)
+    if (pointOptions.length === 0) {
+      setCreateError('Nhập ít nhất một mức điểm, ví dụ: Booking:4, Giao dịch:5.')
+      return
+    }
+    const created = addCategory({ title: name, description: newDescription.trim(), pointOptions })
+    logAudit({
+      actor: profile.name,
+      actorRole: role,
+      action: 'create_category',
+      target: created.title,
+      detail: pointOptions.map((p) => `${p.label} ${p.points}`).join(', '),
+    })
+    setCreating(false)
+  }
+
+  function confirmDelete() {
+    if (!deleting || !role) return
+    deleteCategory(deleting.id)
+    logAudit({
+      actor: profile.name,
+      actorRole: role,
+      action: 'delete_category',
+      target: deleting.title,
+      detail: `Hạng mục ${deleting.number}`,
+    })
+    if (editingId === deleting.id) setEditingId(null)
+    setDeleting(null)
   }
 
   function saveEdit() {
@@ -63,13 +124,62 @@ export default function CategoriesPanel() {
             Hạng mục điểm
           </div>
           <p className="m-0 text-sm font-medium text-(--text-tertiary) max-[640px]:hidden">
-            Bật/tắt hạng mục, sửa điểm. Sale chỉ thấy hạng mục đang mở.
+            Thêm, bật/tắt, sửa điểm và xóa hạng mục. Sale chỉ thấy hạng mục đang mở.
           </p>
         </div>
-        <button type="button" className={btnSecondaryClass} onClick={resetCategories}>
-          Khôi phục mặc định
-        </button>
+        <div className="flex flex-wrap gap-2">
+          <button type="button" className={btnSecondaryClass} onClick={resetCategories}>
+            Khôi phục mặc định
+          </button>
+          {canCreate && (
+            <button type="button" className={btnPrimaryClass} onClick={openCreate}>
+              + Thêm hạng mục
+            </button>
+          )}
+        </div>
       </div>
+
+      {creating && (
+        <div className="flex flex-col gap-3 rounded-2xl border border-[rgba(37,99,235,0.28)] bg-(--surface-tint) p-5">
+          <div className="font-['Open_Sans',sans-serif] text-[15px] font-extrabold text-(--text-primary)">
+            Hạng mục mới
+          </div>
+          <input
+            className={fieldInputClass}
+            value={newTitle}
+            onChange={(e) => {
+              setNewTitle(e.target.value)
+              setCreateError('')
+            }}
+            placeholder="Tên hạng mục"
+          />
+          <textarea
+            className={`${fieldInputClass} min-h-[72px] resize-y`}
+            value={newDescription}
+            onChange={(e) => setNewDescription(e.target.value)}
+            placeholder="Mô tả ngắn hiển thị cho sales"
+          />
+          <input
+            className={fieldInputClass}
+            value={newPointsText}
+            onChange={(e) => {
+              setNewPointsText(e.target.value)
+              setCreateError('')
+            }}
+            placeholder="Booking:4, Giao dịch:5"
+          />
+          <p className="m-0 text-[12px] text-(--text-muted)">Định dạng: Nhãn:điểm, cách nhau bởi dấu phẩy.</p>
+          {createError && <p className="m-0 text-[12.5px] font-bold text-(--negative)">{createError}</p>}
+          <div className="flex gap-2">
+            <button type="button" className={btnSecondaryClass} onClick={() => setCreating(false)}>
+              Hủy
+            </button>
+            <button type="button" className={btnPrimaryClass} onClick={saveNew}>
+              Tạo hạng mục
+            </button>
+          </div>
+        </div>
+      )}
 
       <div className="flex flex-col gap-3">
         {categories.map((category) => {
@@ -130,6 +240,11 @@ export default function CategoriesPanel() {
                   <button type="button" className={btnSecondaryClass} onClick={() => startEdit(category)}>
                     Sửa điểm
                   </button>
+                  {canDelete && (
+                    <button type="button" className={btnDangerClass} onClick={() => setDeleting(category)}>
+                      Xóa
+                    </button>
+                  )}
                 </div>
               </div>
 
@@ -152,11 +267,7 @@ export default function CategoriesPanel() {
                     <button type="button" className={btnSecondaryClass} onClick={() => setEditingId(null)}>
                       Hủy
                     </button>
-                    <button
-                      type="button"
-                      className="min-h-11 cursor-pointer rounded-[10px] border-none bg-[linear-gradient(90deg,var(--gold-deep),var(--gold))] px-5 py-[11px] font-['Open_Sans',sans-serif] text-[13.5px] font-bold text-(--on-gold)"
-                      onClick={saveEdit}
-                    >
+                    <button type="button" className={btnPrimaryClass} onClick={saveEdit}>
                       Lưu
                     </button>
                   </div>
@@ -166,6 +277,17 @@ export default function CategoriesPanel() {
           )
         })}
       </div>
+
+      {deleting && (
+        <ConfirmDialog
+          title="Xóa hạng mục"
+          message={`Xóa "${deleting.title}"? Sales sẽ không còn nộp được minh chứng cho hạng mục này. Minh chứng đã nộp trước đó vẫn giữ nguyên.`}
+          confirmLabel="Xóa hạng mục"
+          danger
+          onCancel={() => setDeleting(null)}
+          onConfirm={confirmDelete}
+        />
+      )}
     </section>
   )
 }

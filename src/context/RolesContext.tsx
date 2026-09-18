@@ -4,7 +4,7 @@ import { defaultRoles, withSeededScopes } from '../data/roleDefaults'
 import type { ModuleKey, PermissionKey, RoleDefinition, ScopeAxis, ScopeSelection } from '../types/permission'
 import { readShared, subscribeShared, writeShared } from '../utils/sharedStore'
 
-const STORAGE_KEY = 'dtr-roles-v2'
+const STORAGE_KEY = 'dtr-roles-v3'
 
 type RolesContextValue = {
   roles: RoleDefinition[]

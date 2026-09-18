@@ -38,7 +38,7 @@ export const defaultRoles: RoleDefinition[] = [
       ...permsOf('evidence', 'view', 'approve', 'reject', 'create', 'import'),
       ...permsOf('users', 'view', 'create', 'edit', 'delete', 'lock', 'resetPassword', 'assignRoom', 'import', 'export'),
       ...permsOf('qr', 'view', 'create', 'toggle', 'checkin', 'delete', 'export'),
-      ...permsOf('categories', 'view', 'edit', 'toggle', 'reset'),
+      ...permsOf('categories', 'view', 'create', 'edit', 'toggle', 'delete', 'reset'),
       ...permsOf('feedback', 'view', 'reply', 'toggle', 'assign'),
       ...permsOf('reports', 'view', 'export', 'exportPdf'),
       ...permsOf('audit', 'view', 'export'),
